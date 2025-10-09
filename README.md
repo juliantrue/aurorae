@@ -14,6 +14,13 @@ This project scaffolds a desktop-friendly Next.js + Tauri application managed wi
 pnpm install
 ```
 
+## Database (Prisma + SQLite)
+
+- Copy `.env` or create your own with `DATABASE_URL="file:./prisma/dev.db"` to point Prisma at the bundled SQLite database.
+- Define your models in `prisma/schema.prisma`, then run `pnpm prisma:migrate` (for tracked migrations) or `pnpm prisma:db-push` (for prototyping) to sync the database.
+- Regenerate the Prisma Client with `pnpm prisma:generate` whenever the schema changes; the generated client is imported via `@prisma/client`.
+- Use the shared instance exported from `src/lib/prisma.ts` in your API routes or server components to avoid creating multiple database connections in development.
+
 ## Run in development
 
 - `pnpm dev` – run the Next.js web experience only.

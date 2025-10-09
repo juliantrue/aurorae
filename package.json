@@ -11,9 +11,14 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "tauri:build:frontend": "pnpm build && pnpm export"
+    "tauri:build:frontend": "pnpm build && pnpm export",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:db-push": "prisma db push"
   },
   "dependencies": {
+    "@prisma/client": "^6.17.0",
     "@tauri-apps/api": "^2.8.0",
     "next": "15.5.4",
     "react": "19.1.0",
@@ -27,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "prisma": "^6.17.0",
     "typescript": "^5"
   }
 }
