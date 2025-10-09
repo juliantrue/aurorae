@@ -1,0 +1,43 @@
+{
+  "name": "Installable App",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh/id_ed25519,target=/root/.ssh/id_ed25519,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh/id_ed25519.pub,target=/root/.ssh/id_ed25519.pub,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh/known_hosts.old,target=/root/.ssh/known_hosts.old,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh/known_hosts,target=/root/.ssh/known_hosts,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.codex,target=/root/.codex,type=bind"
+  ],
+  "postCreateCommand": "",
+  "forwardPorts": [4000],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.autoSave": "onFocusChange"
+      },
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "visualstudioexptteam.vscodeintellicode",
+        "ms-vscode-remote.vscode-remote-extensionpack",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "Prisma.prisma",
+        "github.vscode-github-actions",
+        "william-voyek.vscode-nginx",
+        "ms-playwright.playwright",
+        "YoavBls.pretty-ts-errors",
+        "dbaeumer.vscode-eslint",
+        "meganrogge.template-string-converter",
+        "Orta.vscode-jest",
+        "MylesMurphy.prettify-ts",
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "openai.chatgpt"
+      ]
+    }
+  }
+}

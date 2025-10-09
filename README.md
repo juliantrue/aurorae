@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Installable App
 
-## Getting Started
+This project scaffolds a desktop-friendly Next.js + Tauri application managed with pnpm. It also ships with a ready-to-use VS Code Dev Container for reproducible local environments.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js 20+ with pnpm (`curl -fsSL https://get.pnpm.io/install.sh | sh -`)
+- Rust toolchain (`rustup` with the stable profile)
+- Platform prerequisites for [Tauri 2](https://v2.tauri.app/start/prerequisites/) (WebKit/Gtk packages on Linux, Xcode command line tools on macOS, etc.)
+
+## Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Run in development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `pnpm dev` – run the Next.js web experience only.
+- `pnpm tauri:dev` – run the full desktop app (spawns the Next.js dev server and the Tauri shell).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The web UI is available at [http://localhost:3000](http://localhost:3000) and is proxied into the Tauri window during desktop development.
 
-## Learn More
+## Build for distribution
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm tauri:build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This script produces static web assets with `next build` + `next export`, then bundles platform-specific artifacts via Tauri into `src-tauri/target/`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Dev Container
 
-## Deploy on Vercel
+A ready-to-use container definition lives in `.devcontainer/devcontainer.json`. It includes Node.js, pnpm, Rust, and the system dependencies needed by Tauri, plus common VS Code extensions. Opening the project in VS Code with the Remote Containers extension will prompt you to reopen inside this environment.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project layout
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/` – Next.js App Router source.
+- `public/` – static assets for the web layer.
+- `src-tauri/` – Rust backend & Tauri configuration.
+- `pnpm-lock.yaml` – precise dependency lockfile.
+- `.devcontainer/` – development container definition.
+
+Refer to the official documentation for deeper customization:
+- [Next.js Docs](https://nextjs.org/docs)
+- [Tauri v2 Docs](https://v2.tauri.app/)
