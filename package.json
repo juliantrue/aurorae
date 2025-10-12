@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "init": "pnpm install && pnpm run prisma:db-push && pnpm run seed",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -12,17 +13,22 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "tauri:build:frontend": "pnpm build && pnpm export",
+    "seed": "pnpm run prisma:generate && tsx scripts/import-divinum-officium.ts",
+    "clean": "git clean -Xdf",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "prisma:db-push": "prisma db push"
+    "prisma:db-push": "prisma db push",
+    "liturgical:init": "(git submodule status vendor/divinum-officium >/dev/null 2>&1 || git submodule add https://github.com/DivinumOfficium/divinum-officium.git vendor/divinum-officium) && git submodule update --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout init --cone && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin",
+    "liturgical:update": "git submodule update --remote --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin"
   },
   "dependencies": {
     "@prisma/client": "^6.17.0",
     "@tauri-apps/api": "^2.8.0",
     "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "tsx": "^4.20.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
