@@ -20,7 +20,8 @@
     "prisma:studio": "prisma studio",
     "prisma:db-push": "prisma db push",
     "liturgical:init": "(git submodule status vendor/divinum-officium >/dev/null 2>&1 || git submodule add https://github.com/DivinumOfficium/divinum-officium.git vendor/divinum-officium) && git submodule update --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout init --cone && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin",
-    "liturgical:update": "git submodule update --remote --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin"
+    "liturgical:update": "git submodule update --remote --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin",
+    "test:liturgy": "tsx tests/divinum-officium/run-comparisons.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.17.0",
@@ -33,9 +34,13 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tauri-apps/cli": "^2.8.4",
+    "@types/cheerio": "^1.0.0",
+    "@types/diff": "^8.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cheerio": "^1.0.0",
+    "diff": "^5.2.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "prisma": "^6.17.0",
