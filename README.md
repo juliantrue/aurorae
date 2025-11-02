@@ -1,53 +1,23 @@
-# Installable App
+# Aurorae
 
-This project scaffolds a desktop-friendly Next.js + Tauri application managed with pnpm. It also ships with a ready-to-use VS Code Dev Container for reproducible local environments.
+Goal: make the hard work more accessible
 
-## Prerequisites
+- divinumofficium (Ref)
+- psalm tone generater (Ref)
+- gregorio + gregobase (Ref)
 
-- Node.js 20+ with pnpm (`curl -fsSL https://get.pnpm.io/install.sh | sh -`)
-- Rust toolchain (`rustup` with the stable profile)
-- Platform prerequisites for [Tauri 2](https://v2.tauri.app/start/prerequisites/) (WebKit/Gtk packages on Linux, Xcode command line tools on macOS, etc.)
+Aurorae stands on the shoulders of these giants to bring their hardwork to you.
 
-## Install dependencies
+## Core Approach
+- seperate data sources from software for easier editing and correction
+- create an access layer that will enable the next generation of software to make use of all the work done in these greate projects.
 
-```bash
-pnpm install
-```
+## Data Folder
+The data folder contains all the files that are used to populate the sqlite schema.
 
-## Database (Prisma + SQLite)
+## Test Suite
+Divinum Officium's custom database file structure is very difficult to parse, and perl is not my strongest language. Therefore I've included a test suite to ensure that the Aurorae project is in line with the gold standard for the next 100 years. 
 
-- Copy `.env` or create your own with `DATABASE_URL="file:./prisma/dev.db"` to point Prisma at the bundled SQLite database.
-- Define your models in `prisma/schema.prisma`, then run `pnpm prisma:migrate` (for tracked migrations) or `pnpm prisma:db-push` (for prototyping) to sync the database.
-- Regenerate the Prisma Client with `pnpm prisma:generate` whenever the schema changes; the generated client is imported via `@prisma/client`.
-- Use the shared instance exported from `src/lib/prisma.ts` in your API routes or server components to avoid creating multiple database connections in development.
-
-## Run in development
-
-- `pnpm dev` – run the Next.js web experience only.
-- `pnpm tauri:dev` – run the full desktop app (spawns the Next.js dev server and the Tauri shell).
-
-The web UI is available at [http://localhost:3000](http://localhost:3000) and is proxied into the Tauri window during desktop development.
-
-## Build for distribution
-
-```bash
-pnpm tauri:build
-```
-
-This script produces static web assets with `next build` + `next export`, then bundles platform-specific artifacts via Tauri into `src-tauri/target/`.
-
-## Dev Container
-
-A ready-to-use container definition lives in `.devcontainer/devcontainer.json`. It includes Node.js, pnpm, Rust, and the system dependencies needed by Tauri, plus common VS Code extensions. Opening the project in VS Code with the Remote Containers extension will prompt you to reopen inside this environment.
-
-## Project layout
-
-- `src/` – Next.js App Router source.
-- `public/` – static assets for the web layer.
-- `src-tauri/` – Rust backend & Tauri configuration.
-- `pnpm-lock.yaml` – precise dependency lockfile.
-- `.devcontainer/` – development container definition.
-
-Refer to the official documentation for deeper customization:
-- [Next.js Docs](https://nextjs.org/docs)
-- [Tauri v2 Docs](https://v2.tauri.app/)
+## Gregobase Corpus
+This is just so I don't lose the link
+https://github.com/bacor/gregobasecorpus/releases/tag/v0.4
