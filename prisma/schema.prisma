@@ -11,10 +11,12 @@ datasource db {
 // RITES AND VERSIONS
 // -----------------------------
 model Rite {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique // e.g. "Roman", "Ambrosian"
-  description String?
-  versions    RiteVersion[]
+  id             Int              @id @default(autoincrement())
+  name           String           @unique // e.g. "Roman", "Ambrosian"
+  description    String?
+  versions       RiteVersion[]
+  OratioCommunis OratioCommunis[]
+  Hora           Hora[]
 }
 
 model RiteVersion {
@@ -128,4 +130,231 @@ enum DiesHebdomadis {
   FeriaQuinta
   FeriaSexta
   Sabbatum
+}
+
+/**
+ * ================================================================
+ * UNIVERSAL TEXT CORPUS
+ * ================================================================
+ */
+
+model TextSource {
+  id          Int     @id @default(autoincrement())
+  code        String  @unique // "VULG", "AUG_SERM", etc.
+  title       String
+  author      String?
+  language    String // ISO code: "la", "en", etc.
+  category    String? // "Scripture", "Patristic", "Conciliar", etc.
+  description String?
+
+  sections TextSection[] // every source has ≥1 section
+  TextUnit TextUnit[]
+  Psalm    Psalm[]
+  Canticle Canticle[]
+  Reading  Reading[]
+}
+
+model TextSection {
+  id           Int        @id @default(autoincrement())
+  textSourceId Int
+  textSource   TextSource @relation(fields: [textSourceId], references: [id])
+
+  title    String
+  code     String? // "GEN", "JOH", "MAIN", etc.
+  order    Int? // canonical order within source
+  parentId Int?
+  parent   TextSection?  @relation("TextSectionParent", fields: [parentId], references: [id])
+  children TextSection[] @relation("TextSectionParent")
+
+  units TextUnit[]
+
+  @@unique([textSourceId, code])
+  @@index([textSourceId, order])
+}
+
+model TextUnit {
+  id           Int         @id @default(autoincrement())
+  textSourceId Int
+  textSource   TextSource  @relation(fields: [textSourceId], references: [id])
+  sectionId    Int
+  section      TextSection @relation(fields: [sectionId], references: [id])
+
+  sequence    Int // stable monotonic order
+  label       String? // "John 3:16", "§12", etc.
+  text        String
+  refExternal String? // optional external URI or key
+
+  psalmStart    Psalm[]    @relation("Start")
+  psalmEnd      Psalm[]    @relation("End")
+  canticleStart Canticle[] @relation("Start")
+  canticleEnd   Canticle[] @relation("End")
+  readingStart  Reading[]  @relation("Start")
+  readingEnd    Reading[]  @relation("End")
+
+  @@unique([sectionId, sequence])
+  @@index([textSourceId, sectionId, sequence])
+}
+
+/**
+ * ================================================================
+ * LITURGICAL BUILDING BLOCKS
+ * ================================================================
+ */
+
+model OratioCommunis {
+  id   Int    @id @default(autoincrement())
+  key  String @unique // "PATER_NOSTER", "AVE_MARIA", etc.
+  text String // full canonical Latin text
+
+  riteId Int? // optional link to rite/version
+  rite   Rite? @relation(fields: [riteId], references: [id])
+}
+
+model Psalm {
+  id       Int     @id @default(autoincrement())
+  number   Int? // e.g. 95
+  incipit  String? // "Venite, exsultemus Domino"
+  seqStart Int // cached startUnit.sequence
+  seqEnd   Int // cached endUnit.sequence
+
+  textSourceId Int
+  textSource   TextSource @relation(fields: [textSourceId], references: [id])
+
+  startUnitId Int
+  endUnitId   Int
+  startUnit   TextUnit @relation("Start", fields: [startUnitId], references: [id])
+  endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
+}
+
+model Canticle {
+  id       Int     @id @default(autoincrement())
+  key      String // "Magnificat", "Benedictus", etc.
+  source   String? // optional citation
+  seqStart Int
+  seqEnd   Int
+
+  textSourceId Int
+  textSource   TextSource @relation(fields: [textSourceId], references: [id])
+
+  startUnitId Int
+  endUnitId   Int
+  startUnit   TextUnit @relation("Start", fields: [startUnitId], references: [id])
+  endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
+}
+
+model Reading {
+  id        Int     @id @default(autoincrement())
+  reference String? // "Isaiah 40:1–11", "Sermo 25", etc.
+  seqStart  Int
+  seqEnd    Int
+
+  textSourceId Int
+  textSource   TextSource @relation(fields: [textSourceId], references: [id])
+
+  startUnitId Int
+  endUnitId   Int
+  startUnit   TextUnit @relation("Start", fields: [startUnitId], references: [id])
+  endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
+}
+
+model Hymn {
+  id    Int     @id @default(autoincrement())
+  title String
+  text  String?
+}
+
+model Antiphon {
+  id      Int     @id @default(autoincrement())
+  incipit String
+  text    String?
+}
+
+model Responsory {
+  id      Int     @id @default(autoincrement())
+  incipit String
+  text    String?
+}
+
+model Collect {
+  id      Int     @id @default(autoincrement())
+  incipit String
+  text    String?
+}
+
+model Benediction {
+  id   Int    @id @default(autoincrement())
+  text String
+}
+
+model Versicle {
+  id    Int    @id @default(autoincrement())
+  textV String
+  textR String
+}
+
+model Rubric {
+  id          Int    @id @default(autoincrement())
+  instruction String
+}
+
+/**
+ * ================================================================
+ * HORA STRUCTURE
+ * ================================================================
+ */
+model Hora {
+  id          Int     @id @default(autoincrement())
+  key         String  @unique // e.g. "MATUTINUM", "LAUDES", "VESPERS"
+  latinName   String // e.g. "Matutinum"
+  description String? // optional summary or rubric note
+
+  riteId Int? // which rite/version this Hour belongs to
+  rite   Rite? @relation(fields: [riteId], references: [id])
+
+  elements HoraElement[] // ordered components of the Hour
+}
+
+model HoraElement {
+  id     Int  @id @default(autoincrement())
+  horaId Int
+  hora   Hora @relation(fields: [horaId], references: [id])
+
+  order Int // order of appearance within the Hour
+  type  HoraElementType // the liturgical function ("Psalmus", "Lectio", etc.)
+
+  /**
+   * The polymorphic reference
+   */
+  blockType BlockTable // identifies which table the element points to
+  blockId   Int // ID in that table
+
+  note String? // optional editorial or rubric comment
+}
+
+enum HoraElementType {
+  Antiphona
+  Psalmus
+  Canticum
+  Lectio
+  Hymnus
+  Responsorium
+  Collecta
+  Benedictio
+  Versiculus
+  OratioCommunis
+  Rubrica
+}
+
+enum BlockTable {
+  Psalm
+  Canticle
+  Reading
+  Hymn
+  Antiphon
+  Responsory
+  Collect
+  Benediction
+  Versicle
+  OratioCommunis
+  Rubric
 }
