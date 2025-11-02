@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsoup2.4-dev \
     librsvg2-dev \
     libssl-dev \
+    ssh \
     xdg-utils \
     zip \
   && cpanm --notest CGI \
