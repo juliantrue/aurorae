@@ -1,5 +1,5 @@
 {
-  "name": "Installable App",
+  "name": "Aurorae",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
