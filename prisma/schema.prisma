@@ -16,7 +16,6 @@ model Rite {
   description    String?
   versions       RiteVersion[]
   OratioCommunis OratioCommunis[]
-  Hora           Hora[]
 }
 
 model RiteVersion {
@@ -37,8 +36,8 @@ model RiteVersion {
   movableFeasts MovableFeast[]
   fixedFeasts   FixedFeast[]
   seasonalDays  SeasonalDay[]
-  Season        Season[]
-  Rank          Rank[]
+  season        Season[]
+  rank          Rank[]
 }
 
 // ----------------------------------------------------------
@@ -86,6 +85,8 @@ model MovableFeast {
   rankId        Int
   rank          Rank        @relation(fields: [rankId], references: [id])
 
+  horae Hora[]
+
   @@unique([key, riteVersionId])
 }
 
@@ -101,6 +102,8 @@ model FixedFeast {
   riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
   rankId        Int
   rank          Rank        @relation(fields: [rankId], references: [id])
+
+  horae Hora[]
 
   @@unique([key, riteVersionId])
 }
@@ -118,6 +121,8 @@ model SeasonalDay {
   rank          Rank        @relation(fields: [rankId], references: [id])
   seasonId      Int
   season        Season      @relation(fields: [seasonId], references: [id])
+
+  horae Hora[]
 
   @@unique([key, riteVersionId])
 }
@@ -308,8 +313,13 @@ model Hora {
   latinName   String // e.g. "Matutinum"
   description String? // optional summary or rubric note
 
-  riteId Int? // which rite/version this Hour belongs to
-  rite   Rite? @relation(fields: [riteId], references: [id])
+  // Link Hora to calendar entities
+  fixedFeastId   Int?
+  fixedFeast     FixedFeast?   @relation(fields: [fixedFeastId], references: [id])
+  movableFeastId Int?
+  movableFeast   MovableFeast? @relation(fields: [movableFeastId], references: [id])
+  seasonalDayId  Int?
+  seasonalDay    SeasonalDay?  @relation(fields: [seasonalDayId], references: [id])
 
   elements HoraElement[] // ordered components of the Hour
 }
@@ -320,29 +330,12 @@ model HoraElement {
   hora   Hora @relation(fields: [horaId], references: [id])
 
   order Int // order of appearance within the Hour
-  type  HoraElementType // the liturgical function ("Psalmus", "Lectio", etc.)
 
-  /**
-   * The polymorphic reference
-   */
+  // The polymorphic reference
   blockType BlockTable // identifies which table the element points to
   blockId   Int // ID in that table
 
   note String? // optional editorial or rubric comment
-}
-
-enum HoraElementType {
-  Antiphona
-  Psalmus
-  Canticum
-  Lectio
-  Hymnus
-  Responsorium
-  Collecta
-  Benedictio
-  Versiculus
-  OratioCommunis
-  Rubrica
 }
 
 enum BlockTable {
