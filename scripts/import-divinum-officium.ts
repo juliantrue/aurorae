@@ -89,7 +89,7 @@ const MASS_METADATA_KEYS = METADATA_KEYS;
 
 const HOUR_PATTERNS: OfficeHourDefinition[] = [
   {
-    hour: OfficeHourEnum.MATINS,
+    hour: OfficeHourEnum.MATUTINUM,
     patterns: [
       /Matutin/i,
       /^Lectio/i,
@@ -103,27 +103,27 @@ const HOUR_PATTERNS: OfficeHourDefinition[] = [
     ]
   },
   {
-    hour: OfficeHourEnum.LAUDS,
+    hour: OfficeHourEnum.LAUDES,
     patterns: [/Laud/i, /^Benedictus/i, /^Psalmi Laudes/i, /^Ant Laudes/i, /^Preces Laudes/i]
   },
   {
-    hour: OfficeHourEnum.PRIME,
+    hour: OfficeHourEnum.PRIMA,
     patterns: [/Prima/i, /^Capitulum Prima/i, /^Psalmi Prima/i]
   },
   {
-    hour: OfficeHourEnum.TERCE,
+    hour: OfficeHourEnum.TERTIA,
     patterns: [/Tertia/i, /^Capitulum Tertia/i, /^Psalmi Tertia/i]
   },
   {
-    hour: OfficeHourEnum.SEXT,
+    hour: OfficeHourEnum.SEXTA,
     patterns: [/Sexta/i, /^Capitulum Sexta/i, /^Psalmi Sexta/i]
   },
   {
-    hour: OfficeHourEnum.NONE,
+    hour: OfficeHourEnum.NONA,
     patterns: [/Nona/i, /^Capitulum Nona/i, /^Psalmi Nona/i]
   },
   {
-    hour: OfficeHourEnum.VESPERS,
+    hour: OfficeHourEnum.VESPERAE,
     patterns: [
       /Vesper/i,
       /^Magnificat/i,
@@ -133,7 +133,7 @@ const HOUR_PATTERNS: OfficeHourDefinition[] = [
     ]
   },
   {
-    hour: OfficeHourEnum.COMPLINE,
+    hour: OfficeHourEnum.COMPLETORIUM,
     patterns: [/Completor/i, /^Ant Completorium/i, /^Hymnus Completorium/i]
   }
 ];
@@ -242,44 +242,44 @@ function inferSeason(folder: string, baseName: string): Season {
   if (folder === 'Sancti') {
     return inferSeasonFromSancti(baseName);
   }
-  return SeasonEnum.TIME_AFTER_PENTECOST;
+  return SeasonEnum.TEMPUS_POST_PENTECOSTEN;
 }
 
 function inferSeasonFromTempora(baseName: string): Season {
   const lower = baseName.toLowerCase();
 
-  if (lower.startsWith('adv')) return SeasonEnum.ADVENT;
-  if (lower.startsWith('nat')) return SeasonEnum.CHRISTMAS;
-  if (lower.startsWith('epip') || lower.startsWith('epi')) return SeasonEnum.EPIPHANY;
+  if (lower.startsWith('adv')) return SeasonEnum.ADVENTUS;
+  if (lower.startsWith('nat')) return SeasonEnum.NATIVITAS;
+  if (lower.startsWith('epip') || lower.startsWith('epi')) return SeasonEnum.EPIPHANIA;
   if (lower.startsWith('sept')) return SeasonEnum.SEPTUAGESIMA;
-  if (lower.startsWith('quadp')) return SeasonEnum.PASSIONTIDE;
-  if (lower.startsWith('quad')) return SeasonEnum.LENT;
-  if (lower.startsWith('pasc')) return SeasonEnum.EASTER;
-  if (lower.startsWith('pent')) return SeasonEnum.PENTECOST;
+  if (lower.startsWith('quadp')) return SeasonEnum.TEMPUS_PASSIONIS;
+  if (lower.startsWith('quad')) return SeasonEnum.QUADRAGESIMA;
+  if (lower.startsWith('pasc')) return SeasonEnum.PASCHA;
+  if (lower.startsWith('pent')) return SeasonEnum.PENTECOSTES;
 
   const numericPrefix = Number.parseInt(lower.slice(0, 3), 10);
   if (Number.isFinite(numericPrefix)) {
-    return SeasonEnum.TIME_AFTER_PENTECOST;
+    return SeasonEnum.TEMPUS_POST_PENTECOSTEN;
   }
 
-  return SeasonEnum.TIME_AFTER_PENTECOST;
+  return SeasonEnum.TEMPUS_POST_PENTECOSTEN;
 }
 
 function inferSeasonFromSancti(baseName: string): Season {
   const month = Number.parseInt(baseName.slice(0, 2), 10);
   if (!Number.isFinite(month)) {
-    return SeasonEnum.TIME_AFTER_PENTECOST;
+    return SeasonEnum.TEMPUS_POST_PENTECOSTEN;
   }
 
-  if (month === 12 || month === 1) return SeasonEnum.CHRISTMAS;
-  if (month === 2) return SeasonEnum.EPIPHANY;
+  if (month === 12 || month === 1) return SeasonEnum.NATIVITAS;
+  if (month === 2) return SeasonEnum.EPIPHANIA;
   if (month === 3) return SeasonEnum.SEPTUAGESIMA;
-  if (month === 4) return SeasonEnum.LENT;
-  if (month === 5) return SeasonEnum.EASTER;
-  if (month === 6) return SeasonEnum.PENTECOST;
-  if (month === 11) return SeasonEnum.ADVENT;
+  if (month === 4) return SeasonEnum.QUADRAGESIMA;
+  if (month === 5) return SeasonEnum.PASCHA;
+  if (month === 6) return SeasonEnum.PENTECOSTES;
+  if (month === 11) return SeasonEnum.ADVENTUS;
 
-  return SeasonEnum.TIME_AFTER_PENTECOST;
+  return SeasonEnum.TEMPUS_POST_PENTECOSTEN;
 }
 
 function mapRankDescriptorToEnum(descriptor: string | null): Rank {
@@ -332,8 +332,8 @@ function splitSectionsByHour(sections: Map<string, string>): Map<OfficeHour, Sec
   }
 
   if (unmatched.length > 0) {
-    const fallback = hourMap.get(OfficeHourEnum.MATINS) ?? [];
-    hourMap.set(OfficeHourEnum.MATINS, fallback.concat(unmatched));
+    const fallback = hourMap.get(OfficeHourEnum.MATUTINUM) ?? [];
+    hourMap.set(OfficeHourEnum.MATUTINUM, fallback.concat(unmatched));
   }
 
   return hourMap;
@@ -455,11 +455,11 @@ async function processFile(language: string, folder: string, fileName: string): 
     await prisma.office.create({
       data: {
         liturgicalDayId: liturgicalDay.id,
-        hour: OfficeHourEnum.MATINS,
+        hour: OfficeHourEnum.MATUTINUM,
         rubric: JSON.stringify(
           {
             ...baseMetadata,
-            hour: OfficeHourEnum.MATINS,
+            hour: OfficeHourEnum.MATUTINUM,
             sections: fallbackSections
           },
           null,

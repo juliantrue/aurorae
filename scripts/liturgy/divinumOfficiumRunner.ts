@@ -178,13 +178,12 @@ export async function runDivinumOfficium(
 }
 
 export const horaFromOfficeHour: Record<string, HoraCommand> = {
-  MATINS: 'Matutinum',
-  LAUDS: 'Laudes',
-  PRIME: 'Prima',
-  TERCE: 'Tertia',
-  SEXT: 'Sexta',
-  NONE: 'Nona',
-  VESPERS: 'Vesperae',
-  COMPLINE: 'Completorium'
+  MATUTINUM: 'Matutinum',
+  LAUDES: 'Laudes',
+  PRIMA: 'Prima',
+  TERTIA: 'Tertia',
+  SEXTA: 'Sexta',
+  NONA: 'Nona',
+  VESPERAE: 'Vesperae',
+  COMPLETORIUM: 'Completorium'
 };
-

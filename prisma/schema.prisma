@@ -7,249 +7,125 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ----------------------------------------------------------
-// ENUMS
-// ----------------------------------------------------------
-
-enum OfficeHour {
-  MATINS
-  LAUDS
-  PRIME
-  TERCE
-  SEXT
-  NONE
-  VESPERS
-  COMPLINE
-}
-
-enum Season {
-  ADVENT
-  CHRISTMAS
-  EPIPHANY
-  SEPTUAGESIMA
-  LENT
-  PASSIONTIDE
-  EASTER
-  PENTECOST
-  TIME_AFTER_PENTECOST
-}
-
-enum Rank {
-  DOUBLE
-  SEMIDOUBLE
-  SIMPLE
-  FEAST
-  SUNDAY
-  FERIA
-}
-
-// ----------------------------------------------------------
-// SCRIPTURE
-// ----------------------------------------------------------
-
-model BibleTranslation {
-  id           Int         @id @default(autoincrement())
-  name         String // e.g. "Douay-Rheims", "Clementine Vulgate"
-  language     String // e.g. "Latin", "English"
-  abbreviation String // e.g. "DRV", "VUL"
-  books        BibleBook[]
-}
-
-model BibleBook {
-  id            Int              @id @default(autoincrement())
-  translationId Int
-  translation   BibleTranslation @relation(fields: [translationId], references: [id])
-  name          String // e.g. "Genesis"
-  abbreviation  String // e.g. "Gen"
-  number        Int // canonical order 1–73
-  chapters      BibleChapter[]
-}
-
-model BibleChapter {
-  id     Int          @id @default(autoincrement())
-  bookId Int
-  book   BibleBook    @relation(fields: [bookId], references: [id])
-  number Int
-  verses BibleVerse[]
-}
-
-model BibleVerse {
-  id        Int          @id @default(autoincrement())
-  chapterId Int
-  chapter   BibleChapter @relation(fields: [chapterId], references: [id])
-  number    Int
-  text      String
-}
-
-// ----------------------------------------------------------
-// SOURCE METADATA
-// ----------------------------------------------------------
-
-model SourceMetadata {
-  id              Int     @id @default(autoincrement())
-  title           String // e.g. "Liber Usualis"
-  edition         String? // e.g. "1962"
-  publisher       String? // e.g. "Desclée"
-  publicationYear Int?
-  location        String? // e.g. "Tournai"
-  language        String? // e.g. "Latin"
-  url             String? // reference or facsimile
-  notes           String?
-
-  chants         Chant[]
-  hymns          Hymn[]
-  psalms         Psalm[]
-  massPropers    MassProper[]
-  massOrdinaries MassOrdinary[]
-  antiphons      Antiphon[]
-}
-
-// ----------------------------------------------------------
-// LITURGICAL CALENDAR
-// ----------------------------------------------------------
-
-model LiturgicalDay {
-  id          Int     @id @default(autoincrement())
-  slug        String? @unique
-  name        String
-  rank        Rank
-  season      Season
-  color       String?
+// -----------------------------
+// RITES AND VERSIONS
+// -----------------------------
+model Rite {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique // e.g. "Roman", "Ambrosian"
   description String?
-  isMovable   Boolean @default(true)
-  precedence  Int?
-
-  calendarMapping CalendarMapping[]
-  offices         Office[]
-  massPropers     MassProper[]
-  massOrdinaries  MassOrdinary[]
+  versions    RiteVersion[]
 }
 
-model CalendarMapping {
-  id              Int           @id @default(autoincrement())
-  gregorianDate   DateTime      @unique
-  liturgicalDayId Int
-  liturgicalDay   LiturgicalDay @relation(fields: [liturgicalDayId], references: [id])
-}
+model RiteVersion {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique // e.g. "rom1962", "rom1970", "rom2002"
+  name        String
+  promulgated DateTime? // promulgation date if known
+  notes       String?
 
-// ----------------------------------------------------------
-// DIVINE OFFICE
-// ----------------------------------------------------------
+  riteId Int
+  rite   Rite @relation(fields: [riteId], references: [id])
 
-model Psalm {
-  id                    Int                     @id @default(autoincrement())
-  number                Int
-  incipit               String?
-  text                  String
-  division              String?
-  sourceId              Int?
-  source                SourceMetadata?         @relation(fields: [sourceId], references: [id])
-  OfficePsalmAssignment OfficePsalmAssignment[]
-}
+  // Self-relation for inheritance
+  parentId Int?
+  parent   RiteVersion?  @relation("RiteVersionParent", fields: [parentId], references: [id])
+  children RiteVersion[] @relation("RiteVersionParent")
 
-model Hymn {
-  id                   Int                    @id @default(autoincrement())
-  title                String
-  incipit              String?
-  text                 String
-  meter                String?
-  doxology             String?
-  sourceId             Int?
-  source               SourceMetadata?        @relation(fields: [sourceId], references: [id])
-  chants               Chant[]
-  OfficeHymnAssignment OfficeHymnAssignment[]
-}
-
-model Office {
-  id               Int                     @id @default(autoincrement())
-  liturgicalDayId  Int
-  liturgicalDay    LiturgicalDay           @relation(fields: [liturgicalDayId], references: [id])
-  hour             OfficeHour
-  rubric           String?
-  psalmAssignments OfficePsalmAssignment[]
-  hymnAssignments  OfficeHymnAssignment[]
-  antiphons        Antiphon[]
-}
-
-model OfficePsalmAssignment {
-  id         Int     @id @default(autoincrement())
-  officeId   Int
-  office     Office  @relation(fields: [officeId], references: [id])
-  psalmId    Int
-  psalm      Psalm   @relation(fields: [psalmId], references: [id])
-  position   Int
-  verseRange String?
-}
-
-model OfficeHymnAssignment {
-  id       Int    @id @default(autoincrement())
-  officeId Int
-  office   Office @relation(fields: [officeId], references: [id])
-  hymnId   Int
-  hymn     Hymn   @relation(fields: [hymnId], references: [id])
-  position Int?
-}
-
-model Antiphon {
-  id       Int             @id @default(autoincrement())
-  officeId Int?
-  office   Office?         @relation(fields: [officeId], references: [id])
-  text     String
-  tone     String?
-  gabcId   Int?
-  chant    Chant?          @relation(fields: [gabcId], references: [id])
-  sourceId Int?
-  source   SourceMetadata? @relation(fields: [sourceId], references: [id])
+  movableFeasts MovableFeast[]
+  fixedFeasts   FixedFeast[]
+  seasonalDays  SeasonalDay[]
+  Season        Season[]
+  Rank          Rank[]
 }
 
 // ----------------------------------------------------------
-// MASS (OLD RITE)
+// CALENDAR
 // ----------------------------------------------------------
+model Season {
+  id            Int           @id @default(autoincrement())
+  key           String // e.g., "Quadragesimae"
+  latinName     String
+  vernacular    String? // optional English name
+  color         String? // liturgical color (e.g., "violet")
+  description   String?
+  riteVersionId Int
+  riteVersion   RiteVersion   @relation(fields: [riteVersionId], references: [id])
+  SeasonalDay   SeasonalDay[]
 
-model MassProper {
-  id              Int             @id @default(autoincrement())
-  liturgicalDayId Int
-  liturgicalDay   LiturgicalDay   @relation(fields: [liturgicalDayId], references: [id])
-  type            String // e.g. "Introit", "Gradual", "Offertory", "Communion"
-  text            String
-  chantId         Int?
-  chant           Chant?          @relation(fields: [chantId], references: [id])
-  sourceId        Int?
-  source          SourceMetadata? @relation(fields: [sourceId], references: [id])
+  @@unique([key, riteVersionId])
 }
 
-model MassOrdinary {
-  id              Int             @id @default(autoincrement())
-  name            String // e.g. "Missa de Angelis"
-  section         String // e.g. "Kyrie", "Gloria", "Sanctus"
-  text            String
-  chantId         Int?
-  chant           Chant?          @relation(fields: [chantId], references: [id])
-  sourceId        Int?
-  source          SourceMetadata? @relation(fields: [sourceId], references: [id])
-  LiturgicalDay   LiturgicalDay?  @relation(fields: [liturgicalDayId], references: [id])
-  liturgicalDayId Int?
+model Rank {
+  id            Int            @id @default(autoincrement())
+  key           String // e.g., "sollemnitas", "festum duplex majus"
+  latinName     String
+  vernacular    String?
+  precedence    Int? // numeric hierarchy, e.g., 1=highest
+  description   String?
+  riteVersionId Int
+  riteVersion   RiteVersion    @relation(fields: [riteVersionId], references: [id])
+  MovableFeast  MovableFeast[]
+  FixedFeast    FixedFeast[]
+  SeasonalDay   SeasonalDay[]
+
+  @@unique([key, riteVersionId])
 }
 
-// ----------------------------------------------------------
-// CHANT (GABC / MUSIC)
-// ----------------------------------------------------------
+model MovableFeast {
+  id               Int     @id @default(autoincrement())
+  key              String  @unique
+  name             String
+  offsetFromEaster Int
+  description      String?
 
-model Chant {
-  id       Int             @id @default(autoincrement())
-  title    String
-  gabc     String // full GABC notation
-  mode     String? // e.g. "Mode VIII"
-  clef     String? // e.g. "C2"
-  sourceId Int?
-  source   SourceMetadata? @relation(fields: [sourceId], references: [id])
-  audioUrl String? // optional chant audio
-  imageUrl String? // optional rendered score
+  riteVersionId Int
+  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
+  rankId        Int
+  rank          Rank        @relation(fields: [rankId], references: [id])
 
-  massOrdinary MassOrdinary[]
+  @@unique([key, riteVersionId])
+}
 
-  Hymn       Hymn?        @relation(fields: [hymnId], references: [id])
-  hymnId     Int?
-  Antiphon   Antiphon[]
-  MassProper MassProper[]
+model FixedFeast {
+  id          Int     @id @default(autoincrement())
+  key         String  @unique
+  name        String
+  month       Int
+  day         Int
+  description String?
+
+  riteVersionId Int
+  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
+  rankId        Int
+  rank          Rank        @relation(fields: [rankId], references: [id])
+
+  @@unique([key, riteVersionId])
+}
+
+model SeasonalDay {
+  id          Int            @id @default(autoincrement())
+  key         String         @unique
+  weekNumber  Int
+  weekday     DiesHebdomadis
+  description String?
+
+  riteVersionId Int
+  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
+  rankId        Int
+  rank          Rank        @relation(fields: [rankId], references: [id])
+  seasonId      Int
+  season        Season      @relation(fields: [seasonId], references: [id])
+
+  @@unique([key, riteVersionId])
+}
+
+enum DiesHebdomadis {
+  Dominica
+  FeriaSecunda
+  FeriaTertia
+  FeriaQuarta
+  FeriaQuinta
+  FeriaSexta
+  Sabbatum
 }
