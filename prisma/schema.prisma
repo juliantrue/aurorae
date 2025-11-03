@@ -156,9 +156,7 @@ model TextSource {
 
   sections TextSection[] // every source has ≥1 section
   TextUnit TextUnit[]
-  Psalm    Psalm[]
-  Canticle Canticle[]
-  Reading  Reading[]
+  RefBlock RefBlock[]
 }
 
 model TextSection {
@@ -186,17 +184,12 @@ model TextUnit {
   sectionId    Int
   section      TextSection @relation(fields: [sectionId], references: [id])
 
-  sequence    Int // stable monotonic order
-  label       String? // "John 3:16", "§12", etc.
-  text        String
-  refExternal String? // optional external URI or key
-
-  psalmStart    Psalm[]    @relation("Start")
-  psalmEnd      Psalm[]    @relation("End")
-  canticleStart Canticle[] @relation("Start")
-  canticleEnd   Canticle[] @relation("End")
-  readingStart  Reading[]  @relation("Start")
-  readingEnd    Reading[]  @relation("End")
+  sequence       Int // stable monotonic order
+  label          String? // "John 3:16", "§12", etc.
+  text           String
+  refExternal    String? // optional external URI or key
+  startRefBlocks RefBlock[] @relation("Start")
+  endRefBlocks   RefBlock[] @relation("End")
 
   @@unique([sectionId, sequence])
   @@index([textSourceId, sectionId, sequence])
@@ -239,15 +232,12 @@ model GabcSource {
   chantUsageId  Int
   chantUsage    ChantUsage  @relation(fields: [chantUsageId], references: [id])
 
-  // One of these will be set
-  antiphonId     Int?
-  antiphon       Antiphon?     @relation(fields: [antiphonId], references: [id])
-  hymnId         Int?
-  hymn           Hymn?         @relation(fields: [hymnId], references: [id])
-  responsePartId Int?
+  textBlock      TextBlock?    @relation(fields: [textBlockId], references: [id])
+  textBlockId    Int?
+  chantBlock     ChantBlock?   @relation(fields: [chantBlockId], references: [id])
+  chantBlockId   Int?
   responsePart   ResponsePart? @relation(fields: [responsePartId], references: [id])
-  Oratio         Oratio?       @relation(fields: [oratioId], references: [id])
-  oratioId       Int?
+  responsePartId Int?
 
   @@index([chantSourceId])
   @@index([chantUsageId])
@@ -260,79 +250,39 @@ model GabcSource {
  */
 
 model ActusLiturgicus {
-  id          Int     @id @default(autoincrement())
-  key         String? @unique // "SIGN_CROSS_AT_INTROIT", etc.
-  title       String
-  description String?
-
-  gestureId  Int?
-  gesture    Gesture?  @relation(fields: [gestureId], references: [id])
-  actorId    Int?
-  actor      Actor?    @relation(fields: [actorId], references: [id])
-  postureId  Int?
-  posture    Posture?  @relation(fields: [postureId], references: [id])
-  positionId Int?
-  position   Position? @relation(fields: [positionId], references: [id])
+  id     Int    @id @default(autoincrement())
+  action String
 }
 
-model Gesture {
-  id          Int    @id @default(autoincrement())
-  name        String @unique // "SIGN_CROSS_AT_INTROIT", etc.
-  description String
+model TextBlock {
+  id    Int     @id @default(autoincrement())
+  text  String
+  title String?
 
-  actions ActusLiturgicus[]
-}
-
-model Actor {
-  id          Int    @id @default(autoincrement())
-  name        String @unique // "Celebrant", "Deacon", "Subdeacon", "Choir", etc.
-  description String
-
-  actions ActusLiturgicus[]
-}
-
-model Posture {
-  id          Int    @id @default(autoincrement())
-  name        String @unique // "Stand", "Sit", "Kneel", etc.
-  description String
-
-  actions ActusLiturgicus[]
-}
-
-model Position {
-  id          Int    @id @default(autoincrement())
-  name        String @unique // "AtAltar", "AtSedilia", "FacingPeople", etc.
-  description String
-
-  actions ActusLiturgicus[]
-}
-
-model Oratio {
-  id      Int         @id @default(autoincrement())
-  text    String // full canonical text
   genusId Int
-  genus   OratioGenus @relation(fields: [genusId], references: [id])
+  genus   TextBlockGenus @relation(fields: [genusId], references: [id])
 
   gabcVariants GabcSource[] // optional, for sung versions
 }
 
-model OratioGenus {
+model TextBlockGenus {
   id          Int    @id @default(autoincrement())
   name        String // e.g. "Collecta", "Postcommunio"
   description String
 
-  orationes Oratio[]
+  textBlocks TextBlock[]
 }
 
-model Psalm {
-  id       Int    @id @default(autoincrement())
-  number   Int
-  incipit  String
+model RefBlock {
+  id       Int     @id @default(autoincrement())
+  title    String?
   seqStart Int // cached startUnit.sequence
   seqEnd   Int // cached endUnit.sequence
 
-  textSourceId Int
-  textSource   TextSource @relation(fields: [textSourceId], references: [id])
+  refBlockGenusId Int
+  refBlockGenus   RefBlockGenus @relation(fields: [refBlockGenusId], references: [id])
+  textSourceId    Int
+  textSource      TextSource    @relation(fields: [textSourceId], references: [id])
 
   startUnitId Int
   startUnit   TextUnit @relation("Start", fields: [startUnitId], references: [id])
@@ -340,41 +290,22 @@ model Psalm {
   endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
 }
 
-model Canticle {
-  id       Int    @id @default(autoincrement())
-  key      String // "Magnificat", "Benedictus", etc.
-  seqStart Int
-  seqEnd   Int
+model RefBlockGenus {
+  id          Int    @id @default(autoincrement())
+  name        String // e.g. "Psalm", "Reading"
+  description String
 
-  textSourceId Int
-  textSource   TextSource @relation(fields: [textSourceId], references: [id])
-
-  startUnitId Int
-  endUnitId   Int
-  startUnit   TextUnit @relation("Start", fields: [startUnitId], references: [id])
-  endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
+  refBlocks RefBlock[]
 }
 
-model Reading {
-  id        Int     @id @default(autoincrement())
-  reference String? // "Isaiah 40:1–11", "Sermo 25", etc.
-  seqStart  Int
-  seqEnd    Int
+model ChantBlock {
+  id    Int     @id @default(autoincrement())
+  title String
+  text  String
+  tone  String? // e.g. "VIII G", "IV a", "peregrinus", optional for non-psalmodic chants
 
-  textSourceId Int
-  textSource   TextSource @relation(fields: [textSourceId], references: [id])
-
-  startUnitId Int
-  endUnitId   Int
-  startUnit   TextUnit @relation("Start", fields: [startUnitId], references: [id])
-  endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
-}
-
-model Antiphon {
-  id      Int     @id @default(autoincrement())
-  incipit String
-  text    String
-  tone    String? // e.g. "VIII G", "IV a", "peregrinus", optional for non-psalmodic chants
+  chantBlockGenusId Int
+  chantBlockGenus   ChantBlockGenus @relation(fields: [chantBlockGenusId], references: [id])
 
   // Associated chant variants BY SOURCE, not usage. 
   // This list will contain versions of a particular antiphon across multiple chant sources
@@ -384,12 +315,12 @@ model Antiphon {
   gabcVariants GabcSource[]
 }
 
-model Hymn {
-  id    Int    @id @default(autoincrement())
-  title String
-  text  String
+model ChantBlockGenus {
+  id          Int    @id @default(autoincrement())
+  name        String // e.g. "Psalm", "Reading"
+  description String
 
-  gabcVariants GabcSource[]
+  chantBlocks ChantBlock[]
 }
 
 model ResponseSequence {
@@ -421,13 +352,10 @@ model ResponsePart {
 }
 
 enum BlockTable {
-  Oratio
   ActusLiturgicus
-  Psalm
-  Canticle
-  Reading
-  Hymn
-  Antiphon
+  TextBlock
+  RefBlock
+  ChantBlock
   ResponseSequence
 }
 
