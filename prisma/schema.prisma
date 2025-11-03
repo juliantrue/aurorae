@@ -11,11 +11,10 @@ datasource db {
 // RITES AND VERSIONS
 // -----------------------------
 model Rite {
-  id             Int              @id @default(autoincrement())
-  name           String           @unique // e.g. "Roman", "Ambrosian"
-  description    String?
-  versions       RiteVersion[]
-  OratioCommunis OratioCommunis[]
+  id          Int           @id @default(autoincrement())
+  name        String        @unique // e.g. "Roman", "Ambrosian"
+  description String?
+  versions    RiteVersion[]
 }
 
 model RiteVersion {
@@ -202,23 +201,130 @@ model TextUnit {
 
 /**
  * ================================================================
+ * CHANT SOURCES / USAGE (aligned to GregoBase)
+ * ================================================================
+ */
+
+model ChantSource {
+  id    Int    @id @default(autoincrement())
+  code  String @unique // e.g. "AR1949", "AM1934", "GR1908"
+  title String // e.g. "Antiphonale Romanum"
+  year  Int // publication year 
+
+  // Helpful bibliographic bits (keep both; see explanation below)
+  editor    String? // editor / monastic house / responsible party
+  publisher String? // publishing house / imprint
+
+  gabcSources GabcSource[]
+}
+
+model ChantUsage {
+  id          Int          @id @default(autoincrement())
+  key         String       @unique // exactly GregoBase “by usage”, e.g. "Antiphona"
+  label       String // display label (same as key or localized)
+  gabcSources GabcSource[]
+}
+
+model GabcSource {
+  id   Int    @id @default(autoincrement())
+  name String // chant title as printed in edition
+  mode String // I–VIII, "per.", etc.
+  gabc String // full GABC notation text
+
+  chantSourceId Int
+  chantSource   ChantSource @relation(fields: [chantSourceId], references: [id])
+  chantUsageId  Int
+  chantUsage    ChantUsage  @relation(fields: [chantUsageId], references: [id])
+
+  // One of these will be set
+  antiphonId     Int?
+  antiphon       Antiphon?     @relation(fields: [antiphonId], references: [id])
+  hymnId         Int?
+  hymn           Hymn?         @relation(fields: [hymnId], references: [id])
+  responsePartId Int?
+  responsePart   ResponsePart? @relation(fields: [responsePartId], references: [id])
+  Oratio         Oratio?       @relation(fields: [oratioId], references: [id])
+  oratioId       Int?
+
+  @@index([chantSourceId])
+  @@index([chantUsageId])
+}
+
+/**
+ * ================================================================
  * LITURGICAL BUILDING BLOCKS
  * ================================================================
  */
 
-model OratioCommunis {
-  id   Int    @id @default(autoincrement())
-  key  String @unique // "PATER_NOSTER", "AVE_MARIA", etc.
-  text String // full canonical Latin text
+model ActusLiturgicus {
+  id          Int     @id @default(autoincrement())
+  key         String? @unique // "SIGN_CROSS_AT_INTROIT", etc.
+  title       String
+  description String?
 
-  riteId Int? // optional link to rite/version
-  rite   Rite? @relation(fields: [riteId], references: [id])
+  gestureId  Int?
+  gesture    Gesture?  @relation(fields: [gestureId], references: [id])
+  actorId    Int?
+  actor      Actor?    @relation(fields: [actorId], references: [id])
+  postureId  Int?
+  posture    Posture?  @relation(fields: [postureId], references: [id])
+  positionId Int?
+  position   Position? @relation(fields: [positionId], references: [id])
+}
+
+model Gesture {
+  id          Int    @id @default(autoincrement())
+  name        String @unique // "SIGN_CROSS_AT_INTROIT", etc.
+  description String
+
+  actions ActusLiturgicus[]
+}
+
+model Actor {
+  id          Int    @id @default(autoincrement())
+  name        String @unique // "Celebrant", "Deacon", "Subdeacon", "Choir", etc.
+  description String
+
+  actions ActusLiturgicus[]
+}
+
+model Posture {
+  id          Int    @id @default(autoincrement())
+  name        String @unique // "Stand", "Sit", "Kneel", etc.
+  description String
+
+  actions ActusLiturgicus[]
+}
+
+model Position {
+  id          Int    @id @default(autoincrement())
+  name        String @unique // "AtAltar", "AtSedilia", "FacingPeople", etc.
+  description String
+
+  actions ActusLiturgicus[]
+}
+
+model Oratio {
+  id      Int         @id @default(autoincrement())
+  text    String // full canonical text
+  genusId Int
+  genus   OratioGenus @relation(fields: [genusId], references: [id])
+
+  gabcVariants GabcSource[] // optional, for sung versions
+}
+
+model OratioGenus {
+  id          Int    @id @default(autoincrement())
+  name        String // e.g. "Collecta", "Postcommunio"
+  description String
+
+  orationes Oratio[]
 }
 
 model Psalm {
-  id       Int     @id @default(autoincrement())
-  number   Int? // e.g. 95
-  incipit  String? // "Venite, exsultemus Domino"
+  id       Int    @id @default(autoincrement())
+  number   Int
+  incipit  String
   seqStart Int // cached startUnit.sequence
   seqEnd   Int // cached endUnit.sequence
 
@@ -226,15 +332,14 @@ model Psalm {
   textSource   TextSource @relation(fields: [textSourceId], references: [id])
 
   startUnitId Int
-  endUnitId   Int
   startUnit   TextUnit @relation("Start", fields: [startUnitId], references: [id])
+  endUnitId   Int
   endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
 }
 
 model Canticle {
-  id       Int     @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   key      String // "Magnificat", "Benedictus", etc.
-  source   String? // optional citation
   seqStart Int
   seqEnd   Int
 
@@ -262,44 +367,54 @@ model Reading {
   endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
 }
 
-model Hymn {
-  id    Int     @id @default(autoincrement())
-  title String
-  text  String?
-}
-
 model Antiphon {
   id      Int     @id @default(autoincrement())
   incipit String
-  text    String?
+  text    String
+  tone    String? // e.g. "VIII G", "IV a", "peregrinus", optional for non-psalmodic chants
+
+  // Associated chant variants BY SOURCE, not usage. 
+  // This list will contain versions of a particular antiphon across multiple chant sources
+  // ie. feria II in Advent in Antiphonale Romanum 1949, Monasticum etc...
+  // This list WILL NOT contain versions of a particular antiphon as a related to liturgical function
+  // ie. NOT A LIST LIKE THIS: feria II in Advent, feria II in lent, feria II in post pentecost etc
+  gabcVariants GabcSource[]
 }
 
-model Responsory {
-  id      Int     @id @default(autoincrement())
-  incipit String
-  text    String?
-}
-
-model Collect {
-  id      Int     @id @default(autoincrement())
-  incipit String
-  text    String?
-}
-
-model Benediction {
-  id   Int    @id @default(autoincrement())
-  text String
-}
-
-model Versicle {
+model Hymn {
   id    Int    @id @default(autoincrement())
-  textV String
-  textR String
+  title String
+  text  String
+
+  gabcVariants GabcSource[]
 }
 
-model Rubric {
-  id          Int    @id @default(autoincrement())
-  instruction String
+model ResponseSequence {
+  id          Int                  @id @default(autoincrement())
+  title       String
+  description String?
+  kind        ResponseSequenceKind @default(Other)
+
+  parts ResponsePart[]
+}
+
+enum ResponseSequenceKind {
+  Responsory
+  Versicle
+  Benediction
+  Dismissal
+  Other
+}
+
+model ResponsePart {
+  id                 Int              @id @default(autoincrement())
+  responseSequenceId Int
+  responseSequence   ResponseSequence @relation(fields: [responseSequenceId], references: [id])
+
+  order        Int
+  label        String? // e.g. "V.", "R.", "R’", "Chorus", "Amen", "Officiant"
+  text         String
+  gabcVariants GabcSource[]
 }
 
 /**
@@ -309,9 +424,8 @@ model Rubric {
  */
 model Hora {
   id          Int     @id @default(autoincrement())
-  key         String  @unique // e.g. "MATUTINUM", "LAUDES", "VESPERS"
-  latinName   String // e.g. "Matutinum"
-  description String? // optional summary or rubric note
+  name        String
+  description String?
 
   // Link Hora to calendar entities
   fixedFeastId   Int?
@@ -334,20 +448,15 @@ model HoraElement {
   // The polymorphic reference
   blockType BlockTable // identifies which table the element points to
   blockId   Int // ID in that table
-
-  note String? // optional editorial or rubric comment
 }
 
 enum BlockTable {
+  Oratio
+  ActusLiturgicus
   Psalm
   Canticle
   Reading
   Hymn
   Antiphon
-  Responsory
-  Collect
-  Benediction
-  Versicle
-  OratioCommunis
-  Rubric
+  ResponseSequence
 }
