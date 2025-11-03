@@ -84,7 +84,8 @@ model MovableFeast {
   rankId        Int
   rank          Rank        @relation(fields: [rankId], references: [id])
 
-  horae Hora[]
+  horae  Hora[]
+  missae Missa[]
 
   @@unique([key, riteVersionId])
 }
@@ -102,7 +103,8 @@ model FixedFeast {
   rankId        Int
   rank          Rank        @relation(fields: [rankId], references: [id])
 
-  horae Hora[]
+  horae  Hora[]
+  missae Missa[]
 
   @@unique([key, riteVersionId])
 }
@@ -121,7 +123,8 @@ model SeasonalDay {
   seasonId      Int
   season        Season      @relation(fields: [seasonId], references: [id])
 
-  horae Hora[]
+  horae  Hora[]
+  missae Missa[]
 
   @@unique([key, riteVersionId])
 }
@@ -417,6 +420,17 @@ model ResponsePart {
   gabcVariants GabcSource[]
 }
 
+enum BlockTable {
+  Oratio
+  ActusLiturgicus
+  Psalm
+  Canticle
+  Reading
+  Hymn
+  Antiphon
+  ResponseSequence
+}
+
 /**
  * ================================================================
  * HORA STRUCTURE
@@ -450,13 +464,33 @@ model HoraElement {
   blockId   Int // ID in that table
 }
 
-enum BlockTable {
-  Oratio
-  ActusLiturgicus
-  Psalm
-  Canticle
-  Reading
-  Hymn
-  Antiphon
-  ResponseSequence
+/**
+ * ================================================================
+ * MISSAL STRUCTURE
+ * ================================================================
+ */
+model Missa {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  fixedFeastId   Int?
+  fixedFeast     FixedFeast?   @relation(fields: [fixedFeastId], references: [id])
+  movableFeastId Int?
+  movableFeast   MovableFeast? @relation(fields: [movableFeastId], references: [id])
+  seasonalDayId  Int?
+  seasonalDay    SeasonalDay?  @relation(fields: [seasonalDayId], references: [id])
+
+  elements MissaElement[] // ordered components of the Mass
+}
+
+model MissaElement {
+  id      Int   @id @default(autoincrement())
+  missaId Int
+  missa   Missa @relation(fields: [missaId], references: [id])
+
+  order Int // order of appearance within the Mass
+
+  blockType BlockTable // identifies which table the element points to
+  blockId   Int // ID in that table
 }
