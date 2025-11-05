@@ -43,6 +43,23 @@ model RiteVersion {
 // ----------------------------------------------------------
 // CALENDAR
 // ----------------------------------------------------------
+model CalendarLocale {
+  id    Int           @id @default(autoincrement())
+  name  String        @unique
+  scope CalendarScope
+
+  MovableFeast MovableFeast[]
+  FixedFeast   FixedFeast[]
+}
+
+enum CalendarScope {
+  UNIVERSAL
+  NATIONAL
+  DIOCESAN
+  RELIGIOUS_ORDER
+  LOCAL
+}
+
 model Rank {
   id          Int     @id @default(autoincrement())
   key         String // e.g., "sollemnitas", "festum duplex majus"
@@ -99,21 +116,6 @@ enum ConflictAction {
   TRANSFER // Moved to a new date
 }
 
-model Season {
-  id          Int     @id @default(autoincrement())
-  key         String // e.g., "Quadragesimae"
-  name        String
-  color       String? // liturgical color (e.g., "violet")
-  description String?
-
-  riteVersionId Int
-  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
-
-  seasonalDay SeasonalDay[]
-
-  @@unique([key, riteVersionId])
-}
-
 model MovableFeast {
   id               Int     @id @default(autoincrement())
   key              String  @unique
@@ -123,9 +125,11 @@ model MovableFeast {
   description      String?
 
   riteVersionId Int
-  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
+  riteVersion   RiteVersion    @relation(fields: [riteVersionId], references: [id])
+  localeId      Int
+  locale        CalendarLocale @relation(fields: [localeId], references: [id])
   rankId        Int
-  rank          Rank        @relation(fields: [rankId], references: [id])
+  rank          Rank           @relation(fields: [rankId], references: [id])
 
   // If moveable feast WERE to be transferred due to a conflict this field would be
   // set to point at the originally schedulled feast day. The resolved will follow 
@@ -158,9 +162,11 @@ model FixedFeast {
   description String?
 
   riteVersionId Int
-  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
+  riteVersion   RiteVersion    @relation(fields: [riteVersionId], references: [id])
+  localeId      Int
+  locale        CalendarLocale @relation(fields: [localeId], references: [id])
   rankId        Int
-  rank          Rank        @relation(fields: [rankId], references: [id])
+  rank          Rank           @relation(fields: [rankId], references: [id])
 
   // If fixed feast WERE to be transferred due to a conflict this field would be
   // set to point at the originally schedulled feast day. The resolved will follow 
@@ -179,6 +185,21 @@ model FixedFeast {
   horae                  Hora[]
   missae                 Missa[]
   conflictResolutionRule ConflictResolutionRule[]
+
+  @@unique([key, riteVersionId])
+}
+
+model Season {
+  id          Int     @id @default(autoincrement())
+  key         String // e.g., "Quadragesimae"
+  name        String
+  color       String? // liturgical color (e.g., "violet")
+  description String?
+
+  riteVersionId Int
+  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
+
+  seasonalDay SeasonalDay[]
 
   @@unique([key, riteVersionId])
 }
