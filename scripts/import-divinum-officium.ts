@@ -13,19 +13,9 @@
  */
 
 import path from 'node:path';
-import {
-  access,
-  readFile,
-  readdir
-} from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import process from 'node:process';
-import {
-  PrismaClient,
-  OfficeHour,
-  Season,
-  Rank,
-  LiturgicalDay
-} from '@prisma/client';
+import { PrismaClient, OfficeHour, Season, Rank, LiturgicalDay } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -35,7 +25,7 @@ const HORAS_BASE_DIR = path.join(
   'divinum-officium',
   'web',
   'www',
-  'horas'
+  'horas',
 );
 
 const MISSA_BASE_DIR = path.join(
@@ -44,7 +34,7 @@ const MISSA_BASE_DIR = path.join(
   'divinum-officium',
   'web',
   'www',
-  'missa'
+  'missa',
 );
 
 const TARGET_LANGUAGES = ['Latin'] as const;
@@ -99,43 +89,37 @@ const HOUR_PATTERNS: OfficeHourDefinition[] = [
       /^Versum/i,
       /^Absolutio/i,
       /^Benedictio/i,
-      /^Te Deum/i
-    ]
+      /^Te Deum/i,
+    ],
   },
   {
     hour: OfficeHourEnum.LAUDES,
-    patterns: [/Laud/i, /^Benedictus/i, /^Psalmi Laudes/i, /^Ant Laudes/i, /^Preces Laudes/i]
+    patterns: [/Laud/i, /^Benedictus/i, /^Psalmi Laudes/i, /^Ant Laudes/i, /^Preces Laudes/i],
   },
   {
     hour: OfficeHourEnum.PRIMA,
-    patterns: [/Prima/i, /^Capitulum Prima/i, /^Psalmi Prima/i]
+    patterns: [/Prima/i, /^Capitulum Prima/i, /^Psalmi Prima/i],
   },
   {
     hour: OfficeHourEnum.TERTIA,
-    patterns: [/Tertia/i, /^Capitulum Tertia/i, /^Psalmi Tertia/i]
+    patterns: [/Tertia/i, /^Capitulum Tertia/i, /^Psalmi Tertia/i],
   },
   {
     hour: OfficeHourEnum.SEXTA,
-    patterns: [/Sexta/i, /^Capitulum Sexta/i, /^Psalmi Sexta/i]
+    patterns: [/Sexta/i, /^Capitulum Sexta/i, /^Psalmi Sexta/i],
   },
   {
     hour: OfficeHourEnum.NONA,
-    patterns: [/Nona/i, /^Capitulum Nona/i, /^Psalmi Nona/i]
+    patterns: [/Nona/i, /^Capitulum Nona/i, /^Psalmi Nona/i],
   },
   {
     hour: OfficeHourEnum.VESPERAE,
-    patterns: [
-      /Vesper/i,
-      /^Magnificat/i,
-      /^Capitulum Vesper/i,
-      /^Oratio$/i,
-      /^Preces Vesper/i
-    ]
+    patterns: [/Vesper/i, /^Magnificat/i, /^Capitulum Vesper/i, /^Oratio$/i, /^Preces Vesper/i],
   },
   {
     hour: OfficeHourEnum.COMPLETORIUM,
-    patterns: [/Completor/i, /^Ant Completorium/i, /^Hymnus Completorium/i]
-  }
+    patterns: [/Completor/i, /^Ant Completorium/i, /^Hymnus Completorium/i],
+  },
 ];
 
 async function pathExists(candidatePath: string): Promise<boolean> {
@@ -192,7 +176,7 @@ function parseRank(rawRank?: string): RankInfo {
       name: null,
       descriptor: null,
       precedence: null,
-      raw: null
+      raw: null,
     };
   }
 
@@ -202,7 +186,7 @@ function parseRank(rawRank?: string): RankInfo {
       name: null,
       descriptor: null,
       precedence: null,
-      raw: rawRank
+      raw: rawRank,
     };
   }
 
@@ -223,7 +207,7 @@ function parseRank(rawRank?: string): RankInfo {
     name,
     descriptor,
     precedence,
-    raw: rawRank
+    raw: rawRank,
   };
 }
 
@@ -302,7 +286,7 @@ function makeSlug(...parts: Array<string | null | undefined>): string {
       part
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
+        .replace(/^-+|-+$/g, ''),
     )
     .filter((part) => part.length > 0)
     .join('-');
@@ -318,7 +302,7 @@ function splitSectionsByHour(sections: Map<string, string>): Map<OfficeHour, Sec
     if (!value) continue;
 
     const definition = HOUR_PATTERNS.find((item) =>
-      item.patterns.some((pattern) => pattern.test(key))
+      item.patterns.some((pattern) => pattern.test(key)),
     );
 
     if (!definition) {
@@ -348,7 +332,7 @@ async function resetLiturgicalData(): Promise<void> {
     prisma.massOrdinary.deleteMany(),
     prisma.office.deleteMany(),
     prisma.calendarMapping.deleteMany(),
-    prisma.liturgicalDay.deleteMany()
+    prisma.liturgicalDay.deleteMany(),
   ]);
 }
 
@@ -369,7 +353,7 @@ async function ensureLiturgicalDay(data: {
   precedence?: number | null;
 }): Promise<LiturgicalDay> {
   const existing = await prisma.liturgicalDay.findUnique({
-    where: { slug: data.slug }
+    where: { slug: data.slug },
   });
 
   if (existing) return existing;
@@ -382,7 +366,7 @@ async function ensureLiturgicalDay(data: {
     color: data.color ?? null,
     description: data.description ?? null,
     isMovable: data.isMovable,
-    precedence: data.precedence ?? undefined
+    precedence: data.precedence ?? undefined,
   };
 
   return prisma.liturgicalDay.create({ data: createData });
@@ -424,7 +408,7 @@ async function processFile(language: string, folder: string, fileName: string): 
     color: null,
     description: buildDayDescription(rankInfo.descriptor, relativePath),
     isMovable: folder === 'Tempora',
-    precedence: precedenceScaled
+    precedence: precedenceScaled,
   });
 
   sections.delete('Rank');
@@ -442,16 +426,14 @@ async function processFile(language: string, folder: string, fileName: string): 
     slug,
     rank: rankInfo,
     rules,
-    scriptura: scripturaRaw
+    scriptura: scripturaRaw,
   };
 
   if (hourSections.size === 0) {
-    const fallbackSections = Array.from(sections.entries()).map<SectionEntry>(
-      ([key, body]) => ({
-        key,
-        body
-      })
-    );
+    const fallbackSections = Array.from(sections.entries()).map<SectionEntry>(([key, body]) => ({
+      key,
+      body,
+    }));
     await prisma.office.create({
       data: {
         liturgicalDayId: liturgicalDay.id,
@@ -460,12 +442,12 @@ async function processFile(language: string, folder: string, fileName: string): 
           {
             ...baseMetadata,
             hour: OfficeHourEnum.MATUTINUM,
-            sections: fallbackSections
+            sections: fallbackSections,
           },
           null,
-          2
-        )
-      }
+          2,
+        ),
+      },
     });
     return;
   }
@@ -474,15 +456,15 @@ async function processFile(language: string, folder: string, fileName: string): 
     const metadata: ImportMetadata = {
       ...baseMetadata,
       hour,
-      sections: entries
+      sections: entries,
     };
 
     await prisma.office.create({
       data: {
         liturgicalDayId: liturgicalDay.id,
         hour,
-        rubric: JSON.stringify(metadata, null, 2)
-      }
+        rubric: JSON.stringify(metadata, null, 2),
+      },
     });
   }
 }
@@ -521,9 +503,7 @@ async function processMissaFile(language: string, folder: string, fileName: stri
       : null;
 
   const nameCandidate =
-    extractFirstNonEmptyLine(sections.get('Officium')) ??
-    rankInfo.name ??
-    baseName;
+    extractFirstNonEmptyLine(sections.get('Officium')) ?? rankInfo.name ?? baseName;
 
   const relativePath = path.relative(process.cwd(), filePath);
 
@@ -535,7 +515,7 @@ async function processMissaFile(language: string, folder: string, fileName: stri
     color: null,
     description: buildDayDescription(rankInfo.descriptor, relativePath),
     isMovable: folder === 'Tempora',
-    precedence: precedenceScaled
+    precedence: precedenceScaled,
   });
 
   for (const key of MASS_METADATA_KEYS) {
@@ -550,8 +530,8 @@ async function processMissaFile(language: string, folder: string, fileName: stri
       data: {
         liturgicalDayId: liturgicalDay.id,
         type: key,
-        text: value
-      }
+        text: value,
+      },
     });
   }
 }

@@ -4,17 +4,13 @@ import path from 'node:path';
 import { OfficeHour } from '@prisma/client';
 import { diffWords } from 'diff';
 
-import {
-  fetchOfficeBySlugAndHour,
-  closePrisma,
-  ImportedSection
-} from './database';
+import { fetchOfficeBySlugAndHour, closePrisma, ImportedSection } from './database';
 import { extractLatinColumn, normalizeForComparison } from './html';
 import { sanitizeSectionBody, shouldSkipSection } from './sections';
 import {
   horaFromOfficeHour,
   runDivinumOfficium,
-  RunDivinumOfficiumOptions
+  RunDivinumOfficiumOptions,
 } from '../../scripts/liturgy/divinumOfficiumRunner';
 
 interface ComparisonCase {
@@ -51,7 +47,7 @@ function buildDoOptions(testCase: ComparisonCase): RunDivinumOfficiumOptions {
 
   if (!hora) {
     throw new Error(
-      `Cannot determine Divinum Officium hora for OfficeHour ${testCase.hour}. Provide horaOverride.`
+      `Cannot determine Divinum Officium hora for OfficeHour ${testCase.hour}. Provide horaOverride.`,
     );
   }
 
@@ -62,8 +58,8 @@ function buildDoOptions(testCase: ComparisonCase): RunDivinumOfficiumOptions {
       lang1: 'Latin',
       lang2: 'English',
       version: 'Rubrics 1960 - 1960',
-      ...(testCase.params ?? {})
-    }
+      ...(testCase.params ?? {}),
+    },
   };
 }
 
@@ -95,7 +91,7 @@ async function compareCase(testCase: ComparisonCase): Promise<ComparisonOutcome>
   if (!dbOffice) {
     return {
       success: false,
-      failureReason: `No Office found for slug=${testCase.slug}, hour=${testCase.hour}`
+      failureReason: `No Office found for slug=${testCase.slug}, hour=${testCase.hour}`,
     };
   }
 
@@ -129,7 +125,7 @@ async function compareCase(testCase: ComparisonCase): Promise<ComparisonOutcome>
       success: false,
       failureReason: `Missing ${missingSections.length} section(s): ${missingSections
         .map(formatSectionForLog)
-        .join(', ')}\n${details}`
+        .join(', ')}\n${details}`,
     };
   }
 
@@ -160,7 +156,7 @@ async function main(): Promise<void> {
       process.stdout.write('ERROR\n');
       failures.push({
         testCase,
-        reason: (error as Error).stack ?? (error as Error).message
+        reason: (error as Error).stack ?? (error as Error).message,
       });
     }
   }

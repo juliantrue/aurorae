@@ -33,18 +33,18 @@ const prisma = new PrismaClient();
 
 export async function fetchOfficeBySlugAndHour(
   slug: string,
-  hour: OfficeHour
+  hour: OfficeHour,
 ): Promise<DatabaseOffice | null> {
   const office = await prisma.office.findFirst({
     where: {
       hour,
-      liturgicalDay: { slug }
+      liturgicalDay: { slug },
     },
     select: {
       id: true,
       hour: true,
-      rubric: true
-    }
+      rubric: true,
+    },
   });
 
   if (!office) return null;
@@ -55,18 +55,17 @@ export async function fetchOfficeBySlugAndHour(
     metadata = JSON.parse(office.rubric) as ImportedOfficeMetadata;
   } catch (error) {
     throw new Error(
-      `Failed to parse Office.rubric JSON for office ${office.id}: ${(error as Error).message}`
+      `Failed to parse Office.rubric JSON for office ${office.id}: ${(error as Error).message}`,
     );
   }
 
   return {
     id: office.id,
     hour: office.hour,
-    metadata
+    metadata,
   };
 }
 
 export async function closePrisma(): Promise<void> {
   await prisma.$disconnect();
 }
-

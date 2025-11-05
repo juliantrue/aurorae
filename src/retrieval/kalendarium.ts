@@ -25,8 +25,8 @@
  *   - All DB numbers are small (~hundreds of rows), so simple queries are fine.
  */
 
-import { PrismaClient } from "@prisma/client";
-import { computet } from "./computet";
+import { PrismaClient } from '@prisma/client';
+import { computet } from '../lib/computet';
 
 const prisma = new PrismaClient();
 
@@ -115,10 +115,10 @@ async function getOwnSeasonKeys(riteVersionId: number): Promise<Set<string>> {
  *   we assume an Extraordinary/Tridentine-like structure.
  * - Otherwise we assume Ordinary Form (1970/2002) structure.
  */
-async function detectSeasonMode(riteVersionId: number): Promise<"OF" | "EF"> {
+async function detectSeasonMode(riteVersionId: number): Promise<'OF' | 'EF'> {
   const keys = await getOwnSeasonKeys(riteVersionId);
-  if (keys.has("Septuagesimae") || keys.has("PostPentecosten")) return "EF";
-  return "OF";
+  if (keys.has('Septuagesimae') || keys.has('PostPentecosten')) return 'EF';
+  return 'OF';
 }
 
 /* -------------------------------------------------------------------------- */
@@ -145,9 +145,9 @@ async function detectSeasonMode(riteVersionId: number): Promise<"OF" | "EF"> {
 /** First Sunday of Advent in a given year (Sunday four weeks before Christmas). */
 function findAdventStartOF(year: number): Date {
   const christmas = new Date(Date.UTC(year, 11, 25)); // Dec 25
-  const weekday = christmas.getUTCDay();              // 0..6
+  const weekday = christmas.getUTCDay(); // 0..6
   const daysToPrevSunday = (weekday + 7) % 7;
-  const fourthSundayBefore = 21 + daysToPrevSunday;   // 3 weeks + 1 Sunday
+  const fourthSundayBefore = 21 + daysToPrevSunday; // 3 weeks + 1 Sunday
   return offsetDays(christmas, -fourthSundayBefore);
 }
 
@@ -187,7 +187,10 @@ function pentecost(easter: Date): Date {
  * Season keys expected in DB (per RiteVersion):
  *   Adventus, Nativitatis, Quadragesimae, Paschale, PerAnnum
  */
-function computeSeasonalKeyOF(date: Date, easter: Date): {
+function computeSeasonalKeyOF(
+  date: Date,
+  easter: Date,
+): {
   seasonKey: string; // e.g., "Quadragesimae"
   weekNumber: number;
   weekdayKey: string; // e.g., "FeriaQuinta"
@@ -206,16 +209,16 @@ function computeSeasonalKeyOF(date: Date, easter: Date): {
   let seasonStart: Date;
 
   if (date >= advStart && date < christmas) {
-    seasonKey = "Adventus";
+    seasonKey = 'Adventus';
     seasonStart = advStart;
   } else if (date >= christmas && date < ashWed) {
-    seasonKey = "Nativitatis";
+    seasonKey = 'Nativitatis';
     seasonStart = christmas;
   } else if (date >= ashWed && date < easter) {
-    seasonKey = "Quadragesimae";
+    seasonKey = 'Quadragesimae';
     seasonStart = ashWed;
   } else if (date >= easter && date <= pent) {
-    seasonKey = "Paschale";
+    seasonKey = 'Paschale';
     seasonStart = easter;
   } else {
     // Ordinary Time: split across the year
@@ -223,10 +226,10 @@ function computeSeasonalKeyOF(date: Date, easter: Date): {
     // Else OT-II (after Pentecost → before Advent)
     const advStartNext = findAdventStartOF(year);
     if (date < ashWed) {
-      seasonKey = "PerAnnum";
+      seasonKey = 'PerAnnum';
       seasonStart = bapLord;
     } else {
-      seasonKey = "PerAnnum";
+      seasonKey = 'PerAnnum';
       seasonStart = offsetDays(pent, 1); // Monday after Pentecost
       // If date is in Advent already, this branch won’t be used (caught by Advent case above)
     }
@@ -237,13 +240,13 @@ function computeSeasonalKeyOF(date: Date, easter: Date): {
 
   // Latin weekday labels (as per schema enum DiesHebdomadis)
   const weekdayKeys = [
-    "Dominica",     // Sunday
-    "FeriaSecunda", // Monday
-    "FeriaTertia",  // Tuesday
-    "FeriaQuarta",  // Wednesday
-    "FeriaQuinta",  // Thursday
-    "FeriaSexta",   // Friday
-    "Sabbatum",     // Saturday
+    'Dominica', // Sunday
+    'FeriaSecunda', // Monday
+    'FeriaTertia', // Tuesday
+    'FeriaQuarta', // Wednesday
+    'FeriaQuinta', // Thursday
+    'FeriaSexta', // Friday
+    'Sabbatum', // Saturday
   ];
   const weekdayKey = weekdayKeys[date.getUTCDay()];
 
@@ -265,7 +268,10 @@ function computeSeasonalKeyOF(date: Date, easter: Date): {
  * If the version doesn’t define one of these keys, you can map it later or
  * allow inheritance to supply the missing SeasonalDay rows.
  */
-function computeSeasonalKeyEF(date: Date, easter: Date): {
+function computeSeasonalKeyEF(
+  date: Date,
+  easter: Date,
+): {
   seasonKey: string;
   weekNumber: number;
   weekdayKey: string;
@@ -281,38 +287,38 @@ function computeSeasonalKeyEF(date: Date, easter: Date): {
   let seasonStart: Date;
 
   if (date >= advStart && date < christmas) {
-    seasonKey = "Adventus";
+    seasonKey = 'Adventus';
     seasonStart = advStart;
   } else if (date >= christmas && date < septu) {
     // Time after Epiphany (many EF editions treat this implicitly)
     // If you have a dedicated key in your Season table, use it instead.
-    seasonKey = "Nativitatis";
+    seasonKey = 'Nativitatis';
     seasonStart = christmas;
   } else if (date >= septu && date < ashWed) {
-    seasonKey = "Septuagesimae";
+    seasonKey = 'Septuagesimae';
     seasonStart = septu;
   } else if (date >= ashWed && date < easter) {
-    seasonKey = "Quadragesimae";
+    seasonKey = 'Quadragesimae';
     seasonStart = ashWed;
   } else if (date >= easter && date <= pent) {
-    seasonKey = "Paschale";
+    seasonKey = 'Paschale';
     seasonStart = easter;
   } else {
     // Long green season after Pentecost in EF
-    seasonKey = "PostPentecosten";
+    seasonKey = 'PostPentecosten';
     seasonStart = offsetDays(pent, 1); // Monday after Pentecost
   }
 
   const w = Math.floor(diffDays(seasonStart, date) / 7) + 1;
 
   const weekdayKeys = [
-    "Dominica",
-    "FeriaSecunda",
-    "FeriaTertia",
-    "FeriaQuarta",
-    "FeriaQuinta",
-    "FeriaSexta",
-    "Sabbatum",
+    'Dominica',
+    'FeriaSecunda',
+    'FeriaTertia',
+    'FeriaQuarta',
+    'FeriaQuinta',
+    'FeriaSexta',
+    'Sabbatum',
   ];
   const weekdayKey = weekdayKeys[date.getUTCDay()];
 
@@ -332,7 +338,7 @@ function computeSeasonalKeyEF(date: Date, easter: Date): {
 async function findMovableWithInheritance(
   targetDate: Date,
   easter: Date,
-  versionChain: Array<{ id: number }>
+  versionChain: Array<{ id: number }>,
 ) {
   const offset = diffDays(easter, targetDate); // positive if after Easter
   for (const v of versionChain) {
@@ -349,10 +355,7 @@ async function findMovableWithInheritance(
  * Fixed feast lookup:
  *   Match month/day for the date; search version → parent → ...
  */
-async function findFixedWithInheritance(
-  targetDate: Date,
-  versionChain: Array<{ id: number }>
-) {
+async function findFixedWithInheritance(targetDate: Date, versionChain: Array<{ id: number }>) {
   const month = targetDate.getUTCMonth() + 1;
   const day = targetDate.getUTCDate();
   for (const v of versionChain) {
@@ -376,18 +379,18 @@ async function findSeasonalWithInheritance(
   targetDate: Date,
   easter: Date,
   selectedVersionId: number,
-  versionChain: Array<{ id: number }>
+  versionChain: Array<{ id: number }>,
 ) {
   // Decide which seasonal rule set to use based on the selected version only
   const mode = await detectSeasonMode(selectedVersionId);
   const { seasonKey, weekNumber, weekdayKey } =
-    mode === "OF"
+    mode === 'OF'
       ? computeSeasonalKeyOF(targetDate, easter)
       : computeSeasonalKeyEF(targetDate, easter);
 
   const seasonalKey = `${seasonKey.toUpperCase()}_${String(weekNumber).padStart(
     2,
-    "0"
+    '0',
   )}_${weekdayKey}`;
 
   for (const v of versionChain) {
@@ -403,7 +406,7 @@ async function findSeasonalWithInheritance(
   return {
     key: seasonalKey,
     description: seasonalKey,
-    rank: { key: "ferialis", latinName: "Ferialis" }, // default
+    rank: { key: 'ferialis', latinName: 'Ferialis' }, // default
   } as any;
 }
 
@@ -426,9 +429,9 @@ async function findSeasonalWithInheritance(
  */
 export async function resolveLiturgicalDay(
   date: Date,
-  versionCode: string
+  versionCode: string,
 ): Promise<{
-  type: "movable" | "fixed" | "seasonal";
+  type: 'movable' | 'fixed' | 'seasonal';
   key: string;
   name: string;
   rank: { key: string; latinName: string; precedence?: number | null };
@@ -447,7 +450,7 @@ export async function resolveLiturgicalDay(
   if (mov) {
     const src = chain.find((v) => v.id === mov.riteVersionId)!;
     return {
-      type: "movable",
+      type: 'movable',
       key: mov.key,
       name: mov.name,
       rank: {
@@ -464,7 +467,7 @@ export async function resolveLiturgicalDay(
   if (fix) {
     const src = chain.find((v) => v.id === fix.riteVersionId)!;
     return {
-      type: "fixed",
+      type: 'fixed',
       key: fix.key,
       name: fix.name,
       rank: {
@@ -477,21 +480,14 @@ export async function resolveLiturgicalDay(
   }
 
   // 4) SEASONAL
-  const sea = await findSeasonalWithInheritance(
-    date,
-    easter,
-    selected.id,
-    chain
-  );
+  const sea = await findSeasonalWithInheritance(date, easter, selected.id, chain);
 
   // If it came from DB, it has riteVersionId; otherwise, it’s a fallback object.
   const source =
-    "riteVersionId" in sea
-      ? chain.find((v) => v.id === (sea as any).riteVersionId)!
-      : selected;
+    'riteVersionId' in sea ? chain.find((v) => v.id === (sea as any).riteVersionId)! : selected;
 
   return {
-    type: "seasonal",
+    type: 'seasonal',
     key: sea.key,
     name: sea.description ?? sea.key,
     rank: {

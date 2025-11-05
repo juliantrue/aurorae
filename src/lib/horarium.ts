@@ -24,7 +24,7 @@ export function computeHorarium(
   sunset: Date,
   laudsOffsetMin: number = 30,
   vespersOffsetMin: number = 30,
-  complineOffsetMin: number = 30
+  complineOffsetMin: number = 30,
 ): Horarium {
   // total milliseconds in a full day (24h)
   const fullDayMs = 24 * 60 * 60 * 1000;
@@ -65,7 +65,7 @@ export function computeHorarium(
     Vespers: new Date(sunset.getTime() - vespersOffsetMin * 60 * 1000),
 
     // Compline: after sunset, transition to Great Silence
-    Compline: new Date(sunset.getTime() + complineOffsetMin * 60 * 1000)
+    Compline: new Date(sunset.getTime() + complineOffsetMin * 60 * 1000),
   };
 }
 
@@ -76,10 +76,7 @@ export function computeHorarium(
  * @param now Current time
  * @returns The key name (string) of the current canonical hour
  */
-export function getCurrentHour(
-  horarium: Horarium,
-  now: Date
-): keyof Horarium {
+export function getCurrentHour(horarium: Horarium, now: Date): keyof Horarium {
   const entries = Object.entries(horarium) as [keyof Horarium, Date][];
   for (let i = 0; i < entries.length; i++) {
     const [name, time] = entries[i];
@@ -88,9 +85,8 @@ export function getCurrentHour(
       return name;
     }
   }
-  return "Compline";
+  return 'Compline';
 }
-
 
 /* =========================
    Example Usage & Testing
@@ -98,14 +94,14 @@ export function getCurrentHour(
 
 // Example: for November 1, 2025 — sunrise 6:41 AM, sunset 5:00 PM
 const sunrise = new Date(2025, 10, 1, 6, 41); // months are 0-based
-const sunset  = new Date(2025, 10, 1, 17, 0);
+const sunset = new Date(2025, 10, 1, 17, 0);
 
 const horarium = computeHorarium(sunrise, sunset);
 
-console.log("=== Daily Horarium ===");
+console.log('=== Daily Horarium ===');
 for (const [hour, time] of Object.entries(horarium)) {
   console.log(`${hour.padEnd(9)} → ${time.toLocaleTimeString()}`);
 }
 
 const now = new Date();
-console.log("\nCurrent canonical hour:", getCurrentHour(horarium, now));
+console.log('\nCurrent canonical hour:', getCurrentHour(horarium, now));

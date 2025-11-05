@@ -50,10 +50,5 @@ function canonicalize(value: string): string {
 }
 
 export function normalizeForComparison(value: string): string {
-  return canonicalize(value)
-    .replace(/\r?\n/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
+  return canonicalize(value).replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
 }
-

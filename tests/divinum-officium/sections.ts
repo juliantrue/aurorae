@@ -11,7 +11,7 @@ const SKIP_KEYS = new Set([
   'Responsory6',
   'Responsory7',
   'Responsory8',
-  'Ant 1'
+  'Ant 1',
 ]);
 
 export function sanitizeSectionBody(section: ImportedSection): string {

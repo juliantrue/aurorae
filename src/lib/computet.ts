@@ -17,15 +17,13 @@ export function computet(year: number): Date {
     throw new TypeError(`Year must be an integer. Received: ${year}`);
   }
   if (year < 1583) {
-    throw new RangeError(
-      `Gregorian computus is defined for years >= 1583. Received: ${year}`
-    );
+    throw new RangeError(`Gregorian computus is defined for years >= 1583. Received: ${year}`);
   }
 
   // --- Step 1: Determine basic cycle values ---
-  const a = year % 19;                // Year's position in the 19-year Metonic cycle
-  const b = Math.floor(year / 100);   // Century number
-  const c = year % 100;               // Year within the century
+  const a = year % 19; // Year's position in the 19-year Metonic cycle
+  const b = Math.floor(year / 100); // Century number
+  const c = year % 100; // Year within the century
 
   // --- Step 2: Apply solar and lunar corrections ---
   const d = Math.floor(b / 4);
@@ -46,19 +44,21 @@ export function computet(year: number): Date {
 
   // --- Step 6: Compute month and day (March = 3, April = 4) ---
   const q = h + L - 7 * m + 114;
-  const month = Math.floor(q / 31);       // 3 or 4
-  const day = (q % 31) + 1;               // Day of month
+  const month = Math.floor(q / 31); // 3 or 4
+  const day = (q % 31) + 1; // Day of month
 
   // --- Step 7: Return as a UTC Date object ---
   return new Date(Date.UTC(year, month - 1, day));
 }
+
+export const ALL_POSSIBLE_DATES_FOR_EASTER = [];
 
 /* =========================
    Example Usage & Testing
    ========================= */
 
 // Easter 2024 → March 31 2024
-console.log("Easter 2024 →", computet(2024).toISOString().slice(0, 10));
+//console.log('Easter 2024 →', computet(2024).toISOString().slice(0, 10));
 
 // Easter 2025 → April 20 2025
-console.log("Easter 2025 →", computet(2025).toISOString().slice(0, 10));
+//console.log('Easter 2025 →', computet(2025).toISOString().slice(0, 10));

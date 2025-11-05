@@ -60,7 +60,7 @@ const OFFICIUM_SCRIPT = path.join(
   'web',
   'cgi-bin',
   'horas',
-  'officium.pl'
+  'officium.pl',
 );
 
 function encodeParams(params: Record<string, string | undefined>): string {
@@ -79,10 +79,13 @@ function isoDateToDivinum(date: string): string {
   return `${month}-${day}-${year}`;
 }
 
-function mergeEnv(base: NodeJS.ProcessEnv, extra: NodeJS.ProcessEnv | undefined): NodeJS.ProcessEnv {
+function mergeEnv(
+  base: NodeJS.ProcessEnv,
+  extra: NodeJS.ProcessEnv | undefined,
+): NodeJS.ProcessEnv {
   return {
     ...base,
-    ...(extra ?? {})
+    ...(extra ?? {}),
   };
 }
 
@@ -105,7 +108,7 @@ function parseHeadersAndBody(output: string): RunDivinumOfficiumResult {
   return {
     headers,
     body,
-    rawOutput: output
+    rawOutput: output,
   };
 }
 
@@ -113,11 +116,11 @@ function parseHeadersAndBody(output: string): RunDivinumOfficiumResult {
  * Run the Divinum Officium CGI script for a specific hour and return the rendered HTML.
  */
 export async function runDivinumOfficium(
-  options: RunDivinumOfficiumOptions
+  options: RunDivinumOfficiumOptions,
 ): Promise<RunDivinumOfficiumResult> {
   const queryParams: Record<string, string> = {
     command: `pray${options.hora}`,
-    ...(options.params ?? {})
+    ...(options.params ?? {}),
   };
 
   if (options.isoDate) {
@@ -135,7 +138,7 @@ export async function runDivinumOfficium(
     SERVER_NAME: 'localhost',
     SERVER_PORT: '80',
     SERVER_PROTOCOL: 'HTTP/1.1',
-    PERL5LIB: [PERL_LIB_DIR, process.env.PERL5LIB].filter(Boolean).join(':')
+    PERL5LIB: [PERL_LIB_DIR, process.env.PERL5LIB].filter(Boolean).join(':'),
   };
 
   if (options.verbose) {
@@ -145,7 +148,7 @@ export async function runDivinumOfficium(
 
   const child = spawn('perl', [OFFICIUM_SCRIPT], {
     cwd: REPO_ROOT,
-    env: mergeEnv(perlEnv, options.env)
+    env: mergeEnv(perlEnv, options.env),
   });
 
   let stdout = '';
@@ -170,7 +173,7 @@ export async function runDivinumOfficium(
 
   if (code !== 0) {
     throw new Error(
-      `Divinum Officium script exited with code ${code}. Stderr:\n${stderr || '(empty)'}`
+      `Divinum Officium script exited with code ${code}. Stderr:\n${stderr || '(empty)'}`,
     );
   }
 
@@ -185,5 +188,5 @@ export const horaFromOfficeHour: Record<string, HoraCommand> = {
   SEXTA: 'Sexta',
   NONA: 'Nona',
   VESPERAE: 'Vesperae',
-  COMPLETORIUM: 'Completorium'
+  COMPLETORIUM: 'Completorium',
 };
