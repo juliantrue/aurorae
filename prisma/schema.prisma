@@ -32,42 +32,84 @@ model RiteVersion {
   parent   RiteVersion?  @relation("RiteVersionParent", fields: [parentId], references: [id])
   children RiteVersion[] @relation("RiteVersionParent")
 
-  movableFeasts MovableFeast[]
-  fixedFeasts   FixedFeast[]
-  seasonalDays  SeasonalDay[]
-  season        Season[]
-  rank          Rank[]
+  movableFeasts          MovableFeast[]
+  fixedFeasts            FixedFeast[]
+  seasonalDays           SeasonalDay[]
+  season                 Season[]
+  rank                   Rank[]
+  conflictResolutionRule ConflictResolutionRule[]
 }
 
 // ----------------------------------------------------------
 // CALENDAR
 // ----------------------------------------------------------
-model Season {
-  id            Int           @id @default(autoincrement())
-  key           String // e.g., "Quadragesimae"
-  latinName     String
-  vernacular    String? // optional English name
-  color         String? // liturgical color (e.g., "violet")
-  description   String?
+model Rank {
+  id          Int     @id @default(autoincrement())
+  key         String // e.g., "sollemnitas", "festum duplex majus"
+  name        String
+  precedence  Int // numeric hierarchy, e.g., 1=highest
+  description String?
+
   riteVersionId Int
-  riteVersion   RiteVersion   @relation(fields: [riteVersionId], references: [id])
-  SeasonalDay   SeasonalDay[]
+  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
+
+  movableFeast           MovableFeast[]
+  fixedFeast             FixedFeast[]
+  seasonalDay            SeasonalDay[]
+  conflictResolutionRule ConflictResolutionRule[]
 
   @@unique([key, riteVersionId])
 }
 
-model Rank {
-  id            Int            @id @default(autoincrement())
-  key           String // e.g., "sollemnitas", "festum duplex majus"
-  latinName     String
-  vernacular    String?
-  precedence    Int? // numeric hierarchy, e.g., 1=highest
-  description   String?
+model OnConflictTransferDefinition {
+  id               Int          @id @default(autoincrement())
+  transferKind     TransferKind
+  offsetFromEaster Int?
+  fixedYear        Int?
+  fixedMonth       Int?
+  fixedDay         Int?
+}
+
+enum TransferKind {
+  TO_MOVEABLE
+  TO_FIXED
+}
+
+model ConflictResolutionRule {
+  id         Int            @id @default(autoincrement())
+  onConflict ConflictAction
+  notes      String?
+  condition  String? // e.g. "if falls during Holy Week or Easter Octave"
+  transferTo String? // e.g. "Monday after 2nd Sunday of Easter"
+
+  riteVersionId  Int
+  riteVersion    RiteVersion   @relation(fields: [riteVersionId], references: [id])
+  rankId         Int?
+  rank           Rank?         @relation(fields: [rankId], references: [id])
+  movableFeastId Int?
+  movableFeast   MovableFeast? @relation(fields: [movableFeastId], references: [id])
+  fixedFeastId   Int?
+  fixedFeast     FixedFeast?   @relation(fields: [fixedFeastId], references: [id])
+}
+
+enum ConflictAction {
+  OMIT // Celebration dropped this year
+  OPTIONAL // May be observed in part (e.g., local option)
+  COMMEMORATE // Mentioned liturgically, not as full feast
+  TRANSFER // Moved to a new date
+}
+
+model Season {
+  id          Int     @id @default(autoincrement())
+  key         String // e.g., "Quadragesimae"
+  name        String
+  color       String? // liturgical color (e.g., "violet")
+  description String?
+
   riteVersionId Int
-  riteVersion   RiteVersion    @relation(fields: [riteVersionId], references: [id])
-  MovableFeast  MovableFeast[]
-  FixedFeast    FixedFeast[]
-  SeasonalDay   SeasonalDay[]
+  riteVersion   RiteVersion @relation(fields: [riteVersionId], references: [id])
+
+  seasonalDay SeasonalDay[]
 
   @@unique([key, riteVersionId])
 }
@@ -76,6 +118,7 @@ model MovableFeast {
   id               Int     @id @default(autoincrement())
   key              String  @unique
   name             String
+  yearNumber       Int
   offsetFromEaster Int
   description      String?
 
@@ -84,8 +127,23 @@ model MovableFeast {
   rankId        Int
   rank          Rank        @relation(fields: [rankId], references: [id])
 
-  horae  Hora[]
-  missae Missa[]
+  // If moveable feast WERE to be transferred due to a conflict this field would be
+  // set to point at the originally schedulled feast day. The resolved will follow 
+  // this link to compute whether or not the feast WAS ACTUALLY translated
+  // Movable --> Movable: (Hypothetical, very rare)
+  rescheduledFromId Int?
+  rescheduledFrom   MovableFeast?  @relation("RescheduledLink", fields: [rescheduledFromId], references: [id])
+  rescheduledTo     MovableFeast[] @relation("RescheduledLink")
+
+  // Optional cross-type link if a movable feast transfers to a fixedFeast definition
+  // Movable --> Fixed. eg. St Joseph (if impeded in Holy Week → after Easter)I can't find an example of this existing, but we'll create the model anyway
+  rescheduledToFixedId     Int?
+  rescheduledToFixed       FixedFeast?  @relation("RescheduledToFixed", fields: [rescheduledToFixedId], references: [id])
+  rescheduledToFixedFeasts FixedFeast[] @relation("RescheduleToMovable")
+
+  horae                  Hora[]
+  missae                 Missa[]
+  conflictResolutionRule ConflictResolutionRule[]
 
   @@unique([key, riteVersionId])
 }
@@ -94,8 +152,9 @@ model FixedFeast {
   id          Int     @id @default(autoincrement())
   key         String  @unique
   name        String
-  month       Int
-  day         Int
+  yearNumber  Int
+  monthNumber Int
+  dayNumber   Int
   description String?
 
   riteVersionId Int
@@ -103,17 +162,33 @@ model FixedFeast {
   rankId        Int
   rank          Rank        @relation(fields: [rankId], references: [id])
 
-  horae  Hora[]
-  missae Missa[]
+  // If fixed feast WERE to be transferred due to a conflict this field would be
+  // set to point at the originally schedulled feast day. The resolved will follow 
+  // this link to compute whether or not the feast WAS ACTUALLY translated
+  // Fixed --> Fixed: eg. Immaculate Conception (Dec 8 → Dec 9)
+  rescheduledFromId Int?
+  rescheduledFrom   FixedFeast?  @relation("FixedRescheduledLink", fields: [rescheduledFromId], references: [id])
+  rescheduledTo     FixedFeast[] @relation("FixedRescheduledLink")
+
+  // Optional cross-type link if a fixed feast transfers to a movableFeast definition
+  // Fixed --> Movable eg. Annunciation (Mar 25 → Mon after 2nd Sun of Easter) 
+  rescheduledToMovableId    Int?
+  rescheduledToMovable      MovableFeast?  @relation("RescheduleToMovable", fields: [rescheduledToMovableId], references: [id])
+  rescheduledMoveableFeasts MovableFeast[] @relation("RescheduledToFixed")
+
+  horae                  Hora[]
+  missae                 Missa[]
+  conflictResolutionRule ConflictResolutionRule[]
 
   @@unique([key, riteVersionId])
 }
 
 model SeasonalDay {
-  id          Int            @id @default(autoincrement())
-  key         String         @unique
+  id          Int     @id @default(autoincrement())
+  key         String  @unique
+  yearNumber  Int
   weekNumber  Int
-  weekday     DiesHebdomadis
+  dayNumber   Int
   description String?
 
   riteVersionId Int
@@ -127,16 +202,6 @@ model SeasonalDay {
   missae Missa[]
 
   @@unique([key, riteVersionId])
-}
-
-enum DiesHebdomadis {
-  Dominica
-  FeriaSecunda
-  FeriaTertia
-  FeriaQuarta
-  FeriaQuinta
-  FeriaSexta
-  Sabbatum
 }
 
 /**
@@ -327,17 +392,17 @@ model ResponseSequence {
   id          Int                  @id @default(autoincrement())
   title       String
   description String?
-  kind        ResponseSequenceKind @default(Other)
+  kind        ResponseSequenceKind @default(OTHER)
 
   parts ResponsePart[]
 }
 
 enum ResponseSequenceKind {
-  Responsory
-  Versicle
-  Benediction
-  Dismissal
-  Other
+  RESPONSORY
+  VERSICLE
+  BENEDICTION
+  DISMISSAL
+  OTHER
 }
 
 model ResponsePart {
@@ -352,11 +417,11 @@ model ResponsePart {
 }
 
 enum BlockTable {
-  ActusLiturgicus
-  TextBlock
-  RefBlock
-  ChantBlock
-  ResponseSequence
+  ACTUSLITURGICUS
+  TEXTBLOCK
+  REFBLOCK
+  CHANTBLOCK
+  RESPONSESEQUENCE
 }
 
 /**
