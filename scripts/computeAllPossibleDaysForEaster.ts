@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 
-import { computet } from '@/lib/computet';
+import { computet } from '@core/lib/computet';
 
 type EasterHistogram = Record<string, number>;
 

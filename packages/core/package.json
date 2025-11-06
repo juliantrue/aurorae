@@ -1,0 +1,17 @@
+{
+  "name": "@aurorae/core",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@prisma/client": "^6.17.0"
+  }
+}

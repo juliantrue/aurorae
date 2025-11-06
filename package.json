@@ -1,5 +1,5 @@
 {
-  "name": "installable-app",
+  "name": "aurorae",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
+    "dev:web": "pnpm --filter @aurorae/web dev",
+    "build:web": "pnpm --filter @aurorae/web build",
+    "lint:web": "pnpm --filter @aurorae/web lint",
     "seed": "pnpm run prisma:generate && tsx scripts/import-divinum-officium.ts",
     "clean": "git clean -Xdf",
     "prisma:generate": "prisma generate",
@@ -17,10 +20,6 @@
     "liturgical:init": "(git submodule status vendor/divinum-officium >/dev/null 2>&1 || git submodule add https://github.com/DivinumOfficium/divinum-officium.git vendor/divinum-officium) && git submodule update --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout init --cone && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin",
     "liturgical:update": "git submodule update --remote --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin",
     "test:liturgy": "tsx tests/divinum-officium/run-comparisons.ts"
-  },
-  "dependencies": {
-    "@prisma/client": "^6.17.0",
-    "tsx": "^4.20.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -33,6 +32,7 @@
     "diff": "^5.2.0",
     "eslint": "^9",
     "jest": "^30.2.0",
+    "tsx": "^4.20.6",
     "prettier": "^3.6.2",
     "prisma": "^6.17.0",
     "typescript": "^5"

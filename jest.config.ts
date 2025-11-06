@@ -7,7 +7,7 @@ const config: Config = {
     '^.+\\.(ts|tsx)$': ['@swc/jest'],
   },
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@core/(.*)$': '<rootDir>/packages/core/src/$1',
   },
 };
 
