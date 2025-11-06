@@ -3,12 +3,18 @@
 import { useRef, useState, useMemo } from 'react';
 import { StepperCarousel } from './StepperCarousel';
 import { useLiturgicalEditorState } from './hooks/useLiturgicalEditorState';
+import { RiteDetailsStep } from './liturgical-editor/steps/RiteDetailsStep';
+import { RiteVersionsStep } from './liturgical-editor/steps/RiteVersionsStep';
+import { BlockLibraryStep } from './liturgical-editor/steps/BlockLibraryStep';
+import { OrdinariesStep } from './liturgical-editor/steps/OrdinariesStep';
+import { FeastDaysStep } from './liturgical-editor/steps/FeastDaysStep';
+import { ReviewStep } from './liturgical-editor/steps/ReviewStep';
 
-type Identifier = string;
+export type Identifier = string;
 
 const createId = () => Math.random().toString(36).slice(2, 10);
 
-const parseNumberInput = (value: string): number | '' => {
+export const parseNumberInput = (value: string): number | '' => {
   if (value === '') return '';
   const numericValue = Number(value);
   return Number.isNaN(numericValue) ? '' : numericValue;
@@ -275,7 +281,7 @@ const blockTypeLabels: Record<BlockType, string> = {
   RESPONSESEQUENCE: 'Response Sequence'
 };
 
-const blockTypes: BlockType[] = [
+export const blockTypes: BlockType[] = [
   'ACTUSLITURGICUS',
   'TEXTBLOCK',
   'REFBLOCK',
@@ -283,7 +289,7 @@ const blockTypes: BlockType[] = [
   'RESPONSESEQUENCE'
 ];
 
-const responseSequenceKinds: ResponseSequenceDefinition['kind'][] = [
+export const responseSequenceKinds: ResponseSequenceDefinition['kind'][] = [
   'RESPONSORY',
   'VERSICLE',
   'BENEDICTION',
@@ -291,7 +297,7 @@ const responseSequenceKinds: ResponseSequenceDefinition['kind'][] = [
   'OTHER'
 ];
 
-const calendarScopes: CalendarScope[] = [
+export const calendarScopes: CalendarScope[] = [
   'UNIVERSAL',
   'NATIONAL',
   'DIOCESAN',
@@ -299,9 +305,9 @@ const calendarScopes: CalendarScope[] = [
   'LOCAL'
 ];
 
-const conflictActions: ConflictAction[] = ['OMIT', 'OPTIONAL', 'COMMEMORATE', 'TRANSFER'];
+export const conflictActions: ConflictAction[] = ['OMIT', 'OPTIONAL', 'COMMEMORATE', 'TRANSFER'];
 
-const transferKinds: TransferKind[] = ['TO_MOVEABLE', 'TO_FIXED'];
+export const transferKinds: TransferKind[] = ['TO_MOVEABLE', 'TO_FIXED'];
 
 type LiturgicalEditorState = {
   rite: RiteDefinition;
@@ -375,7 +381,7 @@ export function LiturgicalEditor() {
   );
 }
 
-function RiteDetailsStep({
+function InternalRiteDetailsStep({
   rite,
   onChange
 }: {
@@ -413,7 +419,7 @@ function RiteDetailsStep({
   );
 }
 
-function RiteVersionsStep({
+function InternalRiteVersionsStep({
   versions,
   activeVersionId,
   onAdd,
@@ -561,7 +567,7 @@ function RiteVersionsStep({
   );
 }
 
-function BlockLibraryStep({
+function InternalBlockLibraryStep({
   version,
   onUpdate
 }: {
@@ -1281,7 +1287,7 @@ function BlockLibraryStep({
   );
 }
 
-function OrdinariesStep({
+function InternalOrdinariesStep({
   version,
   onUpdate,
   blockTypeLabels
@@ -1697,7 +1703,7 @@ function OrdinariesStep({
   );
 }
 
-function FeastDaysStep({
+function InternalFeastDaysStep({
   version,
   onUpdate
 }: {
@@ -2822,7 +2828,7 @@ function FeastDaysStep({
   );
 }
 
-function ReviewStep({
+function InternalReviewStep({
   rite,
   blockTypeLabels
 }: {
