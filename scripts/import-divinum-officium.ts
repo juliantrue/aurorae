@@ -15,9 +15,7 @@
 import path from 'node:path';
 import { access, readFile, readdir } from 'node:fs/promises';
 import process from 'node:process';
-import { PrismaClient, OfficeHour, Season, Rank, LiturgicalDay } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma, OfficeHour, Season, Rank, LiturgicalDay } from '@aurorae/database';
 
 const HORAS_BASE_DIR = path.join(
   process.cwd(),

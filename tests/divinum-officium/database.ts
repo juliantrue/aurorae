@@ -1,4 +1,4 @@
-import { PrismaClient, OfficeHour } from '@prisma/client';
+import { prisma, OfficeHour } from '@aurorae/database';
 
 export interface ImportedSection {
   key: string;
@@ -28,8 +28,6 @@ export interface DatabaseOffice {
   hour: OfficeHour;
   metadata: ImportedOfficeMetadata;
 }
-
-const prisma = new PrismaClient();
 
 export async function fetchOfficeBySlugAndHour(
   slug: string,

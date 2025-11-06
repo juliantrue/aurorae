@@ -8,7 +8,7 @@
  *  - auto-detects EF vs OF seasonal rules by presence of season keys
  *  - walks the RiteVersion inheritance chain (child → parent → grandparent)
  *
- * NOTE: We mock @prisma/client with an in-memory data store (globalThis.__DB)
+ * NOTE: We mock @aurorae/database with an in-memory data store (globalThis.__DB)
  * so each test can specify the minimal data needed to assert behavior.
  */
 
@@ -16,9 +16,9 @@
    0) MODULE MOCKS
 ------------------------------*/
 
-// Mock the Prisma client so our resolver uses in-memory arrays instead of a DB.
+// Mock the database package so our resolver uses in-memory arrays instead of a DB.
 // We expose globalThis.__DB for test data, and implement just the methods the resolver calls.
-jest.mock('@prisma/client', () => {
+jest.mock('@aurorae/database', () => {
   // Simple helpers for matching "where" filters used in the resolver.
   function matchWhere<T>(row: T, where: any): boolean {
     if (!where) return true;
@@ -146,7 +146,12 @@ jest.mock('@prisma/client', () => {
     };
   }
 
-  return { PrismaClient };
+  const prisma = new PrismaClient();
+
+  return {
+    prisma,
+    PrismaClient,
+  };
 });
 
 // Mock the computus so dates are deterministic in tests.

@@ -25,10 +25,8 @@
  *   - All DB numbers are small (~hundreds of rows), so simple queries are fine.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@aurorae/database';
 import { computet } from '../lib/computet';
-
-const prisma = new PrismaClient();
 
 /* -------------------------------------------------------------------------- */
 /* Basic Date Utilities                                                       */

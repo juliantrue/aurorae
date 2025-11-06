@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { OfficeHour } from '@prisma/client';
+import { OfficeHour } from '@aurorae/database';
 import { diffWords } from 'diff';
 
 import { fetchOfficeBySlugAndHour, closePrisma, ImportedSection } from './database';
