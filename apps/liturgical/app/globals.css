@@ -57,12 +57,14 @@ body {
 .container, main.editor-container {
   max-width: 46rem; /* ~ 42–48rem range */
   margin: 0 auto;
-  padding: 2.5rem 1rem 3rem;
+  /* Extra bottom padding so content doesn't hide behind fixed stepper */
+  padding: 2.5rem 1rem 6.5rem;
 }
 
 .liturgical-editor { display: grid; gap: 1.25rem; }
 
 /* Stepper: understated, typographic */
+/* Legacy top stepper (kept for reference/other pages) */
 .stepper {
   display: flex;
   flex-wrap: wrap;
@@ -100,6 +102,69 @@ body {
 }
 
 .step-content { display: grid; gap: 1.25rem; }
+
+/* Bottom-centered carousel-style stepper */
+.stepper-carousel {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  max-width: 46rem;
+  width: min(92vw, 46rem);
+  padding: 0.25rem 0;
+  z-index: 50;
+}
+
+.stepper-track {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 0.25rem 0.4rem;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+
+.stepper-track::-webkit-scrollbar { display: none; }
+
+.stepper-carousel .step {
+  white-space: nowrap;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0;
+}
+
+.stepper-carousel .step.active {
+  color: var(--text);
+  background: transparent;
+  border-bottom-color: var(--primary);
+}
+
+/* Square the index badge inside the carousel */
+.stepper-carousel .step-index { border-radius: 0; border: none; }
+
+.carousel-arrow {
+  border: none;
+  background: transparent;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
+.carousel-arrow:hover { color: var(--text); }
 
 /* Cards: surface with thin border, gentle shadow */
 .card {
