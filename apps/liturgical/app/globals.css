@@ -1,0 +1,348 @@
+:root {
+  color-scheme: light;
+  /* Sacred Minimalism — Liturgical Palette */
+  --bg: #f8f5f0;            /* Parchment */
+  --surface: #fffdf8;       /* Ivory White */
+  --text: #2e2e2e;          /* Charcoal */
+  --muted: #6b6b6b;         /* Ash */
+  --primary: #4b0f0f;       /* Oxblood */
+  --primary-300: #b76b6b;   /* Oxblood Light */
+  --gold: #c8a951;          /* Illumination */
+  --border: #e5dccf;        /* Warm paper edge */
+  --radius: 4px;
+  --shadow: 0 1px 2px rgba(16, 7, 7, 0.04), 0 6px 24px rgba(16, 7, 7, 0.06);
+  --rhythm-1: 4px;
+  --rhythm-2: 8px;
+  --rhythm-3: 16px;
+  --rhythm-4: 32px;
+  --rhythm-5: 64px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header — centered, discreet */
+.site-header {
+  position: sticky;
+  top: 0;
+  background: color-mix(in oklab, var(--bg) 92%, white 8%);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(2px);
+}
+
+.site-header .container {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0.85rem 1rem;
+}
+
+.brand { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.brand .mark { color: var(--gold); letter-spacing: 0.1em; }
+.brand .title { font-weight: 600; letter-spacing: 0.04em; font-size: 1.05rem; }
+
+/* Reading container */
+.container, main.editor-container {
+  max-width: 46rem; /* ~ 42–48rem range */
+  margin: 0 auto;
+  padding: 2.5rem 1rem 3rem;
+}
+
+.liturgical-editor { display: grid; gap: 1.25rem; }
+
+/* Stepper: understated, typographic */
+.stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--muted);
+  padding: 0.25rem 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.step:hover { color: var(--text); border-bottom-color: color-mix(in oklab, var(--primary) 25%, white 75%); }
+.step.active { color: var(--text); border-bottom-color: var(--primary); }
+
+.step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.step-content { display: grid; gap: 1.25rem; }
+
+/* Cards: surface with thin border, gentle shadow */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+.card p { margin: 0; color: var(--muted); }
+
+/* Buttons: rounded minimal, oxblood primary */
+button {
+  font-family: inherit;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 120ms ease;
+}
+
+button:hover { border-color: var(--primary); color: var(--text); }
+button:active { transform: translateY(0.5px); }
+
+button.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+button.primary:hover { filter: brightness(0.96); }
+
+button.danger {
+  border-color: #d4a2a2;
+  color: #7a2e2e;
+  background: var(--surface);
+}
+
+button.danger:hover { background: #f7eaea; border-color: #c87a7a; }
+
+/* Forms */
+.field-grid {
+  display: grid;
+  gap: 1rem 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 1rem;
+}
+
+.field-grid.wide { grid-template-columns: 1fr; }
+
+/* Use supportive sans for UI elements */
+label,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 25%, transparent);
+}
+
+textarea { resize: vertical; }
+
+.empty-state {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  background: color-mix(in oklab, var(--gold) 10%, var(--surface));
+  border-radius: var(--radius);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.version-list,
+.block-stack { display: grid; gap: 1rem; }
+
+.version {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  background: var(--surface);
+}
+
+.version.active { border-color: var(--primary); }
+
+.version-header,
+.block-item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.version-actions { display: flex; gap: 0.5rem; }
+
+.block-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  background: var(--surface);
+}
+
+.block-section > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.block-section h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.block-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  background: color-mix(in oklab, var(--bg) 85%, white 15%);
+}
+
+.block-item + .block-item { margin-top: 0.85rem; }
+
+.block-item strong { font-size: 1rem; color: var(--ink); }
+
+.nested-block {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+  background: var(--surface);
+}
+
+.nested-block header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.nested-block h4 { margin: 0; font-size: 1rem; color: var(--ink); }
+
+.field-grid.nested {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  background: color-mix(in oklab, var(--bg) 85%, white 15%);
+}
+
+.field-grid.part {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem;
+  background: var(--surface);
+}
+
+.part-actions { display: flex; align-items: center; justify-content: flex-end; }
+
+/* Review (code-like output) */
+.review pre {
+  background: #202124;
+  color: #f1f3f4;
+  padding: 1rem 1.1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  max-height: 420px;
+}
+
+.review details { margin-top: 0.85rem; font-size: 0.95rem; }
+
+.review summary { cursor: pointer; color: var(--primary); font-weight: 600; }
+
+/* Motion & transitions */
+* { transition: color 120ms ease, background-color 180ms ease, border-color 160ms ease; }
+
+@media (max-width: 768px) {
+  main.editor-container { padding: 2rem 1rem 3rem; }
+  .stepper { justify-content: flex-start; }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #0f0f0f;            /* Midnight */
+    --surface: #161616;
+    --text: #f2efe9;
+    --muted: #b8b1a5;
+    --primary: #b76b6b;       /* Lift primary in dark */
+    --primary-300: #d89b9b;
+    --gold: #cdbb7a;
+    --border: #2b2b2b;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 6px 24px rgba(0,0,0,0.35);
+  }
+
+  .review pre { background: #0b0b0b; color: #f1f1f1; }
+}
