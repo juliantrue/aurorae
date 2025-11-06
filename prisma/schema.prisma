@@ -348,6 +348,10 @@ model TextBlock {
   genusId Int
   genus   TextBlockGenus @relation(fields: [genusId], references: [id])
 
+  parentId Int?
+  parent   TextBlock? @relation("TextBlockLineage", fields: [parentId], references: [id])
+
+  children     TextBlock[]  @relation("TextBlockLineage")
   gabcVariants GabcSource[] // optional, for sung versions
 }
 
@@ -369,11 +373,17 @@ model RefBlock {
   refBlockGenus   RefBlockGenus @relation(fields: [refBlockGenusId], references: [id])
   textSourceId    Int
   textSource      TextSource    @relation(fields: [textSourceId], references: [id])
+  parentId        Int?
+  parent          RefBlock?     @relation("RefBlockLineage", fields: [parentId], references: [id])
 
   startUnitId Int
   startUnit   TextUnit @relation("Start", fields: [startUnitId], references: [id])
   endUnitId   Int
   endUnit     TextUnit @relation("End", fields: [endUnitId], references: [id])
+
+  children     RefBlock[]  @relation("RefBlockLineage")
+  ChantBlock   ChantBlock? @relation(fields: [chantBlockId], references: [id])
+  chantBlockId Int?
 }
 
 model RefBlockGenus {
@@ -392,13 +402,17 @@ model ChantBlock {
 
   chantBlockGenusId Int
   chantBlockGenus   ChantBlockGenus @relation(fields: [chantBlockGenusId], references: [id])
+  parentId          Int?
+  parent            ChantBlock?     @relation("ChantBlockLineage", fields: [parentId], references: [id])
 
+  children     ChantBlock[] @relation("ChantBlockLineage")
   // Associated chant variants BY SOURCE, not usage. 
   // This list will contain versions of a particular antiphon across multiple chant sources
   // ie. feria II in Advent in Antiphonale Romanum 1949, Monasticum etc...
   // This list WILL NOT contain versions of a particular antiphon as a related to liturgical function
   // ie. NOT A LIST LIKE THIS: feria II in Advent, feria II in lent, feria II in post pentecost etc
   gabcVariants GabcSource[]
+  RefBlock     RefBlock[]
 }
 
 model ChantBlockGenus {
@@ -415,7 +429,11 @@ model ResponseSequence {
   description String?
   kind        ResponseSequenceKind @default(OTHER)
 
-  parts ResponsePart[]
+  parentId Int?
+  parent   ResponseSequence? @relation("ResponseSequenceLineage", fields: [parentId], references: [id])
+
+  children ResponseSequence[] @relation("ResponseSequenceLineage")
+  parts    ResponsePart[]
 }
 
 enum ResponseSequenceKind {
