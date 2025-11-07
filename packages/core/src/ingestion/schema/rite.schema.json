@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rite",
+  "description": "A distinct liturgical and spiritual tradition that expresses the same Catholic faith through its own prayers, ceremonies, and disciplines.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "A short unique identifier to be referenced."
+    },
+    "name": {
+      "type": "string",
+      "description": "Formal name to be used. eg. Roman Rite, Alexandrian Rite, etc"
+    },
+    "description": {
+      "type": "string",
+      "description": "A brief description of the rite."
+    }
+  },
+  "required": ["id", "name", "description"],
+  "additionalProperties": false
+}

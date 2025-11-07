@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Missa Element",
+  "description": "An ordered element within a Mass, pointing to a content block.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "missaId": { "type": "string", "description": "Reference ID to the Mass." },
+    "order": { "type": "integer", "description": "Order of appearance within the Mass." },
+    "blockType": {
+      "type": "string",
+      "description": "Table that the element references.",
+      "enum": ["ACTUSLITURGICUS", "TEXTBLOCK", "REFBLOCK", "CHANTBLOCK", "RESPONSESEQUENCE"]
+    },
+    "blockId": { "type": "string", "description": "Reference ID in the target table." }
+  },
+  "required": ["id", "missaId", "order", "blockType", "blockId"],
+  "additionalProperties": false
+}

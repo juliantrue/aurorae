@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Text Block",
+  "description": "A reusable block of text, optionally hierarchical and linked to a genus.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "text": { "type": "string", "description": "Text content of the block." },
+    "title": { "type": "string", "description": "Optional title of the block." },
+    "genusId": { "type": "string", "description": "Reference ID to the text block genus." },
+    "parentId": { "type": "string", "description": "Optional parent text block ID." }
+  },
+  "required": ["id", "text", "genusId"],
+  "additionalProperties": false
+}

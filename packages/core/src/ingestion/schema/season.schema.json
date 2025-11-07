@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Season",
+  "description": "A liturgical season within a rite version.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "key": { "type": "string", "description": "Unique key for the season." },
+    "name": { "type": "string", "description": "Display name for the season." },
+    "color": { "type": "string", "description": "Optional liturgical color (e.g., 'violet')." },
+    "description": { "type": "string", "description": "Optional description of the season." },
+    "riteVersionId": { "type": "string", "description": "Reference ID to the rite version." }
+  },
+  "required": ["id", "key", "name", "riteVersionId"],
+  "additionalProperties": false
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Text Section",
+  "description": "A hierarchical section within a text source.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "textSourceId": { "type": "string", "description": "Reference ID to the text source." },
+    "title": { "type": "string", "description": "Section title." },
+    "code": { "type": "string", "description": "Optional code (e.g., 'GEN', 'JOH')." },
+    "order": { "type": "integer", "description": "Canonical order within the source." },
+    "parentId": { "type": "string", "description": "Optional ID of the parent section." }
+  },
+  "required": ["id", "textSourceId", "title"],
+  "additionalProperties": false
+}

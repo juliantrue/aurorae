@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Movable Feast",
+  "description": "A feast whose date is computed relative to Easter.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "key": { "type": "string", "description": "Unique key for this movable feast." },
+    "name": { "type": "string", "description": "Display name of the feast." },
+    "yearNumber": {
+      "type": "integer",
+      "description": "Year number within the cycle, if applicable."
+    },
+    "offsetFromEaster": {
+      "type": "integer",
+      "description": "Days offset from Easter (can be negative)."
+    },
+    "description": { "type": "string", "description": "Optional description of the feast." },
+    "riteVersionId": { "type": "string", "description": "Reference ID to the rite version." },
+    "localeId": { "type": "string", "description": "Reference ID to the calendar locale." },
+    "rankId": { "type": "string", "description": "Reference ID to the rank." },
+    "rescheduledFromId": {
+      "type": "string",
+      "description": "If transferred, ID of the original movable feast."
+    },
+    "rescheduledToFixedId": {
+      "type": "string",
+      "description": "If transferred to a fixed feast, its ID."
+    }
+  },
+  "required": [
+    "id",
+    "key",
+    "name",
+    "yearNumber",
+    "offsetFromEaster",
+    "riteVersionId",
+    "localeId",
+    "rankId"
+  ],
+  "additionalProperties": false
+}

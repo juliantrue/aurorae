@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GABC Source",
+  "description": "A specific chant instance with GABC notation from a source and usage.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "name": { "type": "string", "description": "Chant title as printed in the edition." },
+    "mode": { "type": "string", "description": "Mode designation (I–VIII, 'per.', etc.)." },
+    "gabc": { "type": "string", "description": "Full GABC notation text." },
+    "chantSourceId": { "type": "string", "description": "Reference ID to the chant source." },
+    "chantUsageId": { "type": "string", "description": "Reference ID to the chant usage." },
+    "textBlockId": {
+      "type": "string",
+      "description": "Optional reference ID to associated TextBlock."
+    },
+    "chantBlockId": {
+      "type": "string",
+      "description": "Optional reference ID to associated ChantBlock."
+    },
+    "responsePartId": {
+      "type": "string",
+      "description": "Optional reference ID to associated ResponsePart."
+    }
+  },
+  "required": ["id", "name", "mode", "gabc", "chantSourceId", "chantUsageId"],
+  "additionalProperties": false
+}

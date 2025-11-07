@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Seasonal Day",
+  "description": "A specific day within a liturgical season and week.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "key": { "type": "string", "description": "Unique key for the seasonal day." },
+    "yearNumber": {
+      "type": "integer",
+      "description": "Year number within the cycle, if applicable."
+    },
+    "weekNumber": { "type": "integer", "description": "Week number within the season." },
+    "dayNumber": { "type": "integer", "description": "Day number within the week (1–7)." },
+    "description": { "type": "string", "description": "Optional description for the day." },
+    "riteVersionId": { "type": "string", "description": "Reference ID to the rite version." },
+    "rankId": { "type": "string", "description": "Reference ID to the rank." },
+    "seasonId": { "type": "string", "description": "Reference ID to the season." }
+  },
+  "required": [
+    "id",
+    "key",
+    "yearNumber",
+    "weekNumber",
+    "dayNumber",
+    "riteVersionId",
+    "rankId",
+    "seasonId"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Text Block Genus",
+  "description": "A category of text blocks (e.g., Collecta, Postcommunio).",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "name": { "type": "string", "description": "Name of the text block genus." },
+    "description": { "type": "string", "description": "Description of the genus." }
+  },
+  "required": ["id", "name", "description"],
+  "additionalProperties": false
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Response Part",
+  "description": "A labeled part within a response sequence.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "responseSequenceId": {
+      "type": "string",
+      "description": "Reference ID to the response sequence."
+    },
+    "order": { "type": "integer", "description": "Order of this part within the sequence." },
+    "label": { "type": "string", "description": "Optional label (e.g., 'V.', 'R.', 'Amen')." },
+    "text": { "type": "string", "description": "Text content of this response part." }
+  },
+  "required": ["id", "responseSequenceId", "order", "text"],
+  "additionalProperties": false
+}

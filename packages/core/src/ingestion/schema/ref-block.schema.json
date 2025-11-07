@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ref Block",
+  "description": "A block referencing a range of text units within a source.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "title": { "type": "string", "description": "Optional title for the reference block." },
+    "seqStart": { "type": "integer", "description": "Cached start unit sequence." },
+    "seqEnd": { "type": "integer", "description": "Cached end unit sequence." },
+    "refBlockGenusId": { "type": "string", "description": "Reference ID to the ref block genus." },
+    "textSourceId": { "type": "string", "description": "Reference ID to the text source." },
+    "parentId": { "type": "string", "description": "Optional parent reference block ID." },
+    "startUnitId": { "type": "string", "description": "Reference ID to the starting text unit." },
+    "endUnitId": { "type": "string", "description": "Reference ID to the ending text unit." }
+  },
+  "required": [
+    "id",
+    "seqStart",
+    "seqEnd",
+    "refBlockGenusId",
+    "textSourceId",
+    "startUnitId",
+    "endUnitId"
+  ],
+  "additionalProperties": false
+}

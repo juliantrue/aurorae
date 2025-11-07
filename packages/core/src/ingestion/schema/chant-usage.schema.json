@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Chant Usage",
+  "description": "Classification of chant by usage (aligned with GregoBase).",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "key": { "type": "string", "description": "Unique key exactly matching GregoBase 'by usage'." },
+    "label": { "type": "string", "description": "Display label for the usage." }
+  },
+  "required": ["id", "key", "label"],
+  "additionalProperties": false
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Chant Source",
+  "description": "A bibliographic source for chant (e.g., Antiphonale Romanum).",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "code": {
+      "type": "string",
+      "description": "Unique code for the chant source (e.g., 'AR1949')."
+    },
+    "title": { "type": "string", "description": "Title of the chant source." },
+    "year": { "type": "integer", "description": "Publication year of the source." },
+    "editor": { "type": "string", "description": "Optional editor or responsible party." },
+    "publisher": { "type": "string", "description": "Optional publishing house or imprint." }
+  },
+  "required": ["id", "code", "title", "year"],
+  "additionalProperties": false
+}

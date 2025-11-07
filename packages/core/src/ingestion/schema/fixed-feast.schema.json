@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fixed Feast",
+  "description": "A feast celebrated on a fixed calendar date.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "key": { "type": "string", "description": "Unique key for this fixed feast." },
+    "name": { "type": "string", "description": "Display name of the feast." },
+    "yearNumber": {
+      "type": "integer",
+      "description": "Year number within the cycle, if applicable."
+    },
+    "monthNumber": { "type": "integer", "description": "Month of the feast (1–12)." },
+    "dayNumber": { "type": "integer", "description": "Day of month (1–31)." },
+    "description": { "type": "string", "description": "Optional description of the feast." },
+    "riteVersionId": { "type": "string", "description": "Reference ID to the rite version." },
+    "localeId": { "type": "string", "description": "Reference ID to the calendar locale." },
+    "rankId": { "type": "string", "description": "Reference ID to the rank." },
+    "rescheduledFromId": {
+      "type": "string",
+      "description": "If transferred, ID of the original fixed feast."
+    },
+    "rescheduledToMovableId": {
+      "type": "string",
+      "description": "If transferred to a movable feast, its ID."
+    }
+  },
+  "required": [
+    "id",
+    "key",
+    "name",
+    "yearNumber",
+    "monthNumber",
+    "dayNumber",
+    "riteVersionId",
+    "localeId",
+    "rankId"
+  ],
+  "additionalProperties": false
+}

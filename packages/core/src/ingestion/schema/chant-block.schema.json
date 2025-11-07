@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Chant Block",
+  "description": "A chant text block with optional tone and hierarchical lineage.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "title": { "type": "string", "description": "Title of the chant block." },
+    "text": { "type": "string", "description": "Text content of the chant block." },
+    "tone": { "type": "string", "description": "Optional chant tone (e.g., 'VIII G')." },
+    "chantBlockGenusId": {
+      "type": "string",
+      "description": "Reference ID to the chant block genus."
+    },
+    "parentId": { "type": "string", "description": "Optional parent chant block ID." }
+  },
+  "required": ["id", "title", "text", "chantBlockGenusId"],
+  "additionalProperties": false
+}

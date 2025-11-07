@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rank",
+  "description": "Liturgical rank with precedence within a rite version.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "key": { "type": "string", "description": "Unique key for the rank (e.g., 'sollemnitas')." },
+    "name": { "type": "string", "description": "Display name for the rank." },
+    "precedence": {
+      "type": "integer",
+      "description": "Numeric hierarchy, lower is higher precedence."
+    },
+    "description": { "type": "string", "description": "Optional description of the rank." },
+    "riteVersionId": { "type": "string", "description": "Reference ID to the rite version." }
+  },
+  "required": ["id", "key", "name", "precedence", "riteVersionId"],
+  "additionalProperties": false
+}

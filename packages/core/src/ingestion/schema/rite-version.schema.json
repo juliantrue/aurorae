@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rite Version",
+  "description": "Represents a particular promulgation of the rite.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "A short unique identifier to be referenced."
+    },
+    "slug": {
+      "type": "string",
+      "description": "A URL-friendly, unique string identifier for the rite."
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the rite version. eg. Tridentine 1570"
+    },
+    "promulgated": {
+      "type": "string",
+      "format": "date",
+      "description": "The date when the rite version was promulgated."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes or comments about this rite version."
+    },
+    "riteId": {
+      "type": "string",
+      "description": "Reference ID linking to its rite."
+    }
+  },
+  "required": ["id", "slug", "name", "promulgated", "riteId"],
+  "additionalProperties": false
+}

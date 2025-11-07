@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Text Unit",
+  "description": "A minimal sequence-addressable unit of text within a section.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "textSourceId": { "type": "string", "description": "Reference ID to the text source." },
+    "sectionId": { "type": "string", "description": "Reference ID to the section." },
+    "sequence": { "type": "integer", "description": "Stable sequence number within the section." },
+    "label": { "type": "string", "description": "Optional label (e.g., 'John 3:16', '§12')." },
+    "text": { "type": "string", "description": "The text content of this unit." },
+    "refExternal": { "type": "string", "description": "Optional external reference or URI." }
+  },
+  "required": ["id", "textSourceId", "sectionId", "sequence", "text"],
+  "additionalProperties": false
+}

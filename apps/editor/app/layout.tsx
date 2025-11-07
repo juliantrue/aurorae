@@ -16,12 +16,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${garamond.className} ${inter.variable}`}>
         <header className="site-header">
           <div className="container">
-            <div className="brand">
-              <span className="mark" aria-hidden>
-                ✠
-              </span>
-              <span className="title">Aurorae</span>
-            </div>
+          <div className="brand">
+            <span className="mark" aria-hidden>
+              ✠
+            </span>
+            <span className="title">Aurorae</span>
+          </div>
+            <nav className="main-nav" aria-label="Primary">
+              <a href="/">Editor</a>
+              <a href="/data">Data</a>
+            </nav>
           </div>
         </header>
         {children}

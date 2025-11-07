@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Conflict Resolution Rule",
+  "description": "Rule describing how to handle feast conflicts and potential transfers.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "onConflict": {
+      "type": "string",
+      "description": "Action taken when a conflict occurs.",
+      "enum": ["OMIT", "OPTIONAL", "COMMEMORATE", "TRANSFER"]
+    },
+    "notes": { "type": "string", "description": "Optional notes for the rule." },
+    "condition": { "type": "string", "description": "Conditional clause when this rule applies." },
+    "transferTo": {
+      "type": "string",
+      "description": "Target description or key when transferring."
+    },
+    "riteVersionId": { "type": "string", "description": "Reference ID to the rite version." },
+    "rankId": { "type": "string", "description": "Reference ID to the rank (optional)." },
+    "movableFeastId": {
+      "type": "string",
+      "description": "Reference ID to the movable feast (optional)."
+    },
+    "fixedFeastId": {
+      "type": "string",
+      "description": "Reference ID to the fixed feast (optional)."
+    }
+  },
+  "required": ["id", "onConflict", "riteVersionId"],
+  "additionalProperties": false
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "On Conflict Transfer Definition",
+  "description": "Defines how an observance transfers when a conflict occurs.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "transferKind": {
+      "type": "string",
+      "description": "Kind of transfer: to movable or fixed date.",
+      "enum": ["TO_MOVEABLE", "TO_FIXED"]
+    },
+    "offsetFromEaster": {
+      "type": "integer",
+      "description": "Day offset from Easter (if movable)."
+    },
+    "fixedYear": { "type": "integer", "description": "Specific year for fixed transfer, if any." },
+    "fixedMonth": { "type": "integer", "description": "Month number for fixed transfer (1–12)." },
+    "fixedDay": { "type": "integer", "description": "Day of month for fixed transfer (1–31)." }
+  },
+  "required": ["id", "transferKind"],
+  "additionalProperties": false
+}

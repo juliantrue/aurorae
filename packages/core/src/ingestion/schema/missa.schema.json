@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Missa",
+  "description": "A Mass linked to a calendar entity.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "name": { "type": "string", "description": "Name of the Mass." },
+    "description": { "type": "string", "description": "Optional description of the Mass." },
+    "fixedFeastId": { "type": "string", "description": "Optional reference ID to a fixed feast." },
+    "movableFeastId": {
+      "type": "string",
+      "description": "Optional reference ID to a movable feast."
+    },
+    "seasonalDayId": { "type": "string", "description": "Optional reference ID to a seasonal day." }
+  },
+  "required": ["id", "name"],
+  "additionalProperties": false
+}

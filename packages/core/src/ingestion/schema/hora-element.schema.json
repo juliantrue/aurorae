@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hora Element",
+  "description": "An ordered element within an Hour, pointing to a content block.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "A short unique identifier to be referenced." },
+    "horaId": { "type": "string", "description": "Reference ID to the Hour." },
+    "order": { "type": "integer", "description": "Order of appearance within the Hour." },
+    "blockType": {
+      "type": "string",
+      "description": "Table that the element references.",
+      "enum": ["ACTUSLITURGICUS", "TEXTBLOCK", "REFBLOCK", "CHANTBLOCK", "RESPONSESEQUENCE"]
+    },
+    "blockId": { "type": "string", "description": "Reference ID in the target table." }
+  },
+  "required": ["id", "horaId", "order", "blockType", "blockId"],
+  "additionalProperties": false
+}
