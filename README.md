@@ -21,7 +21,3 @@ The data folder contains all the files that are used to populate the sqlite sche
 
 Divinum Officium's custom database file structure is very difficult to parse, and perl is not my strongest language. Therefore I've included a test suite to ensure that the Aurorae project is in line with the gold standard for the next 100 years.
 
-## Gregobase Corpus
-
-This is just so I don't lose the link
-https://github.com/bacor/gregobasecorpus/releases/tag/v0.4
