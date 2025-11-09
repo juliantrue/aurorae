@@ -25,6 +25,10 @@
       "type": "string",
       "description": "Optional notes or comments about this rite version."
     },
+    "parentId": {
+      "type": "string",
+      "description": "Optional reference ID to a parent rite version (for inheritance)."
+    },
     "riteId": {
       "type": "string",
       "description": "Reference ID linking to its rite."

@@ -78,35 +78,24 @@ model Rank {
   @@unique([key, riteVersionId])
 }
 
-model OnConflictTransferDefinition {
-  id               Int          @id @default(autoincrement())
-  transferKind     TransferKind
-  offsetFromEaster Int?
-  fixedYear        Int?
-  fixedMonth       Int?
-  fixedDay         Int?
-}
-
-enum TransferKind {
-  TO_MOVEABLE
-  TO_FIXED
-}
-
 model ConflictResolutionRule {
   id         Int            @id @default(autoincrement())
   onConflict ConflictAction
   notes      String?
-  condition  String? // e.g. "if falls during Holy Week or Easter Octave"
-  transferTo String? // e.g. "Monday after 2nd Sunday of Easter"
 
-  riteVersionId  Int
-  riteVersion    RiteVersion   @relation(fields: [riteVersionId], references: [id])
-  rankId         Int?
-  rank           Rank?         @relation(fields: [rankId], references: [id])
-  movableFeastId Int?
-  movableFeast   MovableFeast? @relation(fields: [movableFeastId], references: [id])
-  fixedFeastId   Int?
-  fixedFeast     FixedFeast?   @relation(fields: [fixedFeastId], references: [id])
+  // If conflict action is TRANSFER
+  transferDefinitionId String?
+  transferDefinition   OnConflictTransferDefinition? @relation(fields: [onConflictTransferDefinitionId], references: [id])
+
+  riteVersionId                  Int
+  riteVersion                    RiteVersion   @relation(fields: [riteVersionId], references: [id])
+  rankId                         Int?
+  rank                           Rank?         @relation(fields: [rankId], references: [id])
+  movableFeastId                 Int?
+  movableFeast                   MovableFeast? @relation(fields: [movableFeastId], references: [id])
+  fixedFeastId                   Int?
+  fixedFeast                     FixedFeast?   @relation(fields: [fixedFeastId], references: [id])
+  onConflictTransferDefinitionId Int?
 }
 
 enum ConflictAction {
@@ -114,6 +103,22 @@ enum ConflictAction {
   OPTIONAL // May be observed in part (e.g., local option)
   COMMEMORATE // Mentioned liturgically, not as full feast
   TRANSFER // Moved to a new date
+}
+
+model OnConflictTransferDefinition {
+  id               Int          @id @default(autoincrement())
+  transferKind     TransferKind
+  offsetFromEaster Int?
+  fixedYear        Int?
+  fixedMonth       Int?
+  fixedDay         Int?
+
+  conflictResolutionRules ConflictResolutionRule[]
+}
+
+enum TransferKind {
+  TO_MOVEABLE
+  TO_FIXED
 }
 
 model MovableFeast {

@@ -11,10 +11,9 @@
       "enum": ["OMIT", "OPTIONAL", "COMMEMORATE", "TRANSFER"]
     },
     "notes": { "type": "string", "description": "Optional notes for the rule." },
-    "condition": { "type": "string", "description": "Conditional clause when this rule applies." },
-    "transferTo": {
+    "transferDefinitionId": {
       "type": "string",
-      "description": "Target description or key when transferring."
+      "description": "Reference ID to an on-conflict transfer definition (required when onConflict is TRANSFER)."
     },
     "riteVersionId": { "type": "string", "description": "Reference ID to the rite version." },
     "rankId": { "type": "string", "description": "Reference ID to the rank (optional)." },
@@ -28,5 +27,13 @@
     }
   },
   "required": ["id", "onConflict", "riteVersionId"],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "onConflict": { "const": "TRANSFER" } }
+      },
+      "then": { "required": ["transferDefinitionId"] }
+    }
+  ],
   "additionalProperties": false
 }
