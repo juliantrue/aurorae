@@ -11,7 +11,7 @@ import {
   horaFromOfficeHour,
   runDivinumOfficium,
   RunDivinumOfficiumOptions,
-} from '../../scripts/liturgy/divinumOfficiumRunner';
+} from '@aurorae/divinum-officium-runner';
 
 interface ComparisonCase {
   slug: string;

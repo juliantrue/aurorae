@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": [
+    "packages/divinum-officium-runner/src/index.ts",
+    "packages/divinum-officium-runner/src/cli.ts"
+  ]
+}

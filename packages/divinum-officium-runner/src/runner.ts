@@ -1,8 +1,10 @@
+import { existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-type HoraCommand =
+export type HoraCommand =
   | 'Matutinum'
   | 'Laudes'
   | 'Prima'
@@ -51,7 +53,38 @@ export interface RunDivinumOfficiumResult {
   rawOutput: string;
 }
 
-const REPO_ROOT = path.join(__dirname, '..', '..');
+export const HORA_COMMANDS: readonly HoraCommand[] = [
+  'Matutinum',
+  'Laudes',
+  'Prima',
+  'Tertia',
+  'Sexta',
+  'Nona',
+  'Vesperae',
+  'Completorium',
+] as const;
+
+const MODULE_FILE = path.resolve(fileURLToPath(import.meta.url));
+const MODULE_DIR = path.dirname(MODULE_FILE);
+const REPO_ROOT = resolveRepoRoot(MODULE_DIR);
+
+function resolveRepoRoot(startDir: string): string {
+  let current = startDir;
+  const { root } = path.parse(startDir);
+
+  while (true) {
+    if (existsSync(path.join(current, 'package.json'))) {
+      return current;
+    }
+    if (current === root) {
+      throw new Error(
+        `Unable to locate repository root from "${startDir}". package.json not found in ancestors.`,
+      );
+    }
+    current = path.dirname(current);
+  }
+}
+
 const PERL_LIB_DIR = path.join(REPO_ROOT, 'vendor', 'perl5', 'lib', 'perl5');
 const OFFICIUM_SCRIPT = path.join(
   REPO_ROOT,
@@ -112,9 +145,6 @@ function parseHeadersAndBody(output: string): RunDivinumOfficiumResult {
   };
 }
 
-/**
- * Run the Divinum Officium CGI script for a specific hour and return the rendered HTML.
- */
 export async function runDivinumOfficium(
   options: RunDivinumOfficiumOptions,
 ): Promise<RunDivinumOfficiumResult> {
@@ -190,3 +220,8 @@ export const horaFromOfficeHour: Record<string, HoraCommand> = {
   VESPERAE: 'Vesperae',
   COMPLETORIUM: 'Completorium',
 };
+
+export function isHoraCommand(value: string | undefined): value is HoraCommand {
+  if (!value) return false;
+  return (HORA_COMMANDS as readonly string[]).includes(value);
+}

@@ -101,6 +101,12 @@ importers:
         specifier: ^6.17.0
         version: 6.17.0(typescript@5.9.3)
 
+  packages/divinum-officium-runner:
+    dependencies:
+      cheerio:
+        specifier: ^1.0.0
+        version: 1.1.2
+
 packages:
 
   '@babel/code-frame@7.27.1':
