@@ -1,0 +1,367 @@
+{
+  "generatedAt": "2025-11-09T14:02:59.992Z",
+  "sources": {
+    "dataTable": "vendor/divinum-officium/web/www/Tabulae/data.txt",
+    "kalendaria": {
+      "1960": "vendor/divinum-officium/web/www/Tabulae/Kalendaria/1960.txt"
+    }
+  },
+  "rite": {
+    "id": "MOZARABIC",
+    "name": "Mozarabic Rite",
+    "description": "Mozarabic use (missa specific) mapped from Divinum Officium tables."
+  },
+  "calendarLocales": [
+    {
+      "id": "MOZARABIC_UNIVERSAL",
+      "name": "Mozarabic Rite (Universal)",
+      "scope": "UNIVERSAL"
+    }
+  ],
+  "riteVersions": [
+    {
+      "id": "MOZARABIC",
+      "slug": "mozarabic",
+      "name": "Mozarabic",
+      "promulgated": "1960-01-01",
+      "notes": "Kalendarium=1960; Transfer=1960; ScriptureTransfer=1960",
+      "riteId": "MOZARABIC"
+    }
+  ],
+  "ranks": [
+    {
+      "id": "MOZARABIC__RANK__1",
+      "key": "rank-1",
+      "name": "Rank 1",
+      "precedence": 90,
+      "description": "Imported from Kalendarium rank value 1",
+      "riteVersionId": "MOZARABIC"
+    },
+    {
+      "id": "MOZARABIC__RANK__4",
+      "key": "rank-4",
+      "name": "Major double / privileged Sunday",
+      "precedence": 60,
+      "description": "Imported from Kalendarium rank value 4",
+      "riteVersionId": "MOZARABIC"
+    },
+    {
+      "id": "MOZARABIC__RANK__3",
+      "key": "rank-3",
+      "name": "Double feast",
+      "precedence": 70,
+      "description": "Imported from Kalendarium rank value 3",
+      "riteVersionId": "MOZARABIC"
+    },
+    {
+      "id": "MOZARABIC__RANK__5",
+      "key": "rank-5",
+      "name": "II class feast",
+      "precedence": 50,
+      "description": "Imported from Kalendarium rank value 5",
+      "riteVersionId": "MOZARABIC"
+    },
+    {
+      "id": "MOZARABIC__RANK__UNKNOWN",
+      "key": "rank-unknown",
+      "name": "Unranked observance",
+      "precedence": 100,
+      "description": "Default fallback rank.",
+      "riteVersionId": "MOZARABIC"
+    }
+  ],
+  "seasons": [],
+  "seasonalDays": [],
+  "movableFeasts": [],
+  "fixedFeasts": [
+    {
+      "id": "MOZARABIC__s-priscae-virginis__01__18__0",
+      "key": "s-priscae-virginis",
+      "name": "S Priscae Virginis",
+      "yearNumber": 1,
+      "monthNumber": 1,
+      "dayNumber": 18,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__1"
+    },
+    {
+      "id": "MOZARABIC__in-conversione-s-pauli-apostoli__01__25__0",
+      "key": "in-conversione-s-pauli-apostoli",
+      "name": "In Conversione S. Pauli Apostoli",
+      "yearNumber": 1,
+      "monthNumber": 1,
+      "dayNumber": 25,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__4"
+    },
+    {
+      "id": "MOZARABIC__s-pauli-a-cruce-confessoris__04__28__0",
+      "key": "s-pauli-a-cruce-confessoris",
+      "name": "S. Pauli a Cruce Confessoris",
+      "yearNumber": 1,
+      "monthNumber": 4,
+      "dayNumber": 28,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__ss-alexandri-et-sociorum-martyrum__05__03__0",
+      "key": "ss-alexandri-et-sociorum-martyrum",
+      "name": "Ss. Alexandri et sociorum Martyrum",
+      "yearNumber": 1,
+      "monthNumber": 5,
+      "dayNumber": 3,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__1"
+    },
+    {
+      "id": "MOZARABIC__s-gregorii-barbadici-ep-conf__06__17__0",
+      "key": "s-gregorii-barbadici-ep-conf",
+      "name": "S. Gregorii Barbadici Ep. Conf",
+      "yearNumber": 1,
+      "monthNumber": 6,
+      "dayNumber": 17,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__vigilia-ss-petri-et-pauli-apostolorum__06__28__0",
+      "key": "vigilia-ss-petri-et-pauli-apostolorum",
+      "name": "Vigilia Ss. Petri et Pauli Apostolorum",
+      "yearNumber": 1,
+      "monthNumber": 6,
+      "dayNumber": 28,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__5"
+    },
+    {
+      "id": "MOZARABIC__s-irenaei-episcopi-et-martyris__07__03__0",
+      "key": "s-irenaei-episcopi-et-martyris",
+      "name": "S. Irenaei Episcopi et Martyris",
+      "yearNumber": 1,
+      "monthNumber": 7,
+      "dayNumber": 3,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__s-laurentii-de-brundusio-confessoris-et-ecclesiae-doctoris__07__21__0",
+      "key": "s-laurentii-de-brundusio-confessoris-et-ecclesiae-doctoris",
+      "name": "S. Laurentii de Brundusio Confessoris et Ecclesiae Doctoris",
+      "yearNumber": 1,
+      "monthNumber": 7,
+      "dayNumber": 21,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__s-praxedis-virginis__07__21__1",
+      "key": "s-praxedis-virginis",
+      "name": "S. Praxedis Virginis",
+      "yearNumber": 1,
+      "monthNumber": 7,
+      "dayNumber": 21,
+      "description": "Commemoration",
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__1"
+    },
+    {
+      "id": "MOZARABIC__ss-martyrum-machabaeorum__08__01__0",
+      "key": "ss-martyrum-machabaeorum",
+      "name": "Ss. Martyrum Machabaeorum",
+      "yearNumber": 1,
+      "monthNumber": 8,
+      "dayNumber": 1,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__1"
+    },
+    {
+      "id": "MOZARABIC__s-joannis-vianney-confessoris__08__08__0",
+      "key": "s-joannis-vianney-confessoris",
+      "name": "S. Joannis Vianney Confessoris",
+      "yearNumber": 1,
+      "monthNumber": 8,
+      "dayNumber": 8,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__ss-cyriacii-et-socii-maryres__08__08__1",
+      "key": "ss-cyriacii-et-socii-maryres",
+      "name": "Ss. Cyriacii et socii maryres",
+      "yearNumber": 1,
+      "monthNumber": 8,
+      "dayNumber": 8,
+      "description": "Commemoration",
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__1"
+    },
+    {
+      "id": "MOZARABIC__vigilia-s-laurentii-martyris__08__09__0",
+      "key": "vigilia-s-laurentii-martyris",
+      "name": "Vigilia S. Laurentii Martyris",
+      "yearNumber": 1,
+      "monthNumber": 8,
+      "dayNumber": 9,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__s-romanae-maryris__08__09__1",
+      "key": "s-romanae-maryris",
+      "name": "S. Romanae Maryris",
+      "yearNumber": 1,
+      "monthNumber": 8,
+      "dayNumber": 9,
+      "description": "Commemoration",
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__1"
+    },
+    {
+      "id": "MOZARABIC__s-hieronomy-presbitery-confessorie-et-ecclesiae-doctoris__09__30__0",
+      "key": "s-hieronomy-presbitery-confessorie-et-ecclesiae-doctoris",
+      "name": "S. Hieronomy Presbitery Confessorie et Ecclesiae Doctoris",
+      "yearNumber": 1,
+      "monthNumber": 9,
+      "dayNumber": 30,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__festum-beatae-mariae-virginis-a-rosario__10__07__0",
+      "key": "festum-beatae-mariae-virginis-a-rosario",
+      "name": "Festum Beatae Mariae Virginis a Rosario",
+      "yearNumber": 1,
+      "monthNumber": 10,
+      "dayNumber": 7,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__5"
+    },
+    {
+      "id": "MOZARABIC__s-marci-papae-confessoris__10__07__1",
+      "key": "s-marci-papae-confessoris",
+      "name": "S. Marci Papae Confessoris",
+      "yearNumber": 1,
+      "monthNumber": 10,
+      "dayNumber": 7,
+      "description": "Commemoration",
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__UNKNOWN"
+    },
+    {
+      "id": "MOZARABIC__s-brigittae-viduae__10__08__0",
+      "key": "s-brigittae-viduae",
+      "name": "S. Brigittae Viduae",
+      "yearNumber": 1,
+      "monthNumber": 10,
+      "dayNumber": 8,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__ss-martyrum-sergii-bacchi-marcelli-et-apuleji__10__08__1",
+      "key": "ss-martyrum-sergii-bacchi-marcelli-et-apuleji",
+      "name": "Ss. Martyrum Sergii, Bacchi, Marcelli et Apuleji",
+      "yearNumber": 1,
+      "monthNumber": 10,
+      "dayNumber": 8,
+      "description": "Commemoration",
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__1"
+    },
+    {
+      "id": "MOZARABIC__s-antonii-mariae-claret-episcopi-confessoris__10__23__0",
+      "key": "s-antonii-mariae-claret-episcopi-confessoris",
+      "name": "S. Antonii Mariae Claret Episcopi Confessoris",
+      "yearNumber": 1,
+      "monthNumber": 10,
+      "dayNumber": 23,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__in-dedicatione-basilicarum-ss-apostolorum-petri-et-pauli__11__18__0",
+      "key": "in-dedicatione-basilicarum-ss-apostolorum-petri-et-pauli",
+      "name": "In Dedicatione Basilicarum Ss. Apostolorum Petri et Pauli",
+      "yearNumber": 1,
+      "monthNumber": 11,
+      "dayNumber": 18,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__s-luciae-virginis-et-martyris__12__13__0",
+      "key": "s-luciae-virginis-et-martyris",
+      "name": "S. Luciae Virginis et Martyris",
+      "yearNumber": 1,
+      "monthNumber": 12,
+      "dayNumber": 13,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__3"
+    },
+    {
+      "id": "MOZARABIC__die-quarta-infra-octavam-nativitatis__12__28__0",
+      "key": "die-quarta-infra-octavam-nativitatis",
+      "name": "Die quarta infra octavam Nativitatis",
+      "yearNumber": 1,
+      "monthNumber": 12,
+      "dayNumber": 28,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__5"
+    },
+    {
+      "id": "MOZARABIC__die-quinta-infra-octavam-nativitatis__12__29__0",
+      "key": "die-quinta-infra-octavam-nativitatis",
+      "name": "Die quinta infra octavam Nativitatis",
+      "yearNumber": 1,
+      "monthNumber": 12,
+      "dayNumber": 29,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__5"
+    },
+    {
+      "id": "MOZARABIC__die-septima-infra-octavam-nativitatis__12__31__0",
+      "key": "die-septima-infra-octavam-nativitatis",
+      "name": "Die septima infra octavam Nativitatis",
+      "yearNumber": 1,
+      "monthNumber": 12,
+      "dayNumber": 31,
+      "riteVersionId": "MOZARABIC",
+      "localeId": "MOZARABIC_UNIVERSAL",
+      "rankId": "MOZARABIC__RANK__5"
+    }
+  ],
+  "transferSources": [
+    {
+      "riteVersionId": "MOZARABIC",
+      "kalendarCode": "1960",
+      "transferCode": "1960",
+      "scriptureTransferCode": "1960",
+      "transferBaseVersionName": null
+    }
+  ]
+}

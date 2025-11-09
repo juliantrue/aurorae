@@ -17,8 +17,7 @@
     "prisma:db-push": "pnpm --filter @aurorae/database prisma:db-push",
     "vendor:init": "(git submodule status vendor/divinum-officium >/dev/null 2>&1 || git submodule add https://github.com/DivinumOfficium/divinum-officium.git vendor/divinum-officium) && git submodule update --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout init --cone && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin",
     "vendor:update": "git submodule update --remote --init vendor/divinum-officium && git -C vendor/divinum-officium sparse-checkout set web/www web/cgi-bin",
-    "test:liturgy": "tsx tests/divinum-officium/run-comparisons.ts",
-    "generate:do-data": "tsx scripts/generate-do-all.ts"
+    "test:liturgy": "tsx tests/divinum-officium/run-comparisons.ts"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

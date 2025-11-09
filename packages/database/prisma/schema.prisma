@@ -123,7 +123,7 @@ enum TransferKind {
 
 model MovableFeast {
   id               Int     @id @default(autoincrement())
-  key              String  @unique
+  key              String
   name             String
   yearNumber       Int
   offsetFromEaster Int
@@ -159,7 +159,7 @@ model MovableFeast {
 
 model FixedFeast {
   id          Int     @id @default(autoincrement())
-  key         String  @unique
+  key         String
   name        String
   yearNumber  Int
   monthNumber Int
@@ -211,7 +211,7 @@ model Season {
 
 model SeasonalDay {
   id          Int     @id @default(autoincrement())
-  key         String  @unique
+  key         String
   yearNumber  Int
   weekNumber  Int
   dayNumber   Int

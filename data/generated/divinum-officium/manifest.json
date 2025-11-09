@@ -1,0 +1,94 @@
+{
+  "generatedAt": "2025-11-09T14:02:59.992Z",
+  "description": "Per-rite Divinum Officium calendar exports",
+  "dataTable": "vendor/divinum-officium/web/www/Tabulae/data.txt",
+  "rites": [
+    {
+      "riteId": "ROMAN",
+      "riteName": "Roman Rite",
+      "directory": "data/generated/divinum-officium/roman-rite",
+      "calendarPath": "data/generated/divinum-officium/roman-rite/calendar.json",
+      "riteVersionSlugs": [
+        "tridentine-1570",
+        "tridentine-1888",
+        "tridentine-1906",
+        "divino-afflatu-1939",
+        "divino-afflatu-1954",
+        "reduced-1955",
+        "rubrics-1960-1960",
+        "rubrics-1960-2020-usa",
+        "tridentine-1570-2",
+        "tridentine-1910",
+        "divino-afflatu",
+        "reduced-1955-2",
+        "rubrics-1960",
+        "1965-1967",
+        "1960-newcalendar",
+        "tridentine-1910-2",
+        "rubrics-1960-newcalendar",
+        "rubrics-1967",
+        "new-mass"
+      ]
+    },
+    {
+      "riteId": "MONASTIC",
+      "riteName": "Monastic Rite",
+      "directory": "data/generated/divinum-officium/monastic-rite",
+      "calendarPath": "data/generated/divinum-officium/monastic-rite/calendar.json",
+      "riteVersionSlugs": [
+        "monastic-tridentinum-1617",
+        "monastic-divino-1930",
+        "monastic-1963",
+        "monastic-1963-barroux"
+      ]
+    },
+    {
+      "riteId": "CISTERCIAN",
+      "riteName": "Cistercian Rite",
+      "directory": "data/generated/divinum-officium/cistercian-rite",
+      "calendarPath": "data/generated/divinum-officium/cistercian-rite/calendar.json",
+      "riteVersionSlugs": [
+        "monastic-tridentinum-cisterciensis-1951",
+        "monastic-tridentinum-cisterciensis-altovadensis"
+      ]
+    },
+    {
+      "riteId": "DOMINICAN",
+      "riteName": "Dominican Rite",
+      "directory": "data/generated/divinum-officium/dominican-rite",
+      "calendarPath": "data/generated/divinum-officium/dominican-rite/calendar.json",
+      "riteVersionSlugs": [
+        "ordo-praedicatorum-1962",
+        "ordo-praedicatorum-dominican-1962",
+        "dominican"
+      ]
+    },
+    {
+      "riteId": "MOZARABIC",
+      "riteName": "Mozarabic Rite",
+      "directory": "data/generated/divinum-officium/mozarabic-rite",
+      "calendarPath": "data/generated/divinum-officium/mozarabic-rite/calendar.json",
+      "riteVersionSlugs": [
+        "mozarabic"
+      ]
+    },
+    {
+      "riteId": "SARUM",
+      "riteName": "Sarum Use",
+      "directory": "data/generated/divinum-officium/sarum-use",
+      "calendarPath": "data/generated/divinum-officium/sarum-use/calendar.json",
+      "riteVersionSlugs": [
+        "sarum"
+      ]
+    },
+    {
+      "riteId": "AMBROSIAN",
+      "riteName": "Ambrosian Rite",
+      "directory": "data/generated/divinum-officium/ambrosian-rite",
+      "calendarPath": "data/generated/divinum-officium/ambrosian-rite/calendar.json",
+      "riteVersionSlugs": [
+        "ambrosian"
+      ]
+    }
+  ]
+}
