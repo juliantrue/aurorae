@@ -1,5 +1,5 @@
 {
-  "name": "@aurorae/divinum-officium-runner",
+  "name": "@aurorae/do-runner",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -13,5 +13,13 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0"
+  },
+  "scripts": {
+    "test": "jest --config ../../jest.config.ts"
+  },
+  "devDependencies": {
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0"
   }
 }

@@ -4,9 +4,13 @@ type CheerioSelection = Cheerio<any>;
 
 export type ColumnRole = 'latin' | 'vernacular' | 'unknown';
 
+export type ParsedDivinumOfficiumService = 'horas' | 'missa';
+
 export interface DivinumOfficiumSectionColumn {
   role: ColumnRole;
   text: string;
+  psalm?: string;
+  antiphons?: string[];
 }
 
 export interface DivinumOfficiumSection {
@@ -22,6 +26,7 @@ export interface DivinumOfficiumMetadata {
   hora?: string;
   isoDate?: string;
   rawDate?: string;
+  service?: ParsedDivinumOfficiumService;
 }
 
 export interface ParsedDivinumOfficiumPage {
@@ -77,6 +82,97 @@ function extractTopParagraph($: CheerioAPI): CheerioSelection | undefined {
   return topParagraph;
 }
 
+function extractFeastText(topParagraph?: CheerioSelection): string | undefined {
+  if (!topParagraph) return undefined;
+  const highlighted = topParagraph.find('font[color="blue"]').first();
+  if (highlighted.length > 0) {
+    return extractElementText(highlighted);
+  }
+  const firstFont = topParagraph.find('font').first();
+  if (firstFont.length > 0) {
+    return extractElementText(firstFont);
+  }
+  return undefined;
+}
+
+function extractMissaTitleAndVersion($: CheerioAPI): {
+  title?: string;
+  version?: string;
+} {
+  const headingFont = $('p[align="center"] font[color="maroon"]').first();
+  if (headingFont.length === 0) {
+    return {};
+  }
+
+  const versionText = extractElementText(headingFont.find('font[color="red"]').first());
+  const titleClone = headingFont.clone();
+  titleClone.find('font[color="red"]').remove();
+  const titleText = extractElementText(titleClone);
+
+  return {
+    title: titleText,
+    version: versionText,
+  };
+}
+
+function detectService($: CheerioAPI): ParsedDivinumOfficiumService {
+  if ($('form[action="missa.pl"]').length > 0) return 'missa';
+  if ($('form[action="officium.pl"]').length > 0) return 'horas';
+  const bodyClass = $('body').attr('class') ?? '';
+  if (bodyClass.toLowerCase().includes('missa')) return 'missa';
+  const title = $('title').text();
+  if (/missa/i.test(title)) return 'missa';
+  return 'horas';
+}
+
+type PsalmAntiphonData = {
+  psalm?: string;
+  antiphons?: string[];
+};
+
+function extractPsalmAndAntiphons(text: string): PsalmAntiphonData {
+  const lines = text.split('\n');
+  const antiphons: string[] = [];
+  const psalmLines: string[] = [];
+  let collectingPsalm = false;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (line.length === 0) continue;
+
+    const antMatch = line.match(/^Ant\.\s*(?:\d+\.\s*)?(.*)$/i);
+    if (antMatch) {
+      const antiphonText = antMatch[1].trim();
+      if (antiphonText.length > 0) {
+        antiphons.push(antiphonText);
+      } else {
+        antiphons.push('');
+      }
+      if (collectingPsalm && psalmLines.length > 0) {
+        collectingPsalm = false;
+      }
+      continue;
+    }
+
+    if (/^Psalm(?:us)?\b/i.test(line)) {
+      collectingPsalm = true;
+    }
+
+    if (collectingPsalm) {
+      psalmLines.push(line);
+    }
+  }
+
+  const result: PsalmAntiphonData = {};
+  if (psalmLines.length > 0) {
+    result.psalm = psalmLines.join('\n');
+  }
+  if (antiphons.length > 0) {
+    result.antiphons = antiphons;
+  }
+  return result;
+}
+
 function divinumDateToIso(date: string | undefined): string | undefined {
   if (!date) return undefined;
   const match = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(date.trim());
@@ -85,24 +181,28 @@ function divinumDateToIso(date: string | undefined): string | undefined {
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
-function extractMetadata($: CheerioAPI): DivinumOfficiumMetadata {
+function extractMetadata(
+  $: CheerioAPI,
+  service: ParsedDivinumOfficiumService,
+): DivinumOfficiumMetadata {
   const topParagraph = extractTopParagraph($);
-  const feastText = topParagraph
-    ? extractElementText(topParagraph.find('font[color="blue"]').first())
-    : undefined;
+  const feastText = extractFeastText(topParagraph);
   const subtitleText = topParagraph
     ? (extractElementText(topParagraph.find('i').first()) ?? extractElementText(topParagraph))
     : undefined;
+
+  const { title: missaTitle, version: missaVersion } = extractMissaTitleAndVersion($);
 
   const rawDate = $('input#date').first().attr('value');
 
   const metadata: DivinumOfficiumMetadata = {
     feast: feastText,
     subtitle: subtitleText,
-    title: normalizeWhitespace($('h1').first().text()),
-    hora: normalizeWhitespace($('h2').first().text()),
+    title: normalizeWhitespace($('h1').first().text()) ?? missaTitle,
+    hora: normalizeWhitespace($('h2').first().text()) ?? missaVersion,
     rawDate,
     isoDate: divinumDateToIso(rawDate),
+    service,
   };
 
   return metadata;
@@ -110,6 +210,7 @@ function extractMetadata($: CheerioAPI): DivinumOfficiumMetadata {
 
 export function parseDivinumOfficiumHtml(html: string): ParsedDivinumOfficiumPage {
   const $ = load(html);
+  const service = detectService($);
   const sections: DivinumOfficiumSection[] = [];
 
   $('table.contrastbg tr').each((_, row) => {
@@ -122,10 +223,14 @@ export function parseDivinumOfficiumHtml(html: string): ParsedDivinumOfficiumPag
       const cell = $(cellEl);
       const text = extractCellText(cell);
       if (!text) return;
-      columns.push({
+      const column: DivinumOfficiumSectionColumn = {
         role: guessColumnRole(index, cells.length),
         text,
-      });
+      };
+      const { psalm, antiphons } = extractPsalmAndAntiphons(text);
+      if (psalm) column.psalm = psalm;
+      if (antiphons) column.antiphons = antiphons;
+      columns.push(column);
     });
 
     if (columns.length === 0) return;
@@ -140,7 +245,7 @@ export function parseDivinumOfficiumHtml(html: string): ParsedDivinumOfficiumPag
   });
 
   return {
-    metadata: extractMetadata($),
+    metadata: extractMetadata($, service),
     sections,
   };
 }

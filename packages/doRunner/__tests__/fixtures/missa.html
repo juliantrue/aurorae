@@ -1,0 +1,1091 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD>
+
+  <META NAME="Resource-type" CONTENT="Document">
+  <META NAME="description" CONTENT="Divine Office">
+  <META NAME="keywords" CONTENT="Divine Office, Breviarium, Liturgy, Traditional, Zsolozsma">
+  <META NAME="Copyright" CONTENT="Like GNU">
+  <meta name="color-scheme" content="dark light">
+  <STYLE>
+    /* https://www.30secondsofcode.org/css/s/offscreen/ */
+    .offscreen {
+      border: 0;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+    h1, h2 {
+      text-align: center;
+      font-weight: normal;
+    }
+    h2 {
+      margin-top: 4ex;
+      color: maroon;
+      font-size: 112%;
+      font-weight: bold;
+      font-style: italic;
+    }
+    p {
+      color: black;
+    }
+    a:link { color: blue; }
+    a:visited { color: blue; }
+    body {
+      background: #eeeeee;
+    }
+    .contrastbg { background: white; }
+    .nigra { color: black; }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: black;
+        color: white;
+      }
+      table { color: white; }
+      a:link { color: #AFAFFF; }
+      a:visited { color: #AFAFFF; }
+      p { color: white; }
+      .contrastbg {
+        background: #3F3F3F;
+        color: white;
+      }
+      .nigra {  color: white;  }
+      }
+  </STYLE>
+  <TITLE>Sancta Missa</TITLE>
+<SCRIPT TYPE='text/JavaScript' LANGUAGE='JavaScript1.2'>
+
+//position
+function startup() {
+  var i = 1;
+  while (i <= 0) {
+    a = document.getElementById('L' + i);
+    i++;
+    if (a) a.scrollIntoView();
+  }
+}
+
+//prepare position
+function setsearch(ind) {
+  document.forms[0].searchvalue.value = ind;
+  parchange();
+}
+
+//call a setup table
+function pset(p) {
+  document.forms[0].command.value = "setup" + p;
+  document.forms[0].submit();
+}
+
+//call an individual hora
+function hset(p) {
+  if (p.match('Persoluta')) {
+	return okbutton();
+  }
+  if (p.match('Propers')) {
+    p = "";
+	if (!p) p = 0;
+	p = 1 - p;
+	document.forms[0].Propers.value = p;
+	p = 'Sancta Missa';
+  }
+  clearradio();
+  if ("") {document.forms[0].caller.value = 1;}
+  document.forms[0].command.value = "pray" + p;
+  document.forms[0].action = "missa.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+
+//finishing horas back to main page
+function okbutton() {
+  document.forms[0].action = "missa.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].command.value = ' ';
+  document.forms[0].submit();
+}
+
+//to prevent inhearitance of popup
+function clearradio() {
+  var a= document.forms[0].popup;
+  if (a) a.value = 0;
+  document.forms[0].action = "missa.pl";
+  document.forms[0].target = "_self"
+  return;
+}
+
+//restart the programramlet if parameter change
+function parchange() {
+  clearradio();
+  var c = document.forms[0].command.value;
+  if (c && !c.match("pray")) document.forms[0].command.value = "pray" + c;
+  document.forms[0].submit();
+}
+
+//calls kalendar
+function callkalendar() {
+  document.forms[0].action = '../horas/kalendar.pl';
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls officium
+function callofficium() {
+  document.forms[0].action = '../horas/officium.pl';
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls compare
+function callcompare() {
+  document.forms[0].action = "Cmissa.pl";
+  document.forms[0].target = "_self"
+  document.forms[0].submit();
+}
+
+//calls popup
+function callpopup(popup) {
+  document.forms[0].action = 'mpopup.pl';
+  document.forms[0].target = "_new"
+  document.forms[0].popup.value = popup;
+  document.forms[0].submit();
+}
+
+
+function prevnext(ch) {
+  var dat = document.forms[0].date.value;
+  var adat = dat.split('-');
+  var mtab = new Array(31,28,31,30,31,30,31,31,30,31,30,31);
+  var m = eval(adat[0]);
+  var d = eval(adat[1]);
+  var y = eval(adat[2]);
+  var c = eval(ch);
+
+  var leapyear = 0;
+  if ((y % 4) == 0) leapyear = 1;
+  if ((y % 100) == 0) leapyear = 0;
+  if ((y % 400) == 0) leapyear = 1;
+  if (leapyear) mtab[1] = 29;
+  d = d + c;
+  if (d < 1) {
+    m--;
+	if (m < 1) {y--; m = 12;}
+	d = mtab[m-1];
+  }
+  if (d > mtab[m-1]) {
+    m++;
+	  d = 1;
+	  if (m > 12) {y++; m = 1;}
+  }
+  document.forms[0].date.value = m + "-" + d + "-" + y;
+}
+</SCRIPT>
+</HEAD>
+<BODY  onload="startup()";>
+<FORM ACTION="missa.pl" METHOD="post" TARGET="_self">
+<P ALIGN="CENTER"><FONT >In Nativitate Domini in nocte ~ I. classis</FONT></P>
+<P ALIGN="CENTER"><FONT COLOR="MAROON" SIZE="+1"><B><I>Sancta Missa</I></B>&nbsp;<FONT COLOR="RED" SIZE="+1">Rubrics 1960 - 1960</FONT></FONT></P>
+<P ALIGN="CENTER"><A HREF="#" onclick="callcompare()">Compare</A>
+&ensp;<A HREF="#" onclick="callofficium();">Divinum Officium</A>
+&ensp;
+<LABEL FOR="date" CLASS="offscreen">Date</LABEL>
+<INPUT ID="date" TYPE="TEXT" NAME="date" VALUE="12-25-2025" SIZE="10">
+<A HREF="#" onclick="prevnext(-1)">&darr;</A>
+<INPUT TYPE="submit" NAME="SUBMIT" VALUE=" " onclick="parchange();">
+<A HREF="#" onclick="prevnext(1)">&uarr;</A>
+&ensp;
+<A HREF="#" onclick="callkalendar();">Ordo</A>
+&ensp;
+<A HREF="#" onclick="pset('parameters')">Options</A>
+<BR/><BR/><input type='radio' checked onclick='parchange();' name='missanumber' value='1'>Missa prima </input>&nbsp;<input type='radio'  onclick='parchange();' name='missanumber' value='2'>Missa secunda </input>&nbsp;<input type='radio'  onclick='parchange();' name='missanumber' value='3'>Missa tertia</input>&nbsp;<BR/>
+</P>
+<TABLE BORDER='1' ALIGN='CENTER' CELLPADDING='8' WIDTH='100%'  class="contrastbg"><TR><TD VALIGN='TOP' COLSPAN="2" ALIGN='CENTER'>
+<A HREF="mpopup.pl?popup=Ante&rubrics=&lang1=Latin&lang2=English" TARGET='_NEW'>Ante</A>
+<FONT SIZE='1'>Missam</FONT></TD></TR><TR><TD VALIGN='TOP' WIDTH='50%' ID='1'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#2'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Incipit</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>n nómine Patris, <span style='color:red; font-size:1.25em'>✠</span> et Fílii, et Spíritus Sancti. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>1</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Beginning</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>n the Name of the Father, and of the Son, <span style='color:red; font-size:1.25em'>✠</span> and of the Holy Ghost. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='2'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#3'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>S.</I></FONT> Introíbo ad altáre Dei.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Ad Deum, qui lætíficat iuventútem meam.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Iúdica me, Deus, et discérne causam meam de gente non sancta: ab hómine iníquo et dolóso érue me.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Quia tu es, Deus, fortitúdo mea: quare me repulísti, et quare tristis incédo, dum afflígit me inimícus?<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Emítte lucem tuam et veritátem tuam: ipsa me deduxérunt, et adduxérunt in montem sanctum tuum et in tabernácula tua.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Et introíbo ad altáre Dei: ad Deum, qui lætíficat iuventútem meam.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Confitébor tibi in cíthara, Deus, Deus meus: quare tristis es, ánima mea, et quare contúrbas me?<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Spera in Deo, quóniam adhuc confitébor illi: salutáre vultus mei, et Deus meus.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Glória Patri, et Fílio, et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Sicut erat in princípio, et nunc, et semper: et in sǽcula sæculórum. Amen.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Introíbo ad altáre Dei.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Ad Deum, qui lætíficat iuventútem meam.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>2</FONT></DIV>
+<FONT COLOR="red"><I>P.</I></FONT> I will go in to the altar of God.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> To God who giveth joy to my youth.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Judge me, O God, and distinguish my cause from the nation which is not holy: deliver me from the unjust and deceitful man.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> For Thou, O God, art my strength: why hast Thou cast me off? and why go I sorrowful whilst the enemy afflicteth me?<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Send forth Thy light and Thy truth: they have conducted me and brought me unto Thy holy mount, and into Thy tabernacles.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And I will go in to the altar of God: to God who giveth joy to my youth.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> To Thee, O God, my God, I will give praise upon the harp; why art thou sad, O my soul, and why dost thou disquiet me?<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Hope in God, for I will still give praise to Him: the salvation of my countenance and my God.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Glory be to the Father, and to the Son, and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> As it was in the beginning, is now, and ever shall be, world without end. Amen.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> I will go in to the altar of God.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> To God who giveth joy to my youth.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='3'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#4'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>℣.</I></FONT> Adiutórium nostrum <span style='color:red; font-size:1.25em'>✠</span> in nómine Dómini.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Qui fecit cælum et terram.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>onfíteor Deo omnipoténti, beátæ Maríæ semper Vírgini, beáto Michaéli Archángelo, beáto Ioánni Baptístæ, sanctis Apóstolis Petro et Paulo, ómnibus Sanctis, et vobis, fratres: quia peccávi nimis cogitatióne, verbo et ópere:   mea culpa, mea culpa, mea máxima culpa. Ideo precor beátam Maríam semper Vírginem, beátum Michaélem Archángelum, beátum Ioánnem Baptístam, sanctos Apóstolos Petrum et Paulum, omnes Sanctos, et vos, fratres, oráre pro me ad Dóminum, Deum nostrum.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Misereátur tui omnípotens Deus, et, dimíssis peccátis tuis, perdúcat te ad vitam ætérnam.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Amen.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Confíteor Deo omnipoténti, beátæ Maríæ semper Vírgini, beáto Michaéli Archángelo, beáto Ioánni Baptístæ, sanctis Apóstolis Petro et Paulo, ómnibus Sanctis, et tibi, pater: quia peccávi nimis cogitatióne, verbo et ópere: mea culpa, mea culpa, mea máxima culpa. Ideo precor beátam Maríam semper Vírginem, beátum Michaélem Archángelum, beátum Ioánnem Baptístam, sanctos Apóstolos Petrum et Paulum, omnes Sanctos, et te, pater, oráre pro me ad Dóminum, Deum nostrum.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Misereátur vestri omnípotens Deus, et, dimíssis peccátis vestris, perdúcat vos ad vitam ætérnam.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Indulgéntiam, <span style='color:red; font-size:1.25em'>✠</span> absolutiónem et remissiónem peccatórum nostrórum tríbuat nobis omnípotens et miséricors Dóminus.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>3</FONT></DIV>
+<FONT COLOR="red"><I>P.</I></FONT> Our help <span style='color:red; font-size:1.25em'>✠</span> is in the Name of the Lord.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Who made heaven and earth.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> I confess to almighty God, to the blessed Mary ever Virgin, blessed Michael the Archangel, blessed John the Baptist, the holy Apostles Peter and Paul, to all the Saints, and to you, brothers, that I have sinned exceedingly in thought, word, and deed,   through my fault, through my fault, through my most grievous fault. Therefore I beseech the blessed Mary, ever Virgin, blessed Michael the Archangel, blessed John the Baptist, the holy Apostles Peter and Paul, all the Saints, and you, brothers, to pray to the Lord our God for me.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> May almighty God be merciful to thee, and forgiving thy sins, bring thee to everlasting life.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Amen.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> I confess to almighty God, to the blessed Mary ever Virgin, blessed Michael the Archangel, blessed John the Baptist, the holy Apostles Peter and Paul, to all the Saints, and to you, Father, that I have sinned exceedingly in thought, word, and deed, through my fault, through my fault, through my most grievous fault. Therefore I beseech the blessed Mary, ever Virgin, blessed Michael the Archangel, blessed John the Baptist, the holy Apostles Peter and Paul, all the Saints, and you, Father, to pray to the Lord our God for me.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> May almighty God be merciful to thee, and forgiving thy sins, bring thee to everlasting life.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Amen.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> May the <span style='color:red; font-size:1.25em'>✠</span> almighty and merciful Lord grant us pardon, absolution, and remission of our sins.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='4'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#5'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>℣.</I></FONT> Deus, tu convérsus vivificábis nos.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et plebs tua lætábitur in te.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Osténde nobis, Dómine, misericórdiam tuam.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et salutáre tuum da nobis.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dómine, exáudi oratiónem meam.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et clamor meus ad te véniat.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dóminus vobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et cum spíritu tuo.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rémus,  <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>ufer a nobis, quǽsumus, Dómine, iniquitátes nostras: ut ad Sancta sanctórum puris mereámur méntibus introíre. Per Christum, Dóminum nostrum. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rámus te, Dómine, per mérita Sanctórum tuórum,   quorum relíquiæ hic sunt, et ómnium Sanctórum: ut indulgére dignéris ómnia peccáta mea. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>4</FONT></DIV>
+<FONT COLOR="red"><I>P.</I></FONT> O God, Thou wilt turn again and quicken us.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And thy people shall rejoice in Thee.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Show us, O Lord, Thy mercy.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And grant us Thy salvation.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> O Lord, hear my prayer.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And let my cry come before Thee.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> The Lord be with you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And with thy spirit.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>et us pray.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>ake away from us our iniquities, we beseech Thee, O Lord, that we may be worthy to enter with pure minds into the Holy of Holies, through Christ our Lord. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>e beseech Thee, O Lord, by the merits of Thy Saints,   whose relics are here, and of all the Saints, that Thou wouldst vouchsafe to forgive me all my sins. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='5'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#6'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Introitus</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>Ps 2:7.</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>D</I></B></FONT>óminus dixit ad me: Fílius meus es tu, ego hódie génui te.<br/>
+<FONT COLOR="red"><I>Ps 2:1</I></FONT><br/>
+Quare fremuérunt gentes: et pópuli meditáti sunt inánia?<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, et in sǽcula sæculórum. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>D</I></B></FONT>óminus dixit ad me: Fílius meus es tu, ego hódie génui te.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>5</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Introit</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>Ps 2:7</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>he Lord said to Me, You are My Son; this day I have begotten You.<br/>
+<FONT COLOR="red"><I>Ps 2:1</I></FONT><br/>
+Why do the nations rage and the people utter folly?<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glory be to the Father, and to the Son, and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As it was in the beginning, is now, and ever shall be, world without end. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>he Lord said to Me, You are My Son; this day I have begotten You.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='6'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#7'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Kyrie</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Kýrie, eléison.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Kýrie, eléison.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Kýrie, eléison.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Christe, eléison.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Christe, eléison.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Christe, eléison.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Kýrie, eléison.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Kýrie, eléison.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Kýrie, eléison.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>6</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Kyrie</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Lord, have mercy.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Lord, have mercy.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Lord, have mercy.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Christ, have mercy.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Christ, have mercy.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Christ, have mercy.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Lord, have mercy.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Lord, have mercy.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Lord, have mercy.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='7'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#8'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I> Gloria</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>G</I></B></FONT>lória in excélsis Deo. Et in terra pax homínibus bonæ voluntátis. Laudámus te. Benedícimus te. Adorámus te. Glorificámus te. Grátias ágimus tibi propter magnam glóriam tuam. Dómine Deus, Rex cæléstis, Deus Pater omnípotens. Dómine Fili unigénite, Iesu Christe. Dómine Deus, Agnus Dei, Fílius Patris. Qui tollis peccáta mundi, miserére nobis. Qui tollis peccáta mundi, súscipe deprecatiónem nostram. Qui sedes ad déxteram Patris, miserére nobis. Quóniam tu solus Sanctus. Tu solus Dóminus. Tu solus Altíssimus, Iesu Christe. Cum Sancto Spíritu <span style='color:red; font-size:1.25em'>✠</span> in glória Dei Patris. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>7</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I> Gloria</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>G</I></B></FONT>lory be to God on high, and on earth peace to men of good will. We praise Thee. We bless Thee. We adore Thee. We glorify Thee. We give Thee thanks for Thy great glory. O Lord God, heavenly King, God the Father almighty. O Lord Jesus Christ, the only begotten Son. O Lord God, Lamb of God, Son of the Father. Who takest away the sins of the world, have mercy on us. Who takest away the sins of the world, receive our prayer. Who sittest at the right hand of the Father, have mercy on us. For Thou only art holy. Thou only art the Lord. Thou only art most high, O Jesus Christ. Together with the Holy Ghost <span style='color:red; font-size:1.25em'>✠</span> in the glory of God the Father. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='8'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#9'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Oratio</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dóminus vobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et cum spíritu tuo.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rémus.<br/>
+Deus, qui hanc sacratíssimam noctem veri lúminis fecísti illustratióne claréscere: da, quǽsumus; ut, cuius lucis mystéria in terra cognóvimus, eius quoque gáudiis in cœlo perfruámur:<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>Q</I></B></FONT>ui tecum vivit et regnat in unitáte Spíritus Sancti Deus per ómnia sǽcula sæculórum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>8</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Collect</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> The Lord be with you.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> And with thy spirit.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>et us pray.<br/>
+O God, Who have brightened this most holy night with the splendor of the true light, grant, we beseech You, that we may know in heaven the joy of that light which we have known mystically on earth.<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>W</I></B></FONT>ho livest and reignest with God the Father, in the unity of the Holy Spirit, God, world without end.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='9'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#10'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Lectio</I></B></FONT> 
+<br/>
+Léctio Epístolæ beati Pauli Apóstoli ad Titum<br/>
+<FONT COLOR="red"><I>Tit 2:11-15</I></FONT><br/>
+Caríssime: Appáruit grátia Dei Salvatóris nostri ómnibus homínibus, erúdiens nos, ut, abnegántes impietátem et sæculária desidéria, sóbrie et iuste et pie vivámus in hoc sǽculo, exspectántes beátam spem et advéntum glóriæ magni Dei et Salvatóris nostri Iesu Christi: qui dedit semetípsum pro nobis: ut nos redímeret ab omni iniquitáte, et mundáret sibi pópulum acceptábilem, sectatórem bonórum óperum. Hæc lóquere et exhortáre: in Christo Iesu, Dómino nostro.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Deo grátias.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>9</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Lesson</I></B></FONT> 
+<br/>
+Lesson from the letter of St. Paul the Apostle to Titus<br/>
+<FONT COLOR="red"><I>Titus 2:11-15</I></FONT><br/>
+Beloved: The grace of God our Saviour has appeared to all men, instructing us, in order that, rejecting ungodliness and worldly lusts, we may live temperately and justly and piously in this world; looking for the blessed hope and glorious coming of our great God and Saviour, Jesus Christ, Who gave Himself for us that He might redeem us from all iniquity and cleanse for Himself an acceptable people, pursuing good works. Thus speak, and exhort, in Christ Jesus our Lord.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Thanks be to God.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='10'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#11'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Graduale</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>Ps 109:3; 109:1</I></FONT><br/>
+Tecum princípium in die virtútis tuæ: in splendóribus Sanctórum, ex útero ante lucíferum génui te.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dixit Dóminus Dómino meo: Sede a dextris meis: donec ponam inimícos tuos, scabéllum pedum tuórum. Allelúia, allelúia.<br/>
+<FONT COLOR="red"><I>Ps 2:7</I></FONT><br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dóminus dixit ad me: Fílius meus es tu, ego hódie génui te. Allelúia.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>10</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Gradual</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>Ps 109:3; 109:1</I></FONT><br/>
+Yours is princely power in the day of Your birth, in holy splendor; before the daystar, I have begotten You.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> The Lord said to my Lord, Sit at My right hand, till I make Your enemies Your footstool. Alleluia, alleluia.<br/>
+<FONT COLOR="red"><I>Ps 2:7</I></FONT><br/>
+The Lord said to Me, You are My Son; this day I have begotten You. Alleluia.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='11'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#12'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Evangelium</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>M</I></B></FONT>unda cor meum ac lábia mea, omnípotens Deus, qui lábia Isaíæ Prophétæ cálculo mundásti igníto: ita me tua grata miseratióne dignáre mundáre, ut sanctum Evangélium tuum digne váleam nuntiáre. Per Christum, Dóminum nostrum. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>ube, Dómine, benedícere. Dóminus sit in corde meo et in lábiis meis: ut digne et competénter annúntiem Evangélium suum. Amen.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dóminus vobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et cum spíritu tuo.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>equéntia <span style='color:red; font-size:1.25em'>+</span> sancti Evangélii secundum Lucam<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Glória tibi, Dómine.<br/>
+<FONT COLOR="red"><I>Luc 2:1-14</I></FONT><br/>
+In illo témpore: Exiit edíctum a Cæsare Augústo, ut describerétur univérsus orbis. Hæc descríptio prima facta est a præside Sýriæ Cyríno: et ibant omnes ut profiteréntur sínguli in suam civitátem. Ascéndit autem et Ioseph a Galilæa de civitáte Názareth, in Iudæam in civitátem David, quæ vocatur Béthlehem: eo quod esset de domo et fámilia David, ut profiterétur cum María desponsáta sibi uxóre prægnánte. Factum est autem, cum essent ibi, impléti sunt dies, ut páreret. Et péperit fílium suum primogénitum, et pannis eum invólvit, et reclinávit eum in præsépio: quia non erat eis locus in diversório. Et pastóres erant in regióne eádem vigilántes, et custodiéntes vigílias noctis super gregem suum. Et ecce, Angelus Dómini stetit iuxta illos, et cláritas Dei circumfúlsit illos, et timuérunt timóre magno. Et dixit illis Angelus: Nolíte timére: ecce enim, evangelízo vobis gáudium magnum, quod erit omni pópulo: quia natus est vobis hódie Salvátor, qui est Christus Dóminus, in civitáte David. Et hoc vobis signum: Inveniétis infántem pannis involútum, et pósitum in præsépio. Et súbito facta est cum Angelo multitúdo milítiæ cœléstis, laudántium Deum et dicéntium: Glória in altíssimis Deo, et in terra pax hóminibus bonæ voluntátis.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Laus tibi, Christe.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Per Evangélica dicta, deleántur nostra delícta.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>11</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Gospel</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>leanse my heart and my lips, O almighty God, who didst cleanse the lips of the prophet Isaias with a burning coal, and vouchsafe, through Thy gracious mercy, so to purify me, that I may worthily announce Thy holy Gospel. Through Christ our Lord. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>G</I></B></FONT>ive me Thy blessing, O Lord. The Lord be in my heart and on my lips, that I may worthily and in a becoming manner, proclaim His holy Gospel. Amen.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> The Lord be with you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And with thy spirit.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>ontinuation <span style='color:red; font-size:1.25em'>+</span> of the Holy Gospel according to Luke<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Glory be to Thee, O Lord.<br/>
+<FONT COLOR="red"><I>Luke 2:1-14</I></FONT><br/>
+At that time, there went forth a decree from Caesar Augustus that a census of the whole world should be taken. This first census took place while Cyrinus was governor of Syria. And all were going, each to his own town, to register. And Joseph also went from Galilee out of the town of Nazareth into Judea to the town of David, which is called Bethlehem - because he was of the house and family of David - to register, together with Mary his espoused wife, who was with child. And it came to pass while they were there, that the days for her to be delivered were fulfilled. And she brought forth her firstborn Son, and wrapped Him in swaddling clothes, and laid Him in a manger, because there was no room for them in the inn. And there were shepherds in the same district living in the fields and keeping watch over their flock by night. And behold, an angel of the Lord stood by them and the glory of God shone round about them, and they feared exceedingly. And the angel said to them, Do not be afraid, for behold, I bring you good news of great joy which shall be to all the people; for today in the town of David a Saviour has been born to you, Who is Christ the Lord. And this shall be a sign to you: you will find an Infant wrapped in swaddling clothes and lying in a manger. And suddenly there was with the angel a multitude of the heavenly host praising God and saying, Glory to God in the highest, and on earth peace among men of good will.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Praise be to Thee, O Christ.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> By the words of the Gospel may our sins be blotted out.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='12'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#13'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Credo</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>redo in unum Deum, Patrem omnipoténtem, factórem cæli et terræ, visibílium ómnium et invisibílium. Et in unum Dóminum Iesum Christum, Fílium Dei unigénitum. Et ex Patre natum ante ómnia sǽcula. Deum de Deo, lumen de lúmine, Deum verum de Deo vero. Génitum, non factum, consubstantiálem Patri: per quem ómnia facta sunt. Qui propter nos hómines et propter nostram salútem descéndit de cælis.   Et incarnátus est de Spíritu Sancto ex María Vírgine: Et homo factus est. Crucifíxus étiam pro nobis: sub Póntio Piláto passus, et sepúltus est. Et resurréxit tértia die, secúndum Scriptúras. Et ascéndit in cælum: sedet ad déxteram Patris. Et íterum ventúrus est cum glória iudicáre vivos et mórtuos: cuius regni non erit finis. Et in Spíritum Sanctum, Dóminum et vivificántem: qui ex Patre Filióque procédit. Qui cum Patre et Fílio simul adorátur et conglorificátur: qui locútus est per Prophétas. Et unam sanctam cathólicam et apostólicam Ecclésiam. Confíteor unum baptísma in remissiónem peccatórum. Et exspécto resurrectiónem mortuórum. Et vitam ventúri sæculi. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>12</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Creed</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT> believe in one God, the Father almighty, Maker of heaven and earth, and of all things, visible and invisible.<br/>
+And in one Lord Jesus Christ, the only begotten Son of God. And born of the Father, before all ages. God of God: Light of Light: true God of true God. Begotten, not made, consubstantial with the Father, by whom all things were made. Who, for us men, and for our salvation, came down from heaven.   And became incarnate by the Holy Ghost of the Virgin Mary: and was made man. He was crucified also for us, suffered under Pontius Pilate, and was buried. And the third day He rose again according to the Scriptures. And ascended into heaven, and sitteth at the right hand of the Father. And He shall come again with glory to judge both the living and the dead, of whose kingdom there shall be no end.<br/>
+And in the Holy Ghost, the Lord and Giver of Life, proceeding from the Father and the Son. Who together, with the Father and the Son, is adored and glorified: Who spoke by the prophets. And in one, holy, Catholic and Apostolic Church. I confess one baptism for the remission of sins. And I look for the resurrection of the dead. And the life of the world to come. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='13'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#14'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Offertorium</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dóminus vobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et cum spíritu tuo.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rémus.<br/>
+<FONT COLOR="red"><I>Ps 95:11; 95:13</I></FONT><br/>
+Læténtur cœli et exsúltet terra ante fáciem Dómini: quóniam venit.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>13</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Offertory</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>P.</I></FONT> The Lord be with you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And with thy spirit.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>et us pray.<br/>
+<FONT COLOR="red"><I>Ps 95:11, 13</I></FONT><br/>
+Let the heavens be glad and the earth rejoice before the Lord, for He comes.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='14'><FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>úscipe, sancte Pater, omnípotens ætérne Deus, hanc immaculátam hóstiam, quam ego indígnus fámulus tuus óffero tibi Deo meo vivo et vero, pro innumerabílibus peccátis, et offensiónibus, et neglegéntiis meis, et pro ómnibus circumstántibus, sed et pro ómnibus fidélibus christiánis vivis atque defúnctis: ut mihi, et illis profíciat ad salútem in vitam ætérnam. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>ccept, O holy Father, almighty and eternal God, this unspotted host, which I, Thy unworthy servant, offer unto Thee, my living and true God, for my innumerable sins, offenses, and negligences, and for all here present: as also for all faithful Christians, both living and dead, that it may avail both me and them for salvation unto life everlasting. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='15'><FONT SIZE='+2' COLOR="red"><B><I>D</I></B></FONT>eus, <span style='color:red; font-size:1.25em'>✠</span> qui humánæ substántiæ dignitátem mirabíliter condidísti, et mirabílius reformásti: da nobis per huius aquæ et vini mystérium, eius divinitátis esse consórtes, qui humanitátis nostræ fíeri dignátus est párticeps, Iesus Christus, Fílius tuus, Dóminus noster: Qui tecum vivit et regnat in unitáte Spíritus Sancti Deus: per ómnia sǽcula sæculórum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT> God, who, in creating human nature, didst wonderfully dignify it, and still more wonderfully restore it, grant that, by the Mystery of this water and wine, we may be made partakers of His divine nature, who vouchsafed to be made partaker of our human nature, even Jesus Christ our Lord, Thy Son, who with Thee, liveth and reigneth in the unity of the Holy Ghost, God: world without end. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='16'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#17'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>fférimus tibi, Dómine, cálicem salutáris, tuam deprecántes cleméntiam: ut in conspéctu divínæ maiestátis tuæ, pro nostra et totíus mundi salúte, cum odóre suavitátis ascéndat. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>n spíritu humilitátis et in ánimo contríto suscipiámur a te, Dómine: et sic fiat sacrifícium nostrum in conspéctu tuo hódie, ut pláceat tibi, Dómine Deus.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>V</I></B></FONT>eni, sanctificátor omnípotens ætérne Deus:   et béne <span style='color:red; font-size:1.25em'>✠</span> dic hoc sacrifícium, tuo sancto nómini præparátum.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>16</FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>e offer unto Thee, O Lord, the chalice of salvation, beseeching Thy clemency, that it may ascend before Thy divine Majesty, as a sweet savor, for our salvation, and for that of the whole world. Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>ccept us, O Lord, in the spirit of humility and contrition of heart, and grant that the sacrifice which we offer this day in Thy sight may be pleasing to Thee, O Lord God.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>ome, O almighty and eternal God, the Sanctifier, and bless <span style='color:red; font-size:1.25em'>✠</span> this Sacrifice, prepared for the glory of Thy holy Name.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='17'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#18'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>avábo inter innocéntes manus meas: et circúmdabo altáre tuum, Dómine: Ut áudiam vocem laudis, et enárrem univérsa mirabília tua. Dómine, diléxi decórem domus tuæ et locum habitatiónis glóriæ tuæ. Ne perdas cum ímpiis, Deus, ánimam meam, et cum viris sánguinum vitam meam: In quorum mánibus iniquitátes sunt: déxtera eórum repléta est munéribus. Ego autem in innocéntia mea ingréssus sum: rédime me et miserére mei. Pes meus stetit in dirécto: in ecclésiis benedícam te, Dómine.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glória Patri, et Fílio, et Spirítui Sancto.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sicut erat in princípio, et nunc, et semper, et in sǽcula sæculórum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>17</FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT> will wash my hands among the innocent: and I will compass Thine altar, O Lord That I may hear the voice of praise: and tell of all Thy wonderous works. I have loved, O Lord, the beauty of Thy house and the place where Thy glory dwelleth. Take not away my soul, O God, with the wicked: nor my life with blood-thirsty men. In whose hands are iniquities, their right hand is filled with gifts. But I have walked in my innocence: redeem me, and have mercy on me. My foot hath stood in the direct way, in the churches I will bless Thee, O Lord.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Glory be to the Father, and to the Son, and to the Holy Ghost.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> As it was in the beginning, is now, and ever shall be, world without end. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='18'><FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>úscipe, sancta Trínitas, hanc oblatiónem, quam tibi offérimus ob memóriam passiónis, resurrectiónis, et ascensiónis Iesu Christi, Dómini nostri: et in honórem beátæ Maríæ semper Vírginis, et beáti Ioannis Baptistæ, et sanctórum Apostolórum Petri et Pauli, et istórum et ómnium Sanctórum: ut illis profíciat ad honórem, nobis autem ad salútem: et illi pro nobis intercédere dignéntur in cælis, quorum memóriam ágimus in terris. Per eúndem Christum, Dóminum nostrum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>R</I></B></FONT>eceive, O holy Trinity, this oblation which we make to Thee, in memory of the Passion, Resurrection and Ascension of our Lord Jesus Christ, and in honor of Blessed Mary, ever Virgin, blessed John the Baptist, the holy Apostles Peter and Paul, and of all the Saints, that it may avail unto their honor and our salvation, and may they vouchsafe to intercede for us in heaven, whose memory we celebrate on earth. Through the same Christ our Lord. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='19'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#20'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>S.</I></FONT> Oráte, fratres: ut meum ac vestrum sacrifícium acceptábile fiat apud Deum Patrem omnipoténtem.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Suscípiat Dóminus sacrifícium de mánibus tuis   ad laudem et glóriam nominis sui, ad utilitátem quoque nostram, totiúsque Ecclésiæ suæ sanctæ.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Amen.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>Secreta</I></B></FONT> 
+<br/>
+Accépta tibi sit, Dómine, quǽsumus, hodiérnæ festivitátis oblátio: ut, tua gratia largiénte, per hæc sacrosáncta commércia, in illíus inveniámur forma, in quo tecum est nostra substántia:<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>Q</I></B></FONT>ui tecum vivit et regnat in unitáte Spíritus Sancti Deus per ómnia sǽcula sæculórum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>19</FONT></DIV>
+<FONT COLOR="red"><I>P.</I></FONT> Brethren, pray that my Sacrifice and yours may be acceptable to God the Father almighty.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> May the Lord receive the Sacrifice from thy hands, to the praise and glory of His Name, to our benefit and that of all His holy Church.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Amen.<br/>
+ <br/>
+<FONT SIZE='+1' COLOR="red"><B><I>Secret</I></B></FONT> 
+<br/>
+May the offering of this day’s festivity, we beseech You, O Lord, find acceptance with You; that, by the bounty of Your grace, we may, through these sacred dealings, be made like unto Him in Whom our nature is united with You.<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>W</I></B></FONT>ho livest and reignest with God the Father, in the unity of the Holy Spirit, God, world without end.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='20'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#21'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Præfatio</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dóminus vobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et cum spíritu tuo.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Sursum corda.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Habémus ad Dóminum.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Grátias agámus Dómino, Deo nostro.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Dignum et iustum est.<br/>
+ <br/>
+<FONT COLOR="red"><I>de Nativitate Domini</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>V</I></B></FONT>ere dignum et iustum est, æquum et salutáre, nos tibi semper et ubíque grátias ágere: Dómine sancte, Pater omnípotens, ætérne Deus: Quia per incarnáti Verbi mystérium nova mentis nostræ óculis lux tuæ claritátis infúlsit: ut, dum visibíliter Deum cognóscimus, per hunc in invisibílium amorem rapiámur. Et ídeo cum Angelis et Archángelis, cum Thronis et Dominatiónibus cumque omni milítia cæléstis exércitus hymnum glóriæ tuæ cánimus, sine fine dicéntes.<br/>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>anctus, Sanctus, Sanctus Dóminus, Deus Sábaoth. Pleni sunt cæli et terra glória tua. Hosánna in excélsis. Benedíctus, qui venit in nómine Dómini. Hosánna in excélsis.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>20</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Preface</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>P.</I></FONT> The Lord be with you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And with thy spirit.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Lift up your hearts.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> We have lifted them up to the Lord.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Let us give thanks to the Lord our God.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> It is meet and just.<br/>
+ <br/>
+<FONT COLOR="red"><I>Nativity</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>t is truly meet and just, right and for our salvation, that we should at all times, and in all places, give thanks unto Thee, O holy Lord, Father almighty, everlasting God, for through the Mystery of the Word made flesh, the new light of Thy glory hath shone upon the eyes of our mind, so that while we acknowledge God in visible form, we may through Him be drawn to the love of things invisible. And therefore with Angels and Archangels, with Throne and Dominations, and with all the hosts of the heavenly army, we sing the hymn of Thy glory, evermore saying:<br/>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>H</I></B></FONT>oly, Holy, Holy, Lord God of Sabaoth! Heaven and earth are full of Thy glory! Hosanna in the highest! Blessed is He that cometh in the Name of the Lord! Hosanna in the highest!<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='21'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#22'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Canon</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>e ígitur, clementíssime Pater, per Iesum Christum, Fílium tuum, Dóminum nostrum, súpplices rogámus, ac pétimus,   uti accépta hábeas et benedícas,   hæc <span style='color:red; font-size:1.25em'>✠</span> dona, hæc <span style='color:red; font-size:1.25em'>✠</span> múnera, hæc <span style='color:red; font-size:1.25em'>✠</span> sancta sacrifícia illibáta,   in primis, quæ tibi offérimus pro Ecclésia tua sancta cathólica: quam pacificáre, custodíre, adunáre et régere dignéris toto orbe terrárum: una cum fámulo tuo Papa nostro <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT> et Antístite nostro <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT> et ómnibus orthodóxis, atque cathólicæ et apostólicæ fídei cultóribus.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>21</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Canon</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>e therefore, humbly pray and beseech Thee, most merciful Father, through Jesus Christ; Thy Son, our Lord,   that Thou wouldst vouchsafe to accept and bless   these <span style='color:red; font-size:1.25em'>✠</span> gifts, these <span style='color:red; font-size:1.25em'>✠</span> presents, these <span style='color:red; font-size:1.25em'>✠</span> holy unspotted Sacrifices,   which in the first place we offer Thee for Thy holy Catholic Church to which vouchsafe to grant peace, as also to preserve, unite, and govern it throughout the world, together with Thy servant    our Pope, and   our Bishop, and all orthodox believers and professors of the Catholic and Apostolic Faith.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='22'><FONT SIZE='+2' COLOR="red"><B><I>M</I></B></FONT>eménto, Dómine, famulórum famularúmque tuarum <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT> et <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT>    et ómnium circumstántium, quorum tibi fides cógnita est et nota devótio, pro quibus tibi offérimus: vel qui tibi ófferunt hoc sacrifícium laudis, pro se suísque ómnibus: pro redemptióne animárum suárum, pro spe salútis et incolumitátis suæ: tibíque reddunt vota sua ætérno Deo, vivo et vero.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'>Be mindful, O Lord, of Thy servants and handmaidens, <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT> and <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT>    and of all here present, whose faith and devotion are known unto Thee, for whom we offer, or who offer up to Thee, this sacrifice of praise for themselves, their families and friends, for the redemption of their souls, for the health and salvation they hope for; and who now pay their vows to Thee, the everlasting, living and true God.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='23'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#24'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>In Nativitate Domini et per Octavam dicitur:</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>ommunicántes, et diem sacratíssimum celebrántes, quo beátæ Maríæ intemeráta virgínitas huic mundo édidit Salvatórem: sed et memóriam venerántes, in primis eiúsdem gloriósæ semper Vírginis Maríæ, Genetrícis eiúsdem Dei et Dómini nostri Iesu Christi: sed et beáti Ioseph, eiúsdem Vírginis Sponsi,
+ et beatórum Apostolórum ac Mártyrum tuórum, Petri et Pauli, Andréæ, Iacóbi, Ioánnis, Thomæ, Iacóbi, Philíppi, Bartholomǽi, Matthǽi, Simónis et Thaddǽi: Lini, Cleti, Cleméntis, Xysti, Cornélii, Cypriáni, Lauréntii, Chrysógoni, Ioánnis et Pauli, Cosmæ et Damiáni: et ómnium Sanctórum tuórum; quorum méritis precibúsque concédas, ut in ómnibus protectiónis tuæ muniámur auxílio.   Per eúndem Christum, Dóminum nostrum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'>Communicating, and keeping this most holy day, on which the spotless virginity of blessed Mary brought forth a Saviour to this world; and also reverencing the memory first of the same glorious Mary, ever Virgin, Mother of the same our God and Lord Jesus Christ: as also of the blessed Joseph, her Spouse,
+ and of the blessed Apostles and Martyrs Peter and Paul, Andrew, James, John, Thomas, James, Philip, Bartholomew, Matthew, Simon, and Thaddeus; Linus, Cletus, Clement, Xystus, Cornelius, Cyprian, Lawrence, Chrysogonus, John and Paul, Cosmas and Damian, and of all Thy Saints, through whose merits and prayers, grant that we may in all things be defended by the help of Thy protection.   Through the same Christ our Lord. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='24'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#25'>Next</A></FONT></DIV>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>H</I></B></FONT>anc ígitur oblatiónem servitútis nostræ, sed et cunctæ famíliæ tuæ,<br/>
+quǽsumus, Dómine, ut placátus accípias: diésque nostros in tua pace dispónas, atque ab ætérna damnatióne nos éripi, et in electórum tuórum iúbeas grege numerári.   Per Christum, Dóminum nostrum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>24</FONT></DIV>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>e therefore beseech Thee, O Lord, graciously to accept this oblation of our service, as also of Thy whole family;<br/>
+and to dispose our days in Thy peace, preserve us from eternal damnation, and rank us in the number of Thine Elect.   Through the same Christ our Lord. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='25'><FONT SIZE='+2' COLOR="red"><B><I>Q</I></B></FONT>uam oblatiónem tu, Deus, in ómnibus, quǽsumus,   bene <span style='color:red; font-size:1.25em'>✠</span> díctam, adscríp <span style='color:red; font-size:1.25em'>✠</span> tam, ra <span style='color:red; font-size:1.25em'>✠</span> tam, rationábilem, acceptabilémque fácere dignéris:   ut nobis Cor <span style='color:red; font-size:1.25em'>✠</span> pus,   et San <span style='color:red; font-size:1.25em'>✠</span> guis fiat dilectíssimi Fílii tui,   Dómini nostri Iesu Christi.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>hich oblation do Thou, O God, vouchsafe in all respects,   to bless, <span style='color:red; font-size:1.25em'>✠</span> approve, <span style='color:red; font-size:1.25em'>✠</span> ratify, <span style='color:red; font-size:1.25em'>✠</span> make worthy and acceptable;   that it may be made for us the Body <span style='color:red; font-size:1.25em'>✠</span> and Blood <span style='color:red; font-size:1.25em'>✠</span> of Thy most beloved Son Jesus Christ our Lord.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='26'><FONT SIZE='+2' COLOR="red"><B><I>Q</I></B></FONT>ui prídie quam paterétur,   accépit panem in sanctas ac venerábiles manus suas,   elevátis óculis in cælum ad te Deum, Patrem suum omnipoténtem,   tibi grátias agens,   bene <span style='color:red; font-size:1.25em'>✠</span> díxit, fregit, dedítque discípulis suis, dicens: Accípite, et manducáte ex hoc omnes.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>ho, the day before He suffered,   took bread into His holy and venerable hands,   and with His eyes lifted up towards heaven unto Thee, God, His almighty Father, giving thanks to Thee,   He blessed <span style='color:red; font-size:1.25em'>✠</span> it, broke it and gave it to His disciples saying: Take and eat ye all of this,<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='27'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#28'>Next</A></FONT></DIV>
+ <br/>
+HOC EST ENIM CORPUS MEUM.<br/>
+ <br/>
+<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>27</FONT></DIV>
+ <br/>
+ FOR THIS IS MY BODY.<br/>
+<br/>
+ <br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='28'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#29'>Next</A></FONT></DIV>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>ímili modo postquam cenátum est,   accípiens et hunc præclárum Cálicem in sanctas ac venerábiles manus suas:   item tibi grátias agens,   bene <span style='color:red; font-size:1.25em'>✠</span> díxit, dedítque discípulis suis, dicens: Accípite, et bíbite ex eo omnes.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>28</FONT></DIV>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>n like manner, after He had supped,   taking also this excellent chalice into His holy and venerable hands   He blessed <span style='color:red; font-size:1.25em'>✠</span> , and gave it to His disciples, saying: Take and drink ye all of this,<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='29'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#30'>Next</A></FONT></DIV>
+ <br/>
+HIC EST ENIM CALIX SANGUINIS MEI, NOVI ET ÆTERNI TESTAMENTI: MYSTERIUM FIDEI: QUI PRO VOBIS ET PRO MULTIS EFFUNDETUR IN REMISSIONEM PECCATORUM.<br/>
+<br/>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>H</I></B></FONT>æc quotiescúmque fecéritis, in mei memóriam faciétis.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>29</FONT></DIV>
+ <br/>
+ FOR THIS IS THE CHALICE OF MY BLOOD OF THE NEW AND ETERNAL TESTAMENT, THE MYSTERY OF FAITH; WHICH SHALL BE SHED FOR YOU AND FOR MANY UNTO THE REMISSION OF SINS.<br/>
+<br/>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>s often as ye do these things, ye shall do them in remembrance of Me.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='30'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#31'>Next</A></FONT></DIV>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>U</I></B></FONT>nde et mémores, Dómine, nos servi tui, sed et plebs tua sancta, eiúsdem Christi Fílii tui, Dómini nostri, tam beátæ passiónis, nec non et ab ínferis resurrectiónis, sed et in cælos gloriósæ ascensiónis: offérimus præcláræ maiestáti tuæ de tuis donis ac datis,   Hóstiam <span style='color:red; font-size:1.25em'>✠</span> puram, Hóstiam <span style='color:red; font-size:1.25em'>✠</span> sanctam, Hóstiam <span style='color:red; font-size:1.25em'>✠</span> immaculátam,   Panem <span style='color:red; font-size:1.25em'>✠</span> sanctum vitæ ætérnæ,   et Cálicem <span style='color:red; font-size:1.25em'>✠</span> salútis perpétuæ.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>30</FONT></DIV>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>herefore, O Lord, we Thy servants, as also Thy holy people, calling to mind the blessed Passion of the same Christ, Thy Son, our Lord, and also His Resurrection from the dead and His glorious Ascension into heaven: do offer unto Thy most excellent Majesty of Thine own gifts, bestowed upon us,   a pure <span style='color:red; font-size:1.25em'>✠</span> Host, a holy <span style='color:red; font-size:1.25em'>✠</span> Host, an unspotted <span style='color:red; font-size:1.25em'>✠</span> Host,   the holy <span style='color:red; font-size:1.25em'>✠</span> Bread of eternal life, and the Chalice <span style='color:red; font-size:1.25em'>✠</span> of everlasting salvation.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='31'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#32'>Next</A></FONT></DIV>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>upra quæ propítio ac seréno vultu respícere dignéris: et accépta habére, sicúti accépta habére dignátus es múnera púeri tui iusti Abel, et sacrifícium Patriárchæ nostri Abrahæ: et quod tibi óbtulit summus sacérdos tuus Melchísedech, sanctum sacrifícium, immaculátam hóstiam.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>31</FONT></DIV>
+ <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>U</I></B></FONT>pon which vouchsafe to look with a propitious and serene countenance, and to accept them, as Thou wert graciously pleased to accept the gifts of Thy just servant Abel, and the sacrifice of our patriarch Abraham, and that which Thy high priest Melchisedech offered to Thee, a holy sacrifice, and unspotted victim.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='32'><FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>úpplices te rogámus, omnípotens Deus: iube hæc perférri per manus sancti Angeli tui in sublíme altáre tuum, in conspéctu divínæ maiestátis tuæ: ut, quotquot   ex hac altáris participatióne sacrosánctum Fílii tui   Cor <span style='color:red; font-size:1.25em'>✠</span> pus, et Sán <span style='color:red; font-size:1.25em'>✠</span> guinem sumpsérimus,   omni benedictióne cælésti et grátia repleámur.   Per eúndem Christum, Dóminum nostrum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>e most humbly beseech Thee, almighty God, command these offerings to be borne by the hands of Thy holy Angels to Thine altar on high, in the sight of Thy divine majesty, that as many   as shall partake of the most holy   Body <span style='color:red; font-size:1.25em'>✠</span> and Blood <span style='color:red; font-size:1.25em'>✠</span> of Thy Son   at this altar, may be filled with every heavenly grace and blessing. Through the same Christ our Lord. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='33'><FONT SIZE='+2' COLOR="red"><B><I>M</I></B></FONT>eménto étiam, Dómine, famulórum famularúmque tuárum <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT> et <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT>, qui nos præcessérunt cum signo fídei, et dórmiunt in somno pacis.   Ipsis, Dómine, et ómnibus in Christo quiescéntibus locum refrigérii, lucis, et pacis, ut indúlgeas, deprecámur.   Per eúndem Christum, Dóminum nostrum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>R</I></B></FONT>emember also, O Lord, Thy servants and handmaids <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT> and <FONT SIZE='+1' COLOR="red"><B><I>N.</I></B></FONT>,  who are gone before us with the sign of faith, and rest in the sleep of peace.   To these, O Lord, and to all that rest in Christ, grant, we beseech Thee, a place of refreshment, light, and peace;   Through the same Christ our Lord. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='34'><FONT SIZE='+2' COLOR="red"><B><I>N</I></B></FONT>obis quoque peccatóribus   fámulis tuis, de multitúdine miseratiónum tuárum sperántibus, partem áliquam et societátem donáre dignéris, cum tuis sanctis Apóstolis et Martýribus: cum Ioánne, Stéphano, Matthía, Bárnaba, Ignátio, Alexándro, Marcellíno, Petro, Felicitáte, Perpétua, Agatha, Lúcia, Agnéte, Cæcília, Anastásia, et ómnibus Sanctis tuis: intra quorum nos consórtium, non æstimátor mériti, sed véniæ, quǽsumus, largítor admítte.   Per Christum, Dóminum nostrum.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>o us also, Thy sinful servants, confiding in the multitude of Thy mercies, vouchsafe to grant some part and fellowship with Thy holy Apostles and Martyrs, with John, Stephen, Matthias, Barnabas, Ignatius, Alexander, Marcellinus, Peter, Felicitas, Perpetua, Agatha, Lucy, Agnes, Cecilia, Anastasia, and with all Thy Saints, into whose company we beseech Thee to admit us, not weighing our merits, but pardoning our offenses.   Through Christ our Lord.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='35'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#36'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>er quem hæc ómnia, Dómine, semper bona creas,   sanctí <span style='color:red; font-size:1.25em'>✠</span> ficas, viví <span style='color:red; font-size:1.25em'>✠</span> ficas, bene <span style='color:red; font-size:1.25em'>✠</span> dícis et præstas nobis.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>er Ip <span style='color:red; font-size:1.25em'>✠</span> sum, et cum Ip <span style='color:red; font-size:1.25em'>✠</span> so, et in Ip <span style='color:red; font-size:1.25em'>✠</span> so,   est tibi Deo Patri <span style='color:red; font-size:1.25em'>✠</span> omnipoténti, in unitáte Spíritus <span style='color:red; font-size:1.25em'>✠</span> Sancti,   omnis honor, et glória.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>er ómnia sǽcula sæculórum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>35</FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>B</I></B></FONT>y Whom, O Lord, Thou dost ever create,   sanctify, <span style='color:red; font-size:1.25em'>✠</span> quicken, <span style='color:red; font-size:1.25em'>✠</span> bless, <span style='color:red; font-size:1.25em'>✠</span> and give unto us all these good things.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>B</I></B></FONT>y Him, <span style='color:red; font-size:1.25em'>✠</span> and with Him, <span style='color:red; font-size:1.25em'>✠</span> and in Him <span style='color:red; font-size:1.25em'>✠</span>   is to Thee, God the Father <span style='color:red; font-size:1.25em'>✠</span> almighty, in the unity of the Holy <span style='color:red; font-size:1.25em'>✠</span> Ghost,   all honor and glory.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> World without end.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='36'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#37'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Preparatio Communionis</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rémus: Præcéptis salutáribus móniti, et divína institutióne formáti audémus dícere: <br/>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>ater noster, qui es in cælis. Sanctificétur nomen tuum. Advéniat regnum tuum. Fiat volúntas tua, sicut in cælo et in terra. Panem nostrum quotidiánum da nobis hódie. Et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris. Et ne nos indúcas in tentatiónem:<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Sed líbera nos a malo.<br/>
+<FONT COLOR="red"><I>S.</I></FONT>   Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>36</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Preparation for Communion</I></B></FONT> 
+<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>et us pray. Instructed by Thy saving precepts, and following Thy divine institution, we are bold to say:<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>ur Father, who art in heaven, hallowed be Thy Name; Thy kingdom come; Thy will be done on earth as it is in heaven. Give us this day our daily bread. And forgive us our trespasses, as we forgive those who trespass against us. And lead us not into temptation.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> But deliver us from evil.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='37'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#38'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>íbera nos, quǽsumus, Dómine, ab ómnibus malis, prætéritis, præséntibus et futúris: et intercedénte beáta et gloriósa semper Vírgine Dei Genetríce María, cum beátis Apóstolis tuis Petro et Paulo, atque Andréa, et ómnibus Sanctis,   da propítius pacem in diébus nostris:   ut, ope misericórdiæ tuæ adiúti, et a peccáto simus semper líberi et ab omni perturbatióne secúri.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>er eúndem Dóminum nostrum Iesum Christum, Fílium tuum.<br/>
+Qui tecum vivit et regnat in unitáte Spíritus Sancti Deus.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Per ómnia sǽcula sæculórum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>ax Dómini sit semper vobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et cum spíritu tuo.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>37</FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>D</I></B></FONT>eliver us, we beseech Thee, O Lord, from all evils, past, present, and to come; and by the intercession of the Blessed and glorious ever Virgin Mary, Mother of God, and of the holy Apostles, Peter and Paul, and of Andrew, and of all the Saints,   mercifully grant peace in our days, that through the assistance of Thy mercy we may be always free from sin, and secure from all disturbance.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>hrough the same Jesus Christ, Thy Son, our Lord.<br/>
+Who with Thee in the unity of the Holy Ghost liveth and reigneth God,<br/>
+<FONT COLOR="red"><I>P.</I></FONT> World without end.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Amen.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> The peace <span style='color:red; font-size:1.25em'>✠</span> of the Lord be <span style='color:red; font-size:1.25em'>✠</span> always with <span style='color:red; font-size:1.25em'>✠</span> you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And with thy spirit.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='38'><FONT SIZE='+2' COLOR="red"><B><I>H</I></B></FONT>æc commíxtio, et consecrátio Córporis et Sánguinis Dómini nostri Iesu Christi, fiat accipiéntibus nobis in vitam ætérnam. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>M</I></B></FONT>ay this mixture and consecration of the Body and Blood of our Lord Jesus Christ be to us who receive it effectual unto eternal life. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='39'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#40'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>gnus Dei, qui tollis peccáta mundi: miserére nobis.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>gnus Dei, qui tollis peccáta mundi: miserére nobis.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>A</I></B></FONT>gnus Dei, qui tollis peccáta mundi: dona nobis pacem.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>39</FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>amb of God, who takest away the sins of the world, have mercy on us.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>amb of God, who takest away the sins of the world, have mercy on us.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>amb of God, who takest away the sins of the world, grant us peace.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='40'><FONT SIZE='+2' COLOR="red"><B><I>D</I></B></FONT>ómine Iesu Christe, qui dixísti Apóstolis tuis: Pacem relínquo vobis, pacem meam do vobis: ne respícias peccáta mea, sed fidem Ecclésiæ tuæ; eámque secúndum voluntátem tuam pacificáre et coadunáre dignéris: Qui vivis et regnas Deus per ómnia sǽcula sæculórum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT> Lord Jesus Christ, who saidst to Thine Apostles: Peace I leave you, My peace I give you: regard not my sins, but the faith of Thy Church; and vouchsafe to grant her that peace and unity which is agreeable to Thy will: Who livest and reignest God, world without end. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='41'><FONT SIZE='+2' COLOR="red"><B><I>D</I></B></FONT>ómine Iesu Christe, Fili Dei vivi, qui ex voluntáte Patris, cooperánte Spíritu Sancto, per mortem tuam mundum vivificásti: líbera me per hoc sacrosánctum Corpus et Sánguinem tuum ab ómnibus iniquitátibus meis, et univérsis malis: et fac me tuis semper inhærére mandátis, et a te numquam separári permíttas: Qui cum eódem Deo Patre et Spíritu Sancto vivis et regnas Deus in sǽcula sæculórum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT> Lord Jesus Christ, Son of the living God, who, according to the will of Thy Father, with the cooperation of the Holy Ghost, hast by Thy death given life to the world; deliver me by this Thy most sacred Body and Blood, from all my iniquities and from all evils; and make me always cleave to Thy commandments, and suffer me never to be separated from Thee, Who livest and reignest, with the same God the Father and the Holy Ghost, God, world without end. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='42'><FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>ercéptio Córporis tui, Dómine Iesu Christe, quod ego indígnus súmere præsúmo, non mihi provéniat in iudícium et condemnatiónem: sed pro tua pietáte prosit mihi ad tutaméntum mentis et córporis, et ad medélam percipiéndam: Qui vivis et regnas cum Deo Patre in unitáte Spíritus Sancti Deus, per ómnia sǽcula sæculórum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>et not the partaking of Thy Body, O Lord, Jesus Christ, which I, though unworthy, presume to receive, turn to my judgment and condemnation; but let it, through Thy mercy, become a safeguard and remedy, both for soul and body; Who with God the Father, in the unity of the Holy Ghost, livest and reignest God, world without end. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='43'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#44'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>anem cæléstem accípiam, et nomen Dómini invocábo.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dómine, non sum dignus,   ut intres sub tectum meum: sed tantum dic verbo, et sanábitur ánima mea.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dómine, non sum dignus,   ut intres sub tectum meum: sed tantum dic verbo, et sanábitur ánima mea.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Dómine, non sum dignus,   ut intres sub tectum meum: sed tantum dic verbo, et sanábitur ánima mea.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>43</FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT> will take the Bread of heaven, and will call upon the Name of the Lord.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Lord, I am not worthy that Thou shouldst enter under my roof; say but the word, and my soul shall be healed.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Lord, I am not worthy that Thou shouldst enter under my roof; say but the word, and my soul shall be healed.<br/>
+<FONT COLOR="red"><I>℣.</I></FONT> Lord, I am not worthy that Thou shouldst enter under my roof; say but the word, and my soul shall be healed.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='44'><FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>orpus Dómini nostri Iesu Christi custódiat ánimam meam in vitam ætérnam. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>he Body of our Lord Jesus Christ preserve my soul unto life everlasting. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='45'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#46'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>Q</I></B></FONT>uid retríbuam Dómino pro ómnibus, quæ retríbuit mihi? Cálicem salutáris accípiam, et nomen Dómini invocábo. Laudans invocábo Dóminum, et ab inimícis meis salvus ero.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>S</I></B></FONT>anguis Dómini nostri Iesu Christi custódiat ánimam meam in vitam ætérnam. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>45</FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>W</I></B></FONT>hat return shall I make to the Lord for all He has given to me? I will take the chalice of salvation, and call upon the Name of the Lord. Praising I will call upon the Lord, and I shall be saved from my enemies.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>he Blood of our Lord Jesus Christ preserve my soul unto life everlasting. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='46'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#47'>Next</A></FONT></DIV>
+<A HREF="mpopup.pl?popup=Communio&rubrics=&lang1=Latin&lang2=English" TARGET=" NEW">Communio</A><br/>
+<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>46</FONT></DIV>
+<A HREF="mpopup.pl?popup=Communio&rubrics=&lang1=Latin&lang2=English" TARGET=" NEW">Communio</A><br/>
+<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='47'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#48'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>Q</I></B></FONT>uod ore súmpsimus, Dómine, pura mente capiámus: et de múnere temporáli fiat nobis remédium sempitérnum.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>C</I></B></FONT>orpus tuum, Dómine, quod sumpsi, et Sanguis, quem potávi, adhǽreat viscéribus meis: et præsta; ut in me non remáneat scélerum mácula, quem pura et sancta refecérunt sacraménta: Qui vivis et regnas in sǽcula sæculórum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>47</FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>G</I></B></FONT>rant, O Lord, that what we have taken with our mouth, we may receive with a pure mind; and from a temporal gift may it become to us an eternal remedy.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>M</I></B></FONT>ay Thy Body, O Lord, which I have received, and Thy Blood which I have drunk, cleave to my bowels; and grant that no stain of sin may remain in me, who have been fed with this pure and holy Sacrament; Who livest and reignest for ever and ever. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='48'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#49'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Communio</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>Ps 109:3</I></FONT><br/>
+In splendóribus Sanctórum, ex útero ante lucíferum génui te.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>48</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Communion</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>Ps 109:3</I></FONT><br/>
+In holy splendor, before the daystar I have begotten You.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='49'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#50'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Postcommunio</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Dóminus vobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et cum spíritu tuo.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>O</I></B></FONT>rémus.<br/>
+Da nobis, quǽsumus, Dómine, Deus noster: ut, qui Nativitátem Dómini nostri Iesu Christi mystériis nos frequentáre gaudémus; dignis conversatiónibus ad eius mereámur perveníre consórtium:<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>Q</I></B></FONT>ui tecum vivit et regnat in unitáte Spíritus Sancti Deus per ómnia sǽcula sæculórum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>49</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Post Communion</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>P.</I></FONT> The Lord be with you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And with thy spirit.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>L</I></B></FONT>et us pray.<br/>
+Grant, we beseech You, O Lord our God, that we who joyfully celebrate the birth of our Lord Jesus Christ, in this sacrament may gain His companionship by worthy living.<br/>
+<FONT SIZE='+1' COLOR="red"><B><I>W</I></B></FONT>ho livest and reignest with God the Father, in the unity of the Holy Spirit, God, world without end.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='50'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#51'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Conclusio</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Dóminus vobíscum.<br/>
+<FONT COLOR="red"><I>M.</I></FONT> Et cum spíritu tuo.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>50</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Conclusion</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>P.</I></FONT> The Lord be with you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And with thy spirit.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='51'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#52'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>℣.</I></FONT> Ite, Missa est.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Deo grátias.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>51</FONT></DIV>
+<FONT COLOR="red"><I>℣.</I></FONT> Go, the Mass is ended.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Thanks be to God.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='52'><FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>láceat tibi, sancta Trínitas, obséquium servitútis meæ: et præsta; ut sacrifícium, quod óculis tuæ maiestátis indígnus óbtuli, tibi sit acceptábile, mihíque et ómnibus, pro quibus illud óbtuli, sit, te miseránte, propitiábile. Per Christum, Dóminum nostrum. Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><FONT SIZE='+2' COLOR="red"><B><I>M</I></B></FONT>ay the performance of my homage be pleasing to Thee, O holy Trinity: and grant that the Sacrifice which I, though unworthy, have offered up in the sight of Thy Majesty, may be acceptable to Thee, and through Thy mercy, be a propitiation for me, and for all those for whom I have offered it. Through Christ our Lord. Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='53'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#54'>Next</A></FONT></DIV>
+<FONT SIZE='+2' COLOR="red"><B><I>B</I></B></FONT>enedícat vos omnípotens Deus,<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>P</I></B></FONT>ater, et Fílius, <span style='color:red; font-size:1.25em'>✠</span> et Spíritus Sanctus.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Amen.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>53</FONT></DIV>
+<FONT COLOR="red"><I>P.</I></FONT> May almighty God the Father, Son, <span style='color:red; font-size:1.25em'>✠</span> and Holy Ghost, bless you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Amen.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='54'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#55'>Next</A></FONT></DIV>
+<FONT COLOR="red"><I>℣.</I></FONT> Dóminus vobíscum.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Et cum spíritu tuo.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>nítium <span style='color:red; font-size:1.25em'>+</span> sancti Evangélii secúndum Ioánnem<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Glória tibi, Dómine.<br/>
+<FONT COLOR="red"><I>Ioann. 1, 1-14.</I></FONT><br/>
+<FONT COLOR="red"><I>Iunctis manibus prosequitur:</I></FONT><br/>
+<FONT SIZE='+2' COLOR="red"><B><I>I</I></B></FONT>n princípio erat Verbum, et Verbum erat apud Deum, et Deus erat Verbum. Hoc erat in princípio apud Deum. Omnia per ipsum facta sunt: et sine ipso factum est nihil, quod factum est: in ipso vita erat, et vita erat lux hóminum: et lux in ténebris lucet, et ténebræ eam non comprehendérunt.<br/>
+Fuit homo missus a Deo, cui nomen erat Ioánnes. Hic venit in testimónium, ut testimónium perhibéret de lúmine, ut omnes créderent per illum. Non erat ille lux, sed ut testimónium perhibéret de lúmine.<br/>
+Erat lux vera, quæ illúminat omnem hóminem veniéntem in hunc mundum. In mundo erat, et mundus per ipsum factus est, et mundus eum non cognóvit. In própria venit, et sui eum non recepérunt. Quotquot autem recepérunt eum, dedit eis potestátem fílios Dei fíeri, his, qui credunt in nómine eius: qui non ex sanguínibus, neque ex voluntáte carnis, neque ex voluntáte viri, sed ex Deo nati sunt. <FONT SIZE='1' COLOR="red">Genuflectit dicens:</FONT> Et Verbum caro factum est, <FONT SIZE='1' COLOR="red">Et surgens prosequitur:</FONT> et habitávit in nobis: et vídimus glóriam eius, glóriam quasi Unigéniti a Patre, plenum grátiæ et veritátis.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Deo grátias.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>54</FONT></DIV>
+<FONT COLOR="red"><I>P.</I></FONT> The Lord be with you.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> And with thy spirit.<br/>
+<FONT SIZE='+2' COLOR="red"><B><I>T</I></B></FONT>he beginning <span style='color:red; font-size:1.25em'>+</span> of the holy Gospel according to John<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Glory be to Thee, O Lord.<br/>
+<FONT COLOR="red"><I> John 1, 1-14</I></FONT><br/>
+In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God. All things were made by Him, and without Him was made nothing that was made: in Him was life, and the life was the Light of men; and the Light shineth in darkness, and the darkness did not comprehend it. There was a man sent from God, whose name was John. This man came for a witness, to testify concerning the Light, that all might believe through Him. He was not the Light, but he was to testify concerning the Light. That was the true Light, which enlighteneth every man that cometh into this world. He was in the world, and the world was made by Him, and the world knew Him not. He came unto His own, and His own received Him not. But as many as received Him to them He gave power to become sons of God, to them that believe in His Name, who are born not of blood, nor of the will of the flesh, nor of the will of man, but of God. <FONT SIZE='1' COLOR="red">Here all kneel.</FONT> And the Word was made flesh, and dwelt among us: and we saw His glory, the glory as of the Only begotten of the Father, full of grace and truth.<br/>
+<FONT COLOR="red"><I>℟.</I></FONT> Thanks be to God.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' WIDTH='50%' ID='55'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'><A HREF='#top'>Top</A>&nbsp;&nbsp;<A HREF='#56'>Next</A></FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Orationes Leonis XIII</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Ave María, grátia plena, Dóminus tecum, benedícta tu in muliéribus et benedíctus fructus ventris tui, Iesus.<br/>
+<FONT COLOR="red"><I>O.</I></FONT> Sancta María, Mater Dei, ora pro nobis peccatóribus, nunc et in hora mortis nostræ. Amen.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Ave María, grátia plena, Dóminus tecum, benedícta tu in muliéribus et benedíctus fructus ventris tui, Iesus.<br/>
+<FONT COLOR="red"><I>O.</I></FONT> Sancta María, Mater Dei, ora pro nobis peccatóribus, nunc et in hora mortis nostræ. Amen.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Ave María, grátia plena, Dóminus tecum, benedícta tu in muliéribus et benedíctus fructus ventris tui, Iesus.<br/>
+<FONT COLOR="red"><I>O.</I></FONT> Sancta María, Mater Dei, ora pro nobis peccatóribus, nunc et in hora mortis nostræ. Amen.<br/>
+ <br/>
+<FONT COLOR="red"><I>O.</I></FONT> Salve Regína, Mater misericórdiæ, vita, dulcédo, et spes nostra, salve. Ad te clamámus, éxsules fílii Evæ. Ad te suspirámus geméntes et flentes in hac lacrymárum valle. Eia ergo, Advocáta nostra, illos tuos misericórdes óculos ad nos convérte. Et Iesum, benedíctum fructum ventris tui, nobis, post hoc exílium, osténde. O clemens, o pia, o dulcis Virgo Mária.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Ora pro nobis, sancta Dei Génitrix.<br/>
+<FONT COLOR="red"><I>O.</I></FONT> Ut digni efficiámur promissiónibus Christi.<br/>
+ <br/>
+<FONT COLOR="red"><I>S.</I></FONT> Orémus. Deus, refúgium nostrum et virtus, pópulum ad te clamántem propítius réspice; et intercedénte gloriósa, et immaculáta Vírgine Dei Genitríce María, cum beáto Ioseph, eius Sponso, ac beatis Apóstolis tuis Petro et Paulo, et ómnibus Sanctis, quas pro conversióne peccatórum, pro libertáte et exaltatióne sanctæ Matris Ecclésiæ, preces effúndimus, miséricors et benígnus exáudi. Per eúndem Christum Dóminum nostrum. Amen.<br/>
+ <br/>
+<FONT COLOR="red"><I>O.</I></FONT> Sancte Míchaël Archángele, defénde nos in prǽlio; contra nequítiam et insídias diáboli esto præsídium. Imperet illi Deus, súpplices deprecámur: tuque, Princeps milítiæ Cæléstis, sátanam aliósque spíritus malígnos, qui ad perditiónem animárum pervagántur in mundo, divína virtúte in inférnum detrúde. Amen.<br/>
+ <br/>
+<FONT COLOR="red"><I>S.</I></FONT> Cor Iesu sacratíssimum.<br/>
+<FONT COLOR="red"><I>O.</I></FONT> Miserére nobis.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Cor Iesu sacratíssimum.<br/>
+<FONT COLOR="red"><I>O.</I></FONT> Miserére nobis.<br/>
+<FONT COLOR="red"><I>S.</I></FONT> Cor Iesu sacratíssimum.<br/>
+<FONT COLOR="red"><I>O.</I></FONT> Miserére nobis.<br/>
+</TD>
+<TD VALIGN='TOP' WIDTH='50%'><DIV ALIGN='right'><FONT SIZE='1' COLOR='green'>55</FONT></DIV>
+<FONT SIZE='+1' COLOR="red"><B><I>Leonine Prayers</I></B></FONT> 
+<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Hail Mary, full of grace; The Lord is with thee; Blessed art thou amongst women, And blessed is the fruit of thy womb, Jesus.<br/>
+<FONT COLOR="red"><I>A.</I></FONT> Holy Mary, Mother of God, Pray for us sinners, now and at the hour of our death. Amen.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Hail Mary, full of grace; The Lord is with thee; Blessed art thou amongst women, And blessed is the fruit of thy womb, Jesus.<br/>
+<FONT COLOR="red"><I>A.</I></FONT> Holy Mary, Mother of God, Pray for us sinners, now and at the hour of our death. Amen.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Hail Mary, full of grace; The Lord is with thee; Blessed art thou amongst women, And blessed is the fruit of thy womb, Jesus.<br/>
+<FONT COLOR="red"><I>A.</I></FONT> Holy Mary, Mother of God, Pray for us sinners, now and at the hour of our death. Amen.<br/>
+ <br/>
+<FONT COLOR="red"><I>A.</I></FONT> Hail, holy Queen, Mother of Mercy, our life, our sweetness, and our hope. To thee do we cry, poor banished children of Eve. To thee do we send up our sighs, mourning and weeping in this valley of tears. Turn then, most gracious Advocate, thine eyes of mercy towards us. And after this our exile, show unto us the blessed Fruit of thy womb, Jesus.  O clement, O loving, O sweet Virgin Mary.<br/>
+<FONT COLOR="red"><I>P.</I></FONT> Pray for us, O Holy Mother of God.<br/>
+<FONT COLOR="red"><I>O.</I></FONT> That we may be made worthy of the promises of Christ.<br/>
+ <br/>
+<FONT COLOR="red"><I>P.</I></FONT> Let us pray.  O God, our refuge and our strength, look down in mercy on Thy people who cry to Thee; and by the intercession of the glorious and Immaculate Virgin Mary, Mother of God, of St. Joseph her Spouse, of Thy blessed Apostles Peter and Paul, and of all the Saints, in mercy and goodness hear our prayers for the conversion of sinners, and for the liberty and exaltation of our holy Mother the Church. Through the same Christ our Lord. Amen.<br/>
+ <br/>
+<FONT COLOR="red"><I>A.</I></FONT> Holy Michael Archangel, defend us in the day of battle; be our safeguard against the wickedness and snares of the devil. -- May God rebuke him, we humbly pray: and do thou, Prince of the heavenly host, by the power of God thrust down to hell Satan and all wicked spirits, who wander through the world for the ruin of souls. Amen.<br/>
+ <br/>
+<FONT COLOR="red"><I>P.</I></FONT>  Most Sacred Heart of Jesus,<br/>
+<FONT COLOR="red"><I>A.</I></FONT> Have mercy upon us.<br/>
+<FONT COLOR="red"><I>P.</I></FONT>  Most Sacred Heart of Jesus,<br/>
+<FONT COLOR="red"><I>A.</I></FONT> Have mercy upon us.<br/>
+<FONT COLOR="red"><I>P.</I></FONT>  Most Sacred Heart of Jesus,<br/>
+<FONT COLOR="red"><I>A.</I></FONT> Have mercy upon us.<br/>
+</TD>
+</TR>
+<TR><TD VALIGN='TOP' COLSPAN="2" ALIGN='CENTER'>
+<A HREF="mpopup.pl?popup=Post&rubrics=&lang1=Latin&lang2=English" TARGET='_NEW'>Post</A>
+<FONT SIZE='1'>Missam</FONT></TD></TR></TABLE><A ID='55'></A><INPUT TYPE=HIDDEN NAME=expandnum VALUE="">
+<P ALIGN=CENTER><FONT SIZE=+1><I>
+<LABEL FOR=rubrics>Rubrics : </LABEL><INPUT ID=rubrics TYPE=CHECKBOX NAME='rubrics'  Value=1  onclick="parchange()">
+&nbsp;&nbsp;&nbsp;
+<A HREF=# onclick="hset('Sancta Missa Persoluta');"><FONT COLOR=blue>Sancta Missa Persoluta</FONT></A>
+&nbsp;&nbsp;&nbsp;
+<LABEL FOR=solemn>Solemn : </LABEL><INPUT ID=solemn TYPE=CHECKBOX NAME='solemn'  Value=1 onclick="parchange()">
+</I></P>
+<P ALIGN=CENTER>
+<LABEL FOR='version' CLASS='offscreen'>Version</LABEL>
+<SELECT ID=version NAME=version SIZE=1 onchange="parchange();">
+<OPTION  VALUE="Tridentine - 1570">Tridentine - 1570
+<OPTION  VALUE="Tridentine - 1910">Tridentine - 1910
+<OPTION  VALUE="Divino Afflatu - 1939">Divino Afflatu - 1939
+<OPTION  VALUE="Divino Afflatu - 1954">Divino Afflatu - 1954
+<OPTION  VALUE="Reduced - 1955">Reduced - 1955
+<OPTION SELECTED VALUE="Rubrics 1960 - 1960">Rubrics 1960 - 1960
+<OPTION  VALUE="1965-1967">1965-1967
+<OPTION  VALUE="Rubrics 1960 Newcalendar">Rubrics 1960 - 2020 USA
+</SELECT>
+&ensp;<LABEL FOR='lang2' CLASS='offscreen'>Language 2</LABEL>
+<SELECT ID=lang2 NAME=lang2 SIZE=1 onchange="parchange();">
+<OPTION  VALUE="Latin">Latin
+<OPTION  VALUE="Bohemice">Čeština
+<OPTION  VALUE="Cesky-Schaller">Čeština - Schaller
+<OPTION  VALUE="Deutsch">Deutsch
+<OPTION SELECTED VALUE="English">English
+<OPTION  VALUE="Espanol">Español
+<OPTION  VALUE="Francais">Français
+<OPTION  VALUE="Italiano">Italiano
+<OPTION  VALUE="Magyar">Magyar
+<OPTION  VALUE="Nederlands">Nederlands
+<OPTION  VALUE="Polski">Polski
+<OPTION  VALUE="Portugues">Português
+<OPTION  VALUE="Ukrainian">Українська
+</SELECT>
+&ensp;<LABEL FOR='votive' CLASS='offscreen'>Votive</LABEL>
+<SELECT ID=votive NAME=votive SIZE=1 onchange="parchange();">
+<OPTION SELECTED VALUE="Hodie">Hodie
+<OPTION  VALUE="C2">
+Commune Unius Martyris Pontificis: Statuit
+<OPTION  VALUE="C2-1">
+Commune Unius Martyris Pontificis: Sacerdotes Dei
+<OPTION  VALUE="C2a">
+Commune Unius Martyris: In virtute
+<OPTION  VALUE="C2a-1">
+Commune Unius Martyris: Laetabitur
+<OPTION  VALUE="C2b">
+Commune Unius Martyris (Summi Pontificis): Si diligis
+<OPTION  VALUE="C2p">
+Commune Unius Martyris Tempore Paschali: Protexisti
+<OPTION  VALUE="C3">
+Commune Plurium Martyrum Pontificum: Intret in conspectu
+<OPTION  VALUE="C3a">
+Commune Plurium Martyrum: Sapientiam Sanctorum
+<OPTION  VALUE="C3a-1">
+Commune Plurium Martyrum: Salus autem
+<OPTION  VALUE="C3b">
+Commune Plurium Martyrum (Summorum Pontificum): Si diligis
+<OPTION  VALUE="C3p">
+Commune Plurium Martyrum Tempore Paschali: Sancti tui
+<OPTION  VALUE="C4">
+Commune Confessoris Pontificis:Statuit
+<OPTION  VALUE="C4-1">
+Commune Confessoris Pontificis:Sacerdotes
+<OPTION  VALUE="C4a">
+Commune Doctoris Pontificis: In medio
+<OPTION  VALUE="C4b">
+Commune Confessoris (Summi Pontificis): Si diligis
+<OPTION  VALUE="C5">
+Commune Confessoris non pontificis: Os justi
+<OPTION  VALUE="C5-1">
+Commune Confessoris non pontificis: Justus
+<OPTION  VALUE="C5a">
+Commune Doctoris non Pontificis: In medio
+<OPTION  VALUE="C5b">
+Commune Abbatis: Os iusti (altera)
+<OPTION  VALUE="C6">
+Commune Unius Virginis et Martyris: Loquebar
+<OPTION  VALUE="C6-1">
+Commune Unius Virginis et Martyris: Me exspectaverunt
+<OPTION  VALUE="C6a">
+Commune Unius Virginis tantum: Dilexisti
+<OPTION  VALUE="C6a-1">
+Commune Unius Virginis tantum: Vultum tuum
+<OPTION  VALUE="C6b">
+Commune Plurium Virginum et Martyrum: Me exspectaverunt
+<OPTION  VALUE="C7">
+Commune Unius non Virginis Martyris: Me exspectaverunt (altera)
+<OPTION  VALUE="C7a">
+Commune Unius non Virginis nec Martyris: Cognovi
+<OPTION  VALUE="C7b">
+Commune Plurium non Virginum Martyrum: Me exspectaverunt (altera)
+<OPTION  VALUE="C8">
+Dedicationis Ecclesiae: Terribilis
+<OPTION  VALUE="C9">
+Defunctorum quotidianis: Requiem aeternam
+<OPTION  VALUE="C11">
+In Festis Beatae Mariae Virginis: Salve Sancte Parens
+<OPTION  VALUE="Coronatio">
+Votiva in Creatione et Coronatione Papae et in die anniversarii
+<OPTION  VALUE="Propaganda">
+Pro Propagatione Fidei
+</SELECT>
+</P>
+<P ALIGN=CENTER><FONT SIZE=+1>
+<A HREF=# onclick="hset('Propers')">Propers</A>
+</FONT></P>
+<P ALIGN=CENTER><FONT SIZE=+1>
+<A HREF="../../www/horas/Help/versions.html" TARGET="_BLANK">Versions</A>
+&emsp;
+<A HREF="../../www/horas/Help/credits.html" TARGET="_BLANK">Credits</A>
+&emsp;
+<A HREF="../../www/horas/Help/download.html" TARGET="_BLANK">Download</A>
+&emsp;
+<A HREF="../../www/horas/Help/rubrics.html" TARGET="_BLANK">Rubrics</A>
+&emsp;
+<A HREF="../../www/horas/Help/technical.html" TARGET="_BLANK">Technical</A>
+&emsp;
+<A HREF="../../www/horas/Help/help.html" TARGET="_BLANK">Help</A>
+</FONT>
+</P>
+<INPUT TYPE=HIDDEN NAME=setupm VALUE="general;;;$version='Rubrics 1960 - 1960';;$lang2='English';;$votive='Hodie';;$rubrics='1';;$solemn='0';;;generalc;;;$version1='Rubrics 1960 - 1960';;$version2='New Mass';;$lang1='Latin';;$lang2='Latin';;;generalccheck;;;oooo;;;generalcheck;;;ooobb;;;parameters;;;$pope='(nomen Papae),(name of Pope)';;$bishop='(nomen Episcopi),(name of Bishop)';;$lang1='Latin';;$whitebground='1';;$blackfont='';;$smallblack='-1';;$redfont=' italic red';;$initiale='+2 bold italic red';;$largefont='+1 bold italic red';;$smallfont='1 red';;$titlefont='+1 red';;$screenheight='1024';;$textwidth='100';;$nofancychars='0';;$building='0';;$langfb='English';;;parameterscheck;;;ttobcccccccnnbbt;;;">
+<INPUT TYPE=HIDDEN NAME=command VALUE="">
+<INPUT TYPE=HIDDEN NAME=searchvalue VALUE="0">
+<INPUT TYPE=HIDDEN NAME=officium VALUE="missa.pl">
+<INPUT TYPE=HIDDEN NAME=browsertime VALUE="">
+<INPUT TYPE=HIDDEN NAME=caller VALUE='0'>
+<INPUT TYPE=HIDDEN NAME=popup VALUE="">
+<INPUT TYPE=HIDDEN NAME=first VALUE="">
+<INPUT TYPE=HIDDEN NAME=Propers VALUE="">
+<INPUT TYPE=HIDDEN NAME=compare VALUE=0>
+</FORM>
+</BODY></HTML>

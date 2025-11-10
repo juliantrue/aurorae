@@ -4,7 +4,7 @@ import { once } from 'node:events';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export type HoraCommand =
+export type Ordo =
   | 'Matutinum'
   | 'Laudes'
   | 'Prima'
@@ -12,13 +12,12 @@ export type HoraCommand =
   | 'Sexta'
   | 'Nona'
   | 'Vesperae'
-  | 'Completorium';
+  | 'Completorium'
+  | 'Missa';
 
-export interface RunDivinumOfficiumOptions {
-  /**
-   * Target hour in Divinum Officium parlance, used to build `command=pray<Hora>`.
-   */
-  hora: HoraCommand;
+export type DivinumOfficiumService = 'horas' | 'missa';
+
+interface RunDivinumOfficiumBaseOptions {
   /**
    * Date to request, in ISO `YYYY-MM-DD`. Converted to `MM-DD-YYYY` for the CGI script.
    */
@@ -38,6 +37,27 @@ export interface RunDivinumOfficiumOptions {
   verbose?: boolean;
 }
 
+export interface RunDivinumOfficiumHorasOptions extends RunDivinumOfficiumBaseOptions {
+  /**
+   * Target hour in Divinum Officium parlance, used to build `command=pray<Hora>`.
+   */
+  service?: 'horas';
+  hora: Ordo;
+}
+
+export interface RunDivinumOfficiumMissalOptions extends RunDivinumOfficiumBaseOptions {
+  /**
+   * Selects the Missal variant (defaults to `"pray"`). Additional suffixes can be provided
+   * so the underlying CGI receives `command=pray{suffix}`.
+   */
+  service: 'missa';
+  missalCommand?: string;
+}
+
+export type RunDivinumOfficiumOptions =
+  | RunDivinumOfficiumHorasOptions
+  | RunDivinumOfficiumMissalOptions;
+
 export interface RunDivinumOfficiumResult {
   /**
    * Map of response headers (e.g. `Content-type`, `Set-Cookie`).
@@ -53,7 +73,7 @@ export interface RunDivinumOfficiumResult {
   rawOutput: string;
 }
 
-export const HORA_COMMANDS: readonly HoraCommand[] = [
+export const HORA_COMMANDS: readonly Ordo[] = [
   'Matutinum',
   'Laudes',
   'Prima',
@@ -62,6 +82,7 @@ export const HORA_COMMANDS: readonly HoraCommand[] = [
   'Nona',
   'Vesperae',
   'Completorium',
+  'Missa',
 ] as const;
 
 const MODULE_FILE = path.resolve(fileURLToPath(import.meta.url));
@@ -95,6 +116,28 @@ const OFFICIUM_SCRIPT = path.join(
   'horas',
   'officium.pl',
 );
+const MISSA_SCRIPT = path.join(
+  REPO_ROOT,
+  'vendor',
+  'divinum-officium',
+  'web',
+  'cgi-bin',
+  'missa',
+  'missa.pl',
+);
+const SCRIPT_METADATA: Record<
+  DivinumOfficiumService,
+  { scriptPath: string; scriptName: string }
+> = {
+  horas: {
+    scriptPath: OFFICIUM_SCRIPT,
+    scriptName: '/cgi-bin/horas/officium.pl',
+  },
+  missa: {
+    scriptPath: MISSA_SCRIPT,
+    scriptName: '/cgi-bin/missa/missa.pl',
+  },
+};
 
 function encodeParams(params: Record<string, string | undefined>): string {
   return Object.entries(params)
@@ -148,8 +191,21 @@ function parseHeadersAndBody(output: string): RunDivinumOfficiumResult {
 export async function runDivinumOfficium(
   options: RunDivinumOfficiumOptions,
 ): Promise<RunDivinumOfficiumResult> {
+  const service: DivinumOfficiumService = options.service ?? 'horas';
+  const { scriptPath, scriptName } = SCRIPT_METADATA[service];
+
+  let commandValue: string;
+  if (service === 'missa') {
+    const missalOptions = options as RunDivinumOfficiumMissalOptions;
+    const suffix = missalOptions.missalCommand ?? '';
+    commandValue = `pray${suffix}`;
+  } else {
+    const horasOptions = options as RunDivinumOfficiumHorasOptions;
+    commandValue = `pray${horasOptions.hora}`;
+  }
+
   const queryParams: Record<string, string> = {
-    command: `pray${options.hora}`,
+    command: commandValue,
     ...(options.params ?? {}),
   };
 
@@ -164,7 +220,7 @@ export async function runDivinumOfficium(
     REQUEST_METHOD: 'GET',
     QUERY_STRING: queryString,
     GATEWAY_INTERFACE: 'CGI/1.1',
-    SCRIPT_NAME: '/cgi-bin/horas/officium.pl',
+    SCRIPT_NAME: scriptName,
     SERVER_NAME: 'localhost',
     SERVER_PORT: '80',
     SERVER_PROTOCOL: 'HTTP/1.1',
@@ -173,10 +229,10 @@ export async function runDivinumOfficium(
 
   if (options.verbose) {
     // eslint-disable-next-line no-console
-    console.log(`[DivinumOfficium] QUERY_STRING=${queryString}`);
+    console.log(`[DivinumOfficium:${service}] QUERY_STRING=${queryString}`);
   }
 
-  const child = spawn('perl', [OFFICIUM_SCRIPT], {
+  const child = spawn('perl', [scriptPath], {
     cwd: REPO_ROOT,
     env: mergeEnv(perlEnv, options.env),
   });
@@ -210,7 +266,7 @@ export async function runDivinumOfficium(
   return parseHeadersAndBody(stdout);
 }
 
-export const horaFromOfficeHour: Record<string, HoraCommand> = {
+export const horaFromOfficeHour: Record<string, Ordo> = {
   MATUTINUM: 'Matutinum',
   LAUDES: 'Laudes',
   PRIMA: 'Prima',
@@ -221,7 +277,7 @@ export const horaFromOfficeHour: Record<string, HoraCommand> = {
   COMPLETORIUM: 'Completorium',
 };
 
-export function isHoraCommand(value: string | undefined): value is HoraCommand {
+export function isHoraCommand(value: string | undefined): value is Ordo {
   if (!value) return false;
   return (HORA_COMMANDS as readonly string[]).includes(value);
 }

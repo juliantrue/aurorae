@@ -1,12 +1,8 @@
-export {
-  runDivinumOfficium,
-  HORA_COMMANDS,
-  horaFromOfficeHour,
-  isHoraCommand,
-} from './runner';
+export { runDivinumOfficium, HORA_COMMANDS, horaFromOfficeHour, isHoraCommand } from './runner';
 
 export type {
-  HoraCommand,
+  DivinumOfficiumService,
+  Ordo,
   RunDivinumOfficiumOptions,
   RunDivinumOfficiumResult,
 } from './runner';
@@ -19,3 +15,6 @@ export type {
   DivinumOfficiumSectionColumn,
   ParsedDivinumOfficiumPage,
 } from './parser';
+
+export { getOrdo } from './ordo';
+export type { OrdoResult } from './ordo';
