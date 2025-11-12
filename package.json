@@ -6,6 +6,7 @@
     "init": "pnpm install && pnpm run prisma:db-push && pnpm run seed",
     "lint": "eslint",
     "test": "jest",
+    "dev": "pnpm --filter @aurorae/aurorae dev",
     "editor:dev": "pnpm --filter @aurorae/editor dev",
     "editor:build": "pnpm --filter @aurorae/editor build",
     "editor:lint": "pnpm --filter @aurorae/editor lint",

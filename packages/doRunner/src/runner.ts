@@ -92,15 +92,19 @@ const REPO_ROOT = resolveRepoRoot(MODULE_DIR);
 function resolveRepoRoot(startDir: string): string {
   let current = startDir;
   const { root } = path.parse(startDir);
+  let lastPackageDir: string | null = null;
 
   while (true) {
     if (existsSync(path.join(current, 'package.json'))) {
-      return current;
+      lastPackageDir = current;
     }
     if (current === root) {
-      throw new Error(
-        `Unable to locate repository root from "${startDir}". package.json not found in ancestors.`,
-      );
+      if (!lastPackageDir) {
+        throw new Error(
+          `Unable to locate repository root from "${startDir}". package.json not found in ancestors.`,
+        );
+      }
+      return lastPackageDir;
     }
     current = path.dirname(current);
   }
