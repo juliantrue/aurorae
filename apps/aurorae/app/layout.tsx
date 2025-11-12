@@ -24,26 +24,26 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} ${playfair.variable}`} data-theme="light">
-        <div className="aurorae-shell">
-          <header className="aurorae-header">
-            <div className="aurorae-header-top">
-              <div className="aurorae-brand">
-                <span className="aurorae-mark" aria-hidden>
+      <body className={`${inter.className} ${playfair.variable} bg-parchment text-ink antialiased`} data-theme="light">
+        <div className="flex min-h-screen flex-col items-center gap-6 px-4 py-6 sm:px-8 lg:px-12">
+          <header className="w-full max-w-aurorae rounded-card border border-border bg-ivory p-6 text-center shadow-soft sm:p-8">
+            <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl text-oxblood" aria-hidden>
                   ✷
                 </span>
-                <div>
-                  <p className="aurorae-title">Aurorae</p>
-                  <p className="aurorae-kicker">workspace preview</p>
+                <div className="text-center sm:text-left">
+                  <p className="m-0 text-sm font-semibold uppercase tracking-[0.12em]">Aurorae</p>
+                  <p className="m-0 text-[0.65rem] uppercase tracking-[0.28em] text-muted">workspace preview</p>
                 </div>
               </div>
               <ThemeToggle />
             </div>
-            <p className="aurorae-subtitle">Shared tooling, fresh surface.</p>
+            <p className="mt-1 text-muted italic">Shared tooling, fresh surface.</p>
           </header>
-          <main className="aurorae-main">{children}</main>
-          <footer className="aurorae-footer">
-            <small>Built with Next.js and the shared Aurorae core primitives.</small>
+          <main className="flex w-full flex-1 justify-center">{children}</main>
+          <footer className="w-full max-w-aurorae rounded-card border border-border bg-ivory p-5 text-center text-sm text-muted shadow-soft">
+            <small className="tracking-[0.08em]">Built with Next.js and the shared Aurorae core primitives.</small>
           </footer>
         </div>
       </body>

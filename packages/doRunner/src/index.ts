@@ -17,4 +17,3 @@ export type {
 } from './parser';
 
 export { getOrdo } from './ordo';
-export type { OrdoResult } from './ordo';

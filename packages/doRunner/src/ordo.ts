@@ -1,16 +1,9 @@
-import { RunDivinumOfficiumOptions, RunDivinumOfficiumResult, runDivinumOfficium } from './runner';
+import { RunDivinumOfficiumOptions, runDivinumOfficium } from './runner';
 import { parseDivinumOfficiumHtml, ParsedDivinumOfficiumPage } from './parser';
-
-export interface OrdoResult extends RunDivinumOfficiumResult {
-  parsedBody: ParsedDivinumOfficiumPage;
-}
 
 export async function getOrdo(
   options: RunDivinumOfficiumOptions,
-): Promise<OrdoResult> {
+): Promise<ParsedDivinumOfficiumPage> {
   const result = await runDivinumOfficium(options);
-  return {
-    ...result,
-    parsedBody: parseDivinumOfficiumHtml(result.body),
-  };
+  return parseDivinumOfficiumHtml(result.body);
 }

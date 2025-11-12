@@ -44,15 +44,24 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      className="theme-toggle"
+      className="inline-flex transform items-center gap-2 rounded-full border border-border bg-ivory px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-ink transition duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
       onClick={toggleTheme}
       aria-pressed={theme === 'dark'}
       disabled={!ready}
     >
-      <span className="theme-toggle-track" aria-hidden>
-        <span className="theme-toggle-thumb" data-theme={theme} />
+      <span
+        className={`flex h-5 w-11 items-center rounded-full border border-border px-0.5 transition-colors ${
+          theme === 'dark' ? 'bg-white/15' : 'bg-black/10'
+        }`}
+        aria-hidden
+      >
+        <span
+          className={`h-4 w-4 rounded-full transition-transform duration-300 ${
+            theme === 'dark' ? 'translate-x-5 bg-gold' : 'translate-x-0 bg-oxblood'
+          }`}
+        />
       </span>
-      <span className="theme-toggle-label">{label}</span>
+      <span className="whitespace-nowrap">{label}</span>
     </button>
   );
 }

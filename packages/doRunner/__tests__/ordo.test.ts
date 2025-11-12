@@ -16,14 +16,16 @@ jest.mock('../src/runner', () => {
   const actual = jest.requireActual('../src/runner');
   return {
     ...actual,
-    runDivinumOfficium: (options: RunDivinumOfficiumOptions) =>
-      runDivinumOfficiumMock(options),
+    runDivinumOfficium: (options: RunDivinumOfficiumOptions) => runDivinumOfficiumMock(options),
   };
 });
 
 const FIXTURE_DIR = path.resolve(__dirname, 'fixtures');
 const horaFixtures = new Map<Ordo, string>(
-  HORA_COMMANDS.map((hour) => [hour, fs.readFileSync(path.join(FIXTURE_DIR, `hora-${hour.toLowerCase()}.html`), 'utf8')]),
+  HORA_COMMANDS.map((hour) => [
+    hour,
+    fs.readFileSync(path.join(FIXTURE_DIR, `hora-${hour.toLowerCase()}.html`), 'utf8'),
+  ]),
 );
 const missaFixture = fs.readFileSync(path.join(FIXTURE_DIR, 'missa.html'), 'utf8');
 
@@ -66,14 +68,13 @@ describe('getOrdo', () => {
   });
 
   it.each(HORA_COMMANDS)('parses metadata for the %s hora', async (hour) => {
-    const result = await getOrdo({ hora: hour, isoDate: '2025-11-24' });
+    const parsed = await getOrdo({ hora: hour, isoDate: '2025-11-24' });
 
-    expect(result.headers['content-type']).toEqual(['text/html']);
-    expect(result.parsedBody.metadata.service).toBe('horas');
-    expect(result.parsedBody.metadata.hora).toBe(EXPECTED_META_HORA[hour]);
-    expect(result.parsedBody.metadata.isoDate).toBe('2025-11-24');
+    expect(parsed.metadata.service).toBe('horas');
+    expect(parsed.metadata.hora).toBe(EXPECTED_META_HORA[hour]);
+    expect(parsed.metadata.isoDate).toBe('2025-11-24');
 
-    const section = result.parsedBody.sections[0];
+    const section = parsed.sections[0];
     if (hour === 'Missa') {
       expect(section).toBeUndefined();
     } else {
@@ -85,15 +86,30 @@ describe('getOrdo', () => {
     );
   });
 
+  it('parses metadata for the vesperae hora specifically (used for dev)', async () => {
+    const parsed = await getOrdo({ hora: 'Vesperae', isoDate: '2025-11-24' });
+
+    expect(parsed.metadata.service).toBe('horas');
+    expect(parsed.metadata.hora).toBe(EXPECTED_META_HORA['Vesperae']);
+    expect(parsed.metadata.isoDate).toBe('2025-11-24');
+
+    const section = parsed.sections[0];
+    expect(section?.heading).toBe('Incipit');
+    expect(section?.columns[0].text).toContain('Incipit');
+    expect(runDivinumOfficiumMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ hora: 'Vesperae', isoDate: '2025-11-24' }),
+    );
+  });
+
   it('parses the missa metadata and sections', async () => {
-    const result = await getOrdo({ service: 'missa', isoDate: '2025-12-25' });
+    const parsed = await getOrdo({ service: 'missa', isoDate: '2025-12-25' });
 
-    expect(result.parsedBody.metadata.service).toBe('missa');
-    expect(result.parsedBody.metadata.title).toBe('Sancta Missa');
-    expect(result.parsedBody.metadata.hora).toBe('Rubrics 1960 - 1960');
-    expect(result.parsedBody.metadata.isoDate).toBe('2025-12-25');
+    expect(parsed.metadata.service).toBe('missa');
+    expect(parsed.metadata.title).toBe('Sancta Missa');
+    expect(parsed.metadata.hora).toBe('Rubrics 1960 - 1960');
+    expect(parsed.metadata.isoDate).toBe('2025-12-25');
 
-    const section = result.parsedBody.sections[0];
+    const section = parsed.sections[0];
     expect(section?.heading).toBe('Ante');
     expect(section?.columns[0].text?.startsWith('Ante')).toBe(true);
     expect(runDivinumOfficiumMock).toHaveBeenLastCalledWith(

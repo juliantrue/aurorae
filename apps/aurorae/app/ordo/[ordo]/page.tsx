@@ -19,6 +19,7 @@ const COLUMN_LABELS: Record<ColumnRole, string> = {
   vernacular: 'Vernacular',
   unknown: 'Manuscript',
 };
+const EYEBROW_TEXT = 'text-[0.72rem] uppercase tracking-[0.4em] text-muted';
 
 function paragraphBlocks(text: string): string[] {
   const lines = text.split('\n');
@@ -61,7 +62,7 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
       ? await getOrdo({ hora: config.ordo, isoDate })
       : await getOrdo({ service: 'missa', isoDate });
 
-  const { metadata, sections } = data.parsedBody;
+  const { metadata, sections } = data;
   const feastTitle = metadata.feast ?? metadata.title ?? config.label;
   const subtitle = metadata.subtitle ?? metadata.hora ?? config.description;
   const eyebrow = metadata.service === 'missa' ? 'Missale Romanum' : 'Divinum Officium';
@@ -73,56 +74,63 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
   ];
 
   return (
-    <article className="ordo-page">
-      <div className="ordo-nav">
-        <Link className="back-link" href="/">
+    <article className="mx-auto flex w-full max-w-aurorae flex-col gap-6 rounded-card border border-border bg-ivory p-6 shadow-soft sm:p-10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <Link className="text-sm font-semibold uppercase tracking-[0.08em] text-oxblood transition-colors hover:text-oxblood-soft" href="/">
           ← All hours
         </Link>
-        <p className="eyebrow">{metadata.isoDate ?? isoDate}</p>
+        <p className={EYEBROW_TEXT}>{metadata.isoDate ?? isoDate}</p>
       </div>
 
-      <header className="ordo-feast">
-        <p className="eyebrow">{eyebrow}</p>
-        <h1>{feastTitle}</h1>
-        {subtitle && <p>{subtitle}</p>}
+      <header className="rounded-card border border-border bg-parchment p-6 text-center shadow-pressed">
+        <p className={EYEBROW_TEXT}>{eyebrow}</p>
+        <h1 className="mt-2 font-display text-3xl font-medium sm:text-[2.6rem]">{feastTitle}</h1>
+        {subtitle && <p className="mt-2 text-muted">{subtitle}</p>}
       </header>
 
-      <div className="ordo-meta">
+      <div className="grid gap-4 border-y border-border py-6 sm:grid-cols-2 lg:grid-cols-4">
         {metaItems.map((item) => (
-          <div key={item.label} className="meta-item">
-            <span className="meta-label">{item.label}</span>
-            <span className="meta-value">{item.value}</span>
+          <div key={item.label} className="text-center">
+            <span className="block text-[0.68rem] uppercase tracking-[0.25em] text-muted">{item.label}</span>
+            <span className="font-display text-xl">{item.value}</span>
           </div>
         ))}
       </div>
 
       {sections.length === 0 && (
-        <p className="ordo-empty">No structured sections were returned for this office.</p>
+        <p className="text-center italic text-muted">No structured sections were returned for this office.</p>
       )}
 
       {sections.map((section, index) => (
-        <section key={section.id ?? `${index}`} className="ordo-section">
+        <section key={section.id ?? `${index}`} className="flex flex-col gap-6 border-b border-border py-6 last:border-b-0">
           {section.heading && (
-            <div className="ordo-section-heading">
-              <p className="eyebrow">Section {index + 1}</p>
-              <h2 className="ordo-section-title">{section.heading}</h2>
+            <div className="text-center">
+              <p className={EYEBROW_TEXT}>Section {index + 1}</p>
+              <h2 className="font-display text-2xl font-medium">{section.heading}</h2>
             </div>
           )}
 
-          <div className="ordo-columns">
+          <div className="grid gap-5 md:grid-cols-2">
             {section.columns.map((column, columnIndex) => (
-              <article key={`${section.id ?? index}-${columnIndex}`} className="ordo-column">
-                <p className="column-role">{COLUMN_LABELS[column.role]}</p>
-                <div className="ordo-text">
+              <article
+                key={`${section.id ?? index}-${columnIndex}`}
+                className="flex flex-col gap-4 rounded-card border border-border bg-ivory p-5 shadow-pressed"
+              >
+                <p className="text-[0.7rem] uppercase tracking-[0.3em] text-muted">{COLUMN_LABELS[column.role]}</p>
+                <div className="mt-3 space-y-3 text-base leading-7 text-ink">
                   {paragraphBlocks(column.text).map((paragraph, paragraphIndex) => (
-                    <p key={`${columnIndex}-${paragraphIndex}`}>{paragraph}</p>
+                    <p key={`${columnIndex}-${paragraphIndex}`} className="m-0">
+                      {paragraph}
+                    </p>
                   ))}
                 </div>
 
-                {column.psalm && <div className="ordo-psalm">{column.psalm}</div>}
+                {column.psalm && (
+                  <div className="mt-4 border-t border-border pt-4 text-sm italic text-oxblood whitespace-pre-line">{column.psalm}</div>
+                )}
 
                 {column.antiphons && column.antiphons.length > 0 && (
-                  <ul className="ordo-antiphons">
+                  <ul className="mt-4 list-none space-y-2 border-t border-border pt-4 text-sm text-ink">
                     {column.antiphons.map((antiphon, antiphonIndex) => (
                       <li key={`${columnIndex}-antiphon-${antiphonIndex}`}>{antiphon}</li>
                     ))}
