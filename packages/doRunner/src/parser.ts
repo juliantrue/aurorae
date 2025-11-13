@@ -76,6 +76,22 @@ function deriveHeading(text?: string): string | undefined {
   return firstLine ? firstLine.trim() : undefined;
 }
 
+function sanitizePsalmHeading(heading?: string): string | undefined {
+  if (!heading) return undefined;
+  const normalized = heading.trim().replace(/\s*\[[^\]]+\]$/, '').trim();
+  return normalized.length > 0 ? normalized : undefined;
+}
+
+function dropFirstNonEmptyLine(text?: string): string | undefined {
+  if (!text) return text;
+  const lines = text.split('\n');
+  const firstLineIndex = lines.findIndex((line) => line.trim().length > 0);
+  if (firstLineIndex === -1) return text;
+  lines.splice(firstLineIndex, 1);
+  const remaining = lines.join('\n');
+  return remaining.trim().length > 0 ? remaining : undefined;
+}
+
 function extractTopParagraph($: CheerioAPI): CheerioSelection | undefined {
   const topParagraph = $('p[align="center"]').first();
   if (topParagraph.length === 0) return undefined;
@@ -130,6 +146,12 @@ type PsalmAntiphonData = {
   antiphons?: string[];
 };
 
+const PSALM_OR_CANTICLE_HEADING = /^(Psalm(?:us)?|Cant(?:icle|icum))\b/i;
+
+function isPsalmOrCanticleHeading(line: string): boolean {
+  return PSALM_OR_CANTICLE_HEADING.test(line);
+}
+
 function extractPsalmAndAntiphons(text: string): PsalmAntiphonData {
   const lines = text.split('\n');
   const antiphons: string[] = [];
@@ -154,7 +176,7 @@ function extractPsalmAndAntiphons(text: string): PsalmAntiphonData {
       continue;
     }
 
-    if (/^Psalm(?:us)?\b/i.test(line)) {
+    if (isPsalmOrCanticleHeading(line)) {
       collectingPsalm = true;
     }
 
@@ -218,6 +240,7 @@ export function parseDivinumOfficiumHtml(html: string): ParsedDivinumOfficiumPag
     if (cells.length === 0) return;
 
     const columns: DivinumOfficiumSectionColumn[] = [];
+    let rowPsalmHeading: string | undefined;
 
     cells.each((index, cellEl) => {
       const cell = $(cellEl);
@@ -228,7 +251,37 @@ export function parseDivinumOfficiumHtml(html: string): ParsedDivinumOfficiumPag
         text,
       };
       const { psalm, antiphons } = extractPsalmAndAntiphons(text);
-      if (psalm) column.psalm = psalm;
+      if (psalm) {
+        const psalmLines = psalm.split('\n');
+        const headingIndex = psalmLines.findIndex((line) => line.trim().length > 0);
+        const possibleHeading =
+          headingIndex >= 0 ? psalmLines[headingIndex].trim() : undefined;
+        if (headingIndex >= 0) {
+          psalmLines.splice(headingIndex, 1);
+        }
+        const sanitizedHeading = sanitizePsalmHeading(possibleHeading);
+        let remainingPsalm: string | undefined;
+        if (psalmLines.length > 0) {
+          remainingPsalm = psalmLines.join('\n');
+        }
+
+        if (possibleHeading) {
+          if (!rowPsalmHeading && sanitizedHeading) {
+            rowPsalmHeading = sanitizedHeading;
+          }
+
+          const textLines = column.text.split('\n');
+          const textHeadingIndex = textLines.findIndex((line) => line.trim().length > 0);
+          if (textHeadingIndex >= 0 && textLines[textHeadingIndex]?.trim() === possibleHeading) {
+            textLines.splice(textHeadingIndex, 1);
+            column.text = textLines.join('\n');
+          }
+        }
+
+        if (remainingPsalm) {
+          column.psalm = remainingPsalm;
+        }
+      }
       if (antiphons) column.antiphons = antiphons;
       columns.push(column);
     });
@@ -236,10 +289,21 @@ export function parseDivinumOfficiumHtml(html: string): ParsedDivinumOfficiumPag
     if (columns.length === 0) return;
 
     const headingSource = columns[0]?.text ?? columns[1]?.text;
+    const baseHeading = deriveHeading(headingSource);
+    const heading = rowPsalmHeading ?? baseHeading;
+
+    if (!rowPsalmHeading && heading) {
+      columns.forEach((column) => {
+        if (column.text && column.text.trim().length > 0) {
+          const dropped = dropFirstNonEmptyLine(column.text);
+          column.text = dropped ?? '';
+        }
+      });
+    }
 
     sections.push({
       id: cells.first().attr('id') ?? undefined,
-      heading: deriveHeading(headingSource),
+      heading,
       columns,
     });
   });

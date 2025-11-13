@@ -79,7 +79,7 @@ describe('getOrdo', () => {
       expect(section).toBeUndefined();
     } else {
       expect(section?.heading).toBe('Incipit');
-      expect(section?.columns[0].text).toContain('Incipit');
+      expect(section?.columns[0].text).not.toContain(section?.heading ?? '');
     }
     expect(runDivinumOfficiumMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ hora: hour, isoDate: '2025-11-24' }),
@@ -95,10 +95,12 @@ describe('getOrdo', () => {
 
     const section = parsed.sections[0];
     expect(section?.heading).toBe('Incipit');
-    expect(section?.columns[0].text).toContain('Incipit');
+    expect(section?.columns[0].text).not.toContain(section?.heading ?? '');
     expect(runDivinumOfficiumMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ hora: 'Vesperae', isoDate: '2025-11-24' }),
     );
+
+    console.log(JSON.stringify(parsed, null, 2));
   });
 
   it('parses the missa metadata and sections', async () => {
@@ -111,7 +113,7 @@ describe('getOrdo', () => {
 
     const section = parsed.sections[0];
     expect(section?.heading).toBe('Ante');
-    expect(section?.columns[0].text?.startsWith('Ante')).toBe(true);
+    expect(section?.columns[0].text).not.toContain(section?.heading ?? '');
     expect(runDivinumOfficiumMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ service: 'missa', isoDate: '2025-12-25' }),
     );
