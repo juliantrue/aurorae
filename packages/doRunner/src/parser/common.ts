@@ -1,4 +1,4 @@
-import { load, type CheerioAPI, type Cheerio } from 'cheerio';
+import { type CheerioAPI, type Cheerio } from 'cheerio';
 
 type CheerioSelection = Cheerio<any>;
 
@@ -131,7 +131,7 @@ function extractMissaTitleAndVersion($: CheerioAPI): {
   };
 }
 
-function detectService($: CheerioAPI): ParsedDivinumOfficiumService {
+export function detectService($: CheerioAPI): ParsedDivinumOfficiumService {
   if ($('form[action="missa.pl"]').length > 0) return 'missa';
   if ($('form[action="officium.pl"]').length > 0) return 'horas';
   const bodyClass = $('body').attr('class') ?? '';
@@ -203,7 +203,7 @@ function divinumDateToIso(date: string | undefined): string | undefined {
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
-function extractMetadata(
+export function extractMetadata(
   $: CheerioAPI,
   service: ParsedDivinumOfficiumService,
 ): DivinumOfficiumMetadata {
@@ -230,9 +230,7 @@ function extractMetadata(
   return metadata;
 }
 
-export function parseDivinumOfficiumHtml(html: string): ParsedDivinumOfficiumPage {
-  const $ = load(html);
-  const service = detectService($);
+export function extractSections($: CheerioAPI): DivinumOfficiumSection[] {
   const sections: DivinumOfficiumSection[] = [];
 
   $('table.contrastbg tr').each((_, row) => {
@@ -308,8 +306,5 @@ export function parseDivinumOfficiumHtml(html: string): ParsedDivinumOfficiumPag
     });
   });
 
-  return {
-    metadata: extractMetadata($, service),
-    sections,
-  };
+  return sections;
 }
