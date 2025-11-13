@@ -15,7 +15,8 @@
     "cheerio": "^1.0.0"
   },
   "scripts": {
-    "test": "jest --config ../../jest.config.ts"
+    "test": "jest --config ../../jest.config.ts",
+    "tc": "tsc --noEmit --incremental false"
   },
   "devDependencies": {
     "@swc/jest": "^0.2.39",

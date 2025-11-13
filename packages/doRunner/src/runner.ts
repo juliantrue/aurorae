@@ -4,7 +4,7 @@ import { once } from 'node:events';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export type Ordo =
+export type Hora =
   | 'Matutinum'
   | 'Laudes'
   | 'Prima'
@@ -42,7 +42,7 @@ export interface RunDivinumOfficiumHorasOptions extends RunDivinumOfficiumBaseOp
    * Target hour in Divinum Officium parlance, used to build `command=pray<Hora>`.
    */
   service?: 'horas';
-  hora: Ordo;
+  hora: Hora;
 }
 
 export interface RunDivinumOfficiumMissalOptions extends RunDivinumOfficiumBaseOptions {
@@ -73,7 +73,7 @@ export interface RunDivinumOfficiumResult {
   rawOutput: string;
 }
 
-export const HORA_COMMANDS: readonly Ordo[] = [
+export const HORA_COMMANDS: readonly Hora[] = [
   'Matutinum',
   'Laudes',
   'Prima',
@@ -270,7 +270,7 @@ export async function runDivinumOfficium(
   return parseHeadersAndBody(stdout);
 }
 
-export const horaFromOfficeHour: Record<string, Ordo> = {
+export const horaFromOfficeHour: Record<string, Hora> = {
   MATUTINUM: 'Matutinum',
   LAUDES: 'Laudes',
   PRIMA: 'Prima',
@@ -281,7 +281,7 @@ export const horaFromOfficeHour: Record<string, Ordo> = {
   COMPLETORIUM: 'Completorium',
 };
 
-export function isHoraCommand(value: string | undefined): value is Ordo {
+export function isHoraCommand(value: string | undefined): value is Hora {
   if (!value) return false;
   return (HORA_COMMANDS as readonly string[]).includes(value);
 }

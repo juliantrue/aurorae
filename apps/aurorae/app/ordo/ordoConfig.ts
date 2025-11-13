@@ -1,6 +1,6 @@
-import { HORA_COMMANDS, type Ordo } from '@aurorae/do-runner';
+import { HORA_COMMANDS, type Hora } from '@aurorae/do-runner';
 
-type HoraOrdo = Exclude<Ordo, 'Missa'>;
+type HoraOrdo = Exclude<Hora, 'Missa'>;
 
 export type OrdoRouteConfig =
   | {
@@ -31,7 +31,7 @@ const hourDescriptions: Partial<Record<HoraOrdo, string>> = {
   Completorium: 'Night prayer entrusting the hours to God before rest.',
 };
 
-function isHora(value: Ordo): value is HoraOrdo {
+function isHora(value: Hora): value is HoraOrdo {
   return value !== MISSAL_LABEL;
 }
 

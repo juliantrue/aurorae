@@ -2,12 +2,16 @@ export { runDivinumOfficium, HORA_COMMANDS, horaFromOfficeHour, isHoraCommand } 
 
 export type {
   DivinumOfficiumService,
-  Ordo,
+  Hora,
   RunDivinumOfficiumOptions,
   RunDivinumOfficiumResult,
 } from './runner';
 
-export { parseDivinumOfficiumHtml } from './parser';
+export {
+  parseDivinumOfficiumHtml,
+  parseDivinumOfficiumOrdoHtml,
+  parsedPageToOrdo,
+} from './parser';
 export type {
   ColumnRole,
   DivinumOfficiumMetadata,
@@ -15,5 +19,6 @@ export type {
   DivinumOfficiumSectionColumn,
   ParsedDivinumOfficiumPage,
 } from './parser';
+export type { Ordo, OrdoElement, ResponsePart, Verse } from './parser/types';
 
-export { getOrdo } from './ordo';
+export { getOrdo, getStructuredOrdo } from './ordo';

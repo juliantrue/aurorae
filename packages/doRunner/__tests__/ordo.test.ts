@@ -1,4 +1,4 @@
-import { getOrdo } from '../src/ordo';
+import { getOrdo, getStructuredOrdo } from '../src/ordo';
 import { HORA_COMMANDS } from '../src/runner';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -6,7 +6,7 @@ import path from 'node:path';
 type RunDivinumOfficiumHorasOptions = import('../src/runner').RunDivinumOfficiumHorasOptions;
 type RunDivinumOfficiumOptions = import('../src/runner').RunDivinumOfficiumOptions;
 type RunDivinumOfficiumResult = import('../src/runner').RunDivinumOfficiumResult;
-type Ordo = import('../src/runner').Ordo;
+type Hora = import('../src/runner').Hora;
 
 const runDivinumOfficiumMock: jest.MockedFunction<
   (options: RunDivinumOfficiumOptions) => Promise<RunDivinumOfficiumResult>
@@ -21,7 +21,7 @@ jest.mock('../src/runner', () => {
 });
 
 const FIXTURE_DIR = path.resolve(__dirname, 'fixtures');
-const horaFixtures = new Map<Ordo, string>(
+const horaFixtures = new Map<Hora, string>(
   HORA_COMMANDS.map((hour) => [
     hour,
     fs.readFileSync(path.join(FIXTURE_DIR, `hora-${hour.toLowerCase()}.html`), 'utf8'),
@@ -50,7 +50,7 @@ runDivinumOfficiumMock.mockImplementation(async (options) => {
   return createMockResult(fixture);
 });
 
-const EXPECTED_META_HORA: Record<Ordo, string | undefined> = {
+const EXPECTED_META_HORA: Record<Hora, string | undefined> = {
   Matutinum: 'Ad Matutinum',
   Laudes: 'Ad Laudes',
   Prima: 'Ad Primam',
@@ -100,7 +100,9 @@ describe('getOrdo', () => {
       expect.objectContaining({ hora: 'Vesperae', isoDate: '2025-11-24' }),
     );
 
-    console.log(JSON.stringify(parsed, null, 2));
+    console.dir(parsed, {
+      depth: null,
+    });
   });
 
   it('parses the missa metadata and sections', async () => {
@@ -117,5 +119,29 @@ describe('getOrdo', () => {
     expect(runDivinumOfficiumMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ service: 'missa', isoDate: '2025-12-25' }),
     );
+  });
+});
+
+describe('getStructuredOrdo', () => {
+  it('builds an office ordo with psalm elements', async () => {
+    const structured = await getStructuredOrdo({ hora: 'Vesperae', isoDate: '2025-11-24' });
+
+    expect(structured.title).toContain('Joannis');
+    expect(structured.body.type).toBe('office');
+
+    const elements = structured.body.type === 'office' ? structured.body.office : [];
+    expect(elements.length).toBeGreaterThan(0);
+
+    const psalmElement = elements.find((element) => element.type === 'psalm');
+    expect(psalmElement).toBeDefined();
+    expect(psalmElement?.type).toBe('psalm');
+  });
+
+  it('builds a missal ordo when requesting the missal service', async () => {
+    const structured = await getStructuredOrdo({ service: 'missa', isoDate: '2025-12-25' });
+
+    expect(structured.body.type).toBe('missal');
+    const elements = structured.body.type === 'missal' ? structured.body.missal : [];
+    expect(elements.length).toBeGreaterThan(0);
   });
 });
