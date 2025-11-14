@@ -10,7 +10,7 @@
     "editor:dev": "pnpm --filter @aurorae/editor dev",
     "editor:build": "pnpm --filter @aurorae/editor build",
     "editor:lint": "pnpm --filter @aurorae/editor lint",
-    "seed": "pnpm run prisma:generate && tsx scripts/import-divinum-officium.ts",
+    "seed": "pnpm --filter @aurorae/database seed",
     "clean": "git clean -Xdf",
     "prisma:generate": "pnpm --filter @aurorae/database prisma:generate",
     "prisma:migrate": "pnpm --filter @aurorae/database prisma:migrate",

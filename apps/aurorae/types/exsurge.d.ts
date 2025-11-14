@@ -1,0 +1,35 @@
+declare module 'exsurge' {
+  export class ChantContext {
+    defs: Record<string, string>;
+    activeClef: unknown;
+    staffInterval: number;
+    svgTextMeasurer: SVGSVGElement;
+    lyricTextFont: string;
+    dropCapTextFont: string;
+    annotationTextFont: string;
+    lyricTextSize: number;
+    dropCapTextSize: number;
+    annotationTextSize: number;
+    glyphScaling: number;
+  }
+
+  export interface ChantScore {
+    bounds: { width: number; height: number };
+    compiled: boolean;
+    performLayout(ctxt: ChantContext, finishedCallback?: () => void): void;
+    layoutChantLines(
+      ctxt: ChantContext,
+      width: number,
+      finishedCallback?: (score: ChantScore) => void
+    ): void;
+    createDrawable(ctxt: ChantContext): string;
+  }
+
+  export const Gabc: {
+    loadChantScore(
+      ctxt: ChantContext,
+      gabcNotations: string,
+      createDropCap?: boolean
+    ): ChantScore;
+  };
+}

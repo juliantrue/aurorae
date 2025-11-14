@@ -22,7 +22,6 @@
   },
   "devDependencies": {
     "prisma": "^6.17.0",
-    "csv-parse": "^6.1.0",
-    "tsv": "^3.7.0"
+    "csv-parse": "^6.1.0"
   }
 }
