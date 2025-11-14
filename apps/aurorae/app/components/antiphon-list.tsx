@@ -1,13 +1,18 @@
 type AntiphonListProps = {
-  antiphons: string[] | undefined;
+  antiphons?: string | string[];
   className?: string;
 };
 
 const BASE_CLASS =
-  'mt-4 list-none space-y-2 border-t border-border pt-4 text-sm text-ink';
+  'mt-4 list-none space-y-2 border-t border-border pt-4 text-sm italic text-oxblood';
 
 export function AntiphonList({ antiphons, className }: AntiphonListProps) {
-  if (!antiphons?.length) {
+  const normalized =
+    typeof antiphons === 'string'
+      ? [antiphons].filter((value) => value.trim().length > 0)
+      : antiphons?.filter((value) => value.trim().length > 0) ?? [];
+
+  if (normalized.length === 0) {
     return null;
   }
 
@@ -15,7 +20,7 @@ export function AntiphonList({ antiphons, className }: AntiphonListProps) {
 
   return (
     <ul className={combinedClass}>
-      {antiphons.map((antiphon, index) => (
+      {normalized.map((antiphon, index) => (
         <li key={`antiphon-${index}`} className="m-0">
           {antiphon}
         </li>

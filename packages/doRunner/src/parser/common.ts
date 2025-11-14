@@ -70,10 +70,16 @@ function extractElementText(element?: CheerioSelection): string | undefined {
   return textFromCheerio(element.clone());
 }
 
-function deriveHeading(text?: string): string | undefined {
+function firstNonEmptyLine(text?: string): string | undefined {
   if (!text) return undefined;
-  const firstLine = text.split('\n').find((line) => line.trim().length > 0);
-  return firstLine ? firstLine.trim() : undefined;
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+}
+
+function deriveHeading(text?: string): string | undefined {
+  return firstNonEmptyLine(text);
 }
 
 function sanitizePsalmHeading(heading?: string): string | undefined {
@@ -147,6 +153,7 @@ type PsalmAntiphonData = {
 };
 
 const PSALM_OR_CANTICLE_HEADING = /^(Psalm(?:us)?|Cant(?:icle|icum))\b/i;
+const OMIT_DIRECTIVE_PATTERN = /^omit\b/i;
 
 function isPsalmOrCanticleHeading(line: string): boolean {
   return PSALM_OR_CANTICLE_HEADING.test(line);
@@ -289,6 +296,16 @@ export function extractSections($: CheerioAPI): DivinumOfficiumSection[] {
     const headingSource = columns[0]?.text ?? columns[1]?.text;
     const baseHeading = deriveHeading(headingSource);
     const heading = rowPsalmHeading ?? baseHeading;
+
+    const shouldSkipSection =
+      columns.length > 0 &&
+      columns.every((column) => {
+        const firstLine = firstNonEmptyLine(column.text);
+        return !!firstLine && OMIT_DIRECTIVE_PATTERN.test(firstLine);
+      });
+    if (shouldSkipSection) {
+      return;
+    }
 
     if (!rowPsalmHeading && heading) {
       columns.forEach((column) => {

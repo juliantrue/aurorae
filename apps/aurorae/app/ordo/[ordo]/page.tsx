@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getOrdo, type ColumnRole } from '@aurorae/do-runner';
+import { getOrdo, parsedPageToOrdo, type OrdoElement } from '@aurorae/do-runner';
 import { AntiphonList } from '../../components/antiphon-list';
 import { PsalmBlock } from '../../components/psalm-block';
+import { ResponsoryBlock } from '../../components/responsory-block';
 import { SectionHeading } from '../../components/section-heading';
 import { TextBlock } from '../../components/text-block';
 import { ORDO_LOOKUP, ORDO_ROUTES } from '../ordoConfig';
@@ -18,12 +19,14 @@ type OrdoParams = {
   ordo: string;
 };
 
-const COLUMN_LABELS: Record<ColumnRole, string> = {
-  latin: 'Latin text',
-  vernacular: 'Vernacular',
-  unknown: 'Manuscript',
-};
 const EYEBROW_TEXT = 'text-[0.72rem] uppercase tracking-[0.4em] text-muted';
+const ELEMENT_LABELS: Record<OrdoElement['type'], string> = {
+  text: 'Reading',
+  psalm: 'Psalm',
+  canticle: 'Canticle',
+  hymn: 'Hymn',
+  responsory: 'Responsory',
+};
 
 export function generateStaticParams(): OrdoParams[] {
   return ORDO_ROUTES.map((config) => ({ ordo: config.slug }));
@@ -37,20 +40,22 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
   }
 
   const isoDate = todayIsoDate();
-  const data =
+  const parsed =
     config.kind === 'hora'
       ? await getOrdo({ hora: config.ordo, isoDate })
       : await getOrdo({ service: 'missa', isoDate });
-
-  const { metadata, sections } = data;
-  const feastTitle = metadata.feast ?? metadata.title ?? config.label;
+  const structured = parsedPageToOrdo(parsed);
+  const elements =
+    structured.body.type === 'office' ? structured.body.office : structured.body.missal;
+  const { metadata } = parsed;
+  const feastTitle = metadata.feast ?? structured.title ?? config.label;
   const subtitle = metadata.subtitle ?? metadata.hora ?? config.description;
-  const eyebrow = metadata.service === 'missa' ? 'Missale Romanum' : 'Divinum Officium';
+  const eyebrow = structured.body.type === 'missal' ? 'Missale Romanum' : 'Divinum Officium';
   const metaItems = [
     { label: 'Date', value: metadata.isoDate ?? isoDate },
     { label: 'Office', value: metadata.hora ?? config.label },
     { label: 'Source', value: 'Divinum Officium' },
-    { label: 'Sections', value: sections.length ? sections.length.toString() : '—' },
+    { label: 'Elements', value: elements.length ? elements.length.toString() : '—' },
   ];
 
   return (
@@ -82,51 +87,58 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
         ))}
       </div>
 
-      {sections.length === 0 && (
+      {elements.length === 0 && (
         <p className="text-center italic text-muted">
-          No structured sections were returned for this office.
+          No structured elements were returned for this office.
         </p>
       )}
 
-      {sections.map((section, index) => (
+      {elements.map((element, index) => (
         <section
-          key={section.id ?? `${index}`}
+          key={`${getElementHeading(element)}-${index}`}
           className="flex flex-col gap-6 border-b border-border py-6 last:border-b-0"
         >
-          {section.heading && <SectionHeading title={section.heading} />}
+          <SectionHeading title={getElementHeading(element)} />
 
-          <div className="grid gap-5 md:grid-cols-2">
-            {section.columns.map((column, columnIndex) => {
-              const columnAntiphons = column.antiphons ?? [];
-              const firstAntiphon = columnAntiphons[0];
-              const bottomAntiphons = columnAntiphons.slice(1);
-
-              return (
-                <article
-                  key={`${section.id ?? index}-${columnIndex}`}
-                  className="flex flex-col gap-4 rounded-card border border-border bg-ivory p-5 shadow-pressed"
-                >
-                  <p className="text-[0.7rem] uppercase tracking-[0.3em] text-muted">
-                    {COLUMN_LABELS[column.role]}
-                  </p>
-                  {column.psalm ? (
-                    <>
-                      <AntiphonList antiphons={firstAntiphon ? [firstAntiphon] : []} />
-                      <PsalmBlock psalm={column.psalm} />
-                      <AntiphonList antiphons={bottomAntiphons} />
-                    </>
-                  ) : (
-                    <>
-                      <TextBlock text={column.text ?? ''} />
-                      <AntiphonList antiphons={columnAntiphons} />
-                    </>
-                  )}
-                </article>
-              );
-            })}
-          </div>
+          <article className="flex flex-col gap-4 rounded-card border border-border bg-ivory p-5 shadow-pressed">
+            <p className="text-[0.7rem] uppercase tracking-[0.3em] text-muted">
+              {ELEMENT_LABELS[element.type]}
+            </p>
+            {renderElementContent(element)}
+          </article>
         </section>
       ))}
     </article>
   );
+}
+
+function renderElementContent(element: OrdoElement) {
+  switch (element.type) {
+    case 'psalm':
+    case 'canticle':
+      return (
+        <>
+          <AntiphonList antiphons={element.antiphon} className="mt-0 border-t-0 pt-0" />
+          <PsalmBlock verses={element.body} />
+        </>
+      );
+    case 'hymn':
+    case 'text':
+      return <TextBlock text={element.body} />;
+    case 'responsory':
+      return <ResponsoryBlock parts={element.responsory} />;
+    default:
+      return null;
+  }
+}
+
+function getElementHeading(element: OrdoElement): string {
+  if (hasHeading(element)) {
+    return element.heading;
+  }
+  return ELEMENT_LABELS[element.type];
+}
+
+function hasHeading(element: OrdoElement): element is OrdoElement & { heading: string } {
+  return 'heading' in element && typeof element.heading === 'string' && element.heading.length > 0;
 }
