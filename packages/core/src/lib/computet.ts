@@ -57,8 +57,10 @@ export const ALL_POSSIBLE_DATES_FOR_EASTER = [];
    Example Usage & Testing
    ========================= */
 
+/*
 // Easter 2024 → March 31 2024
-//console.log('Easter 2024 →', computet(2024).toISOString().slice(0, 10));
+console.log('Easter 2024 →', computet(2024).toISOString().slice(0, 10));
 
 // Easter 2025 → April 20 2025
-//console.log('Easter 2025 →', computet(2025).toISOString().slice(0, 10));
+console.log('Easter 2025 →', computet(2025).toISOString().slice(0, 10));
+*/

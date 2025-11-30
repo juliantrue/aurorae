@@ -12,6 +12,7 @@
     }
   },
   "dependencies": {
-    "@aurorae/database": "workspace:*"
+    "@aurorae/database": "workspace:*",
+    "@aurorae/do-runner": "workspace:*"
   }
 }

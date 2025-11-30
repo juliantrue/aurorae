@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getOrdo, parsedPageToOrdo, type OrdoElement } from '@aurorae/do-runner';
+import { getOrdo, type OrdoElement } from '@aurorae/core';
 import { AntiphonList } from '../../components/antiphon-list';
 import { PsalmBlock } from '../../components/psalm-block';
 import { ResponsoryBlock } from '../../components/responsory-block';
@@ -40,11 +40,10 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
   }
 
   const isoDate = todayIsoDate();
-  const parsed =
+  const { parsed, structured } =
     config.kind === 'hora'
       ? await getOrdo({ hora: config.ordo, isoDate })
       : await getOrdo({ service: 'missa', isoDate });
-  const structured = parsedPageToOrdo(parsed);
   const elements =
     structured.body.type === 'office' ? structured.body.office : structured.body.missal;
   const { metadata } = parsed;

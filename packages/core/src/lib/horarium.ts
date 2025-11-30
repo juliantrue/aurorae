@@ -92,6 +92,7 @@ export function getCurrentHour(horarium: Horarium, now: Date): keyof Horarium {
    Example Usage & Testing
    ========================= */
 
+/*
 // Example: for November 1, 2025 — sunrise 6:41 AM, sunset 5:00 PM
 const sunrise = new Date(2025, 10, 1, 6, 41); // months are 0-based
 const sunset = new Date(2025, 10, 1, 17, 0);
@@ -105,3 +106,4 @@ for (const [hour, time] of Object.entries(horarium)) {
 
 const now = new Date();
 console.log('\nCurrent canonical hour:', getCurrentHour(horarium, now));
+*/
