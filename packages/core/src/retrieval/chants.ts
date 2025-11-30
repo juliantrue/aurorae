@@ -8,20 +8,29 @@ export type OrdoChant = Prisma.GabcSourceGetPayload<{
   };
 }>;
 
+export type ChantSourceFilter = {
+  name: string;
+  year: number;
+};
+
 /**
- * Locate chants for a given ordo part by matching the printed title inside a specific source.
+ * Locate chants inside a particular printed source using its title and year plus the chant title.
  */
 export async function getOrdoChants(
-  chantSourceCode: string,
   chantTitle: string,
+  chantSource: ChantSourceFilter,
 ): Promise<OrdoChant[]> {
-  const sourceCode = chantSourceCode.trim();
   const title = chantTitle.trim();
-  if (!sourceCode || !title) {
+  const sourceName = chantSource.name.trim();
+  const parsedYear = Number(chantSource.year);
+
+  if (!title || !sourceName || Number.isNaN(parsedYear)) {
     return [];
   }
 
   const normalizedTitle = title.toLocaleLowerCase();
+  const normalizedSourceName = sourceName.toLocaleLowerCase();
+
   const sharedArgs = {
     include: {
       chantSource: true,
@@ -32,10 +41,17 @@ export async function getOrdoChants(
     },
   };
 
-  const baseWhere: Prisma.GabcSourceWhereInput = {
+  const baseChantSourceFilter: Prisma.ChantSourceWhereInput = {
+    year: parsedYear,
+  };
+
+  const strictWhere: Prisma.GabcSourceWhereInput = {
     chantSource: {
       is: {
-        code: sourceCode,
+        ...baseChantSourceFilter,
+        title: {
+          contains: sourceName,
+        },
       },
     },
   };
@@ -43,7 +59,7 @@ export async function getOrdoChants(
   const directMatches = await prisma.gabcSource.findMany({
     ...sharedArgs,
     where: {
-      ...baseWhere,
+      ...strictWhere,
       name: {
         contains: title,
       },
@@ -56,10 +72,18 @@ export async function getOrdoChants(
 
   const fallbackMatches = await prisma.gabcSource.findMany({
     ...sharedArgs,
-    where: baseWhere,
+    where: {
+      chantSource: {
+        is: baseChantSourceFilter,
+      },
+    },
   });
 
-  return fallbackMatches.filter((chant) =>
-    chant.name.toLocaleLowerCase().includes(normalizedTitle),
-  );
+  return fallbackMatches.filter((chant) => {
+    const matchesTitle = chant.name.toLocaleLowerCase().includes(normalizedTitle);
+    const matchesSourceName = chant.chantSource.title
+      .toLocaleLowerCase()
+      .includes(normalizedSourceName);
+    return matchesTitle && matchesSourceName;
+  });
 }

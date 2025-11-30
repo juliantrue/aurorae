@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getOrdo, type OrdoElement } from '@aurorae/core';
+import { getOrdo, type EnrichedOrdoElement, type ChantSourceFilter } from '@aurorae/core';
 import { AntiphonList } from '../../components/antiphon-list';
 import { PsalmBlock } from '../../components/psalm-block';
 import { ResponsoryBlock } from '../../components/responsory-block';
@@ -20,12 +20,17 @@ type OrdoParams = {
 };
 
 const EYEBROW_TEXT = 'text-[0.72rem] uppercase tracking-[0.4em] text-muted';
-const ELEMENT_LABELS: Record<OrdoElement['type'], string> = {
+const ELEMENT_LABELS: Record<EnrichedOrdoElement['type'], string> = {
   text: 'Reading',
   psalm: 'Psalm',
   canticle: 'Canticle',
   hymn: 'Hymn',
   responsory: 'Responsory',
+};
+
+const DEFAULT_CHANT_SOURCE: ChantSourceFilter = {
+  name: 'The Liber Usualis',
+  year: 1961,
 };
 
 export function generateStaticParams(): OrdoParams[] {
@@ -40,12 +45,11 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
   }
 
   const isoDate = todayIsoDate();
-  const { parsed, structured } =
+  const { parsed, structured, elementsWithChants } =
     config.kind === 'hora'
-      ? await getOrdo({ hora: config.ordo, isoDate })
-      : await getOrdo({ service: 'missa', isoDate });
-  const elements =
-    structured.body.type === 'office' ? structured.body.office : structured.body.missal;
+      ? await getOrdo({ hora: config.ordo, isoDate, chantSource: DEFAULT_CHANT_SOURCE })
+      : await getOrdo({ service: 'missa', isoDate, chantSource: DEFAULT_CHANT_SOURCE });
+  const elements = elementsWithChants;
   const { metadata } = parsed;
   const feastTitle = metadata.feast ?? structured.title ?? config.label;
   const subtitle = metadata.subtitle ?? metadata.hora ?? config.description;
@@ -104,6 +108,7 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
               {ELEMENT_LABELS[element.type]}
             </p>
             {renderElementContent(element)}
+            {renderChantMatches(element)}
           </article>
         </section>
       ))}
@@ -111,7 +116,7 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
   );
 }
 
-function renderElementContent(element: OrdoElement) {
+function renderElementContent(element: EnrichedOrdoElement) {
   switch (element.type) {
     case 'psalm':
     case 'canticle':
@@ -131,13 +136,48 @@ function renderElementContent(element: OrdoElement) {
   }
 }
 
-function getElementHeading(element: OrdoElement): string {
+function renderChantMatches(element: EnrichedOrdoElement) {
+  if (element.chants && element.chants.length > 0) {
+    return (
+      <div className="rounded-card border border-border bg-parchment p-4">
+        <p className="text-[0.65rem] uppercase tracking-[0.3em] text-muted">
+          Chant Sources ({element.chants.length})
+        </p>
+        <ul className="mt-2 space-y-2 text-sm leading-relaxed">
+          {element.chants.map((chant) => (
+            <li key={chant.id}>
+              <span className="font-semibold">{chant.name}</span>
+              {chant.mode && <span className="ml-2 text-muted">Mode {chant.mode}</span>}
+              <span className="block text-xs text-muted">
+                {chant.chantSource.title} ({chant.chantSource.year}) - {chant.chantUsage.label}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  if (element.chantLookup) {
+    return (
+      <p className="text-xs text-muted">
+        No chant match found for "{element.chantLookup.query}".
+      </p>
+    );
+  }
+
+  return null;
+}
+
+function getElementHeading(element: EnrichedOrdoElement): string {
   if (hasHeading(element)) {
     return element.heading;
   }
   return ELEMENT_LABELS[element.type];
 }
 
-function hasHeading(element: OrdoElement): element is OrdoElement & { heading: string } {
+function hasHeading(
+  element: EnrichedOrdoElement,
+): element is EnrichedOrdoElement & { heading: string } {
   return 'heading' in element && typeof element.heading === 'string' && element.heading.length > 0;
 }
