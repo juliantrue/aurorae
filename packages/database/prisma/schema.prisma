@@ -317,6 +317,7 @@ model GabcSource {
   name String // chant title as printed in edition
   mode String // I–VIII, "per.", etc.
   gabc String // full GABC notation text
+  searchKey String // normalized text for searching
 
   chantSourceId Int
   chantSource   ChantSource @relation(fields: [chantSourceId], references: [id])
@@ -332,6 +333,7 @@ model GabcSource {
 
   @@index([chantSourceId])
   @@index([chantUsageId])
+  @@index([searchKey])
 }
 
 /**

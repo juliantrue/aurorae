@@ -1,4 +1,4 @@
-import { prisma } from '@aurorae/database';
+import { normalizeChantSearchKey, prisma } from '@aurorae/database';
 import type { Prisma } from '@aurorae/database';
 
 export type OrdoChant = Prisma.GabcSourceGetPayload<{
@@ -12,6 +12,28 @@ export type ChantSourceFilter = {
   name: string;
   year: number;
 };
+
+export async function assertChantSourceExists(chantSource: ChantSourceFilter): Promise<void> {
+  const sourceName = chantSource.name.trim();
+  const parsedYear = Number(chantSource.year);
+
+  if (!sourceName || Number.isNaN(parsedYear)) {
+    throw new Error('Chant source not found.');
+  }
+
+  const normalizedSourceName = sourceName.toLocaleLowerCase();
+  const candidates = await prisma.chantSource.findMany({
+    where: { year: parsedYear },
+    select: { title: true },
+  });
+
+  const hasMatch = candidates.some((source) =>
+    source.title.toLocaleLowerCase().includes(normalizedSourceName),
+  );
+  if (!hasMatch) {
+    throw new Error(`Chant source not found: ${sourceName} (${parsedYear}).`);
+  }
+}
 
 /**
  * Locate chants inside a particular printed source using its title and year plus the chant title.
@@ -28,7 +50,7 @@ export async function getOrdoChants(
     return [];
   }
 
-  const normalizedTitle = title.toLocaleLowerCase();
+  const normalizedTitle = normalizeChantSearchKey(title);
   const normalizedSourceName = sourceName.toLocaleLowerCase();
 
   const sharedArgs = {
@@ -41,49 +63,19 @@ export async function getOrdoChants(
     },
   };
 
-  const baseChantSourceFilter: Prisma.ChantSourceWhereInput = {
-    year: parsedYear,
-  };
-
-  const strictWhere: Prisma.GabcSourceWhereInput = {
-    chantSource: {
-      is: {
-        ...baseChantSourceFilter,
-        title: {
-          contains: sourceName,
-        },
-      },
-    },
-  };
-
   const directMatches = await prisma.gabcSource.findMany({
     ...sharedArgs,
     where: {
-      ...strictWhere,
-      name: {
-        contains: title,
-      },
-    },
-  });
-
-  if (directMatches.length > 0) {
-    return directMatches;
-  }
-
-  const fallbackMatches = await prisma.gabcSource.findMany({
-    ...sharedArgs,
-    where: {
       chantSource: {
-        is: baseChantSourceFilter,
+        year: parsedYear,
+        title: {
+          contains: normalizedSourceName,
+        },
+      },
+      searchKey: {
+        contains: normalizedTitle,
       },
     },
   });
-
-  return fallbackMatches.filter((chant) => {
-    const matchesTitle = chant.name.toLocaleLowerCase().includes(normalizedTitle);
-    const matchesSourceName = chant.chantSource.title
-      .toLocaleLowerCase()
-      .includes(normalizedSourceName);
-    return matchesTitle && matchesSourceName;
-  });
+  return directMatches;
 }

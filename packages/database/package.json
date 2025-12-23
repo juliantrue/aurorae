@@ -11,11 +11,12 @@
     "./prisma/*": "./prisma/*"
   },
   "scripts": {
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:db-push": "prisma db push",
-    "prisma:studio": "prisma studio",
-    "seed": "tsx scripts/seed.ts"
+    "prisma": "DATABASE_URL=file:./aurorae.db prisma",
+    "prisma:generate": "DATABASE_URL=file:./aurorae.db prisma generate",
+    "prisma:migrate": "DATABASE_URL=file:./aurorae.db prisma migrate dev",
+    "prisma:db-push": "DATABASE_URL=file:./aurorae.db prisma db push",
+    "prisma:studio": "DATABASE_URL=file:./aurorae.db prisma studio",
+    "seed": "DATABASE_URL=file:./aurorae.db tsx scripts/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.17.0"

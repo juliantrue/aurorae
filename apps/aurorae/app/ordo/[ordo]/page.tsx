@@ -29,8 +29,8 @@ const ELEMENT_LABELS: Record<EnrichedOrdoElement['type'], string> = {
 };
 
 const DEFAULT_CHANT_SOURCE: ChantSourceFilter = {
-  name: 'The Liber Usualis',
-  year: 1961,
+  name: 'Liber antiphonarius',
+  year: 1960,
 };
 
 export function generateStaticParams(): OrdoParams[] {

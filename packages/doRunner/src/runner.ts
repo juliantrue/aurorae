@@ -198,6 +198,16 @@ export async function runDivinumOfficium(
   const service: DivinumOfficiumService = options.service ?? 'horas';
   const { scriptPath, scriptName } = SCRIPT_METADATA[service];
 
+  if (!existsSync(scriptPath)) {
+    throw new Error(
+      [
+        'Divinum Officium CGI scripts are missing.',
+        `Expected ${scriptPath}.`,
+        'Run `pnpm vendor:init` to fetch the submodule assets, then retry.',
+      ].join(' '),
+    );
+  }
+
   let commandValue: string;
   if (service === 'missa') {
     const missalOptions = options as RunDivinumOfficiumMissalOptions;

@@ -5,6 +5,7 @@ import process from 'process';
 
 import { Prisma, PrismaClient } from '@prisma/client';
 import { parse } from 'csv-parse/sync';
+import { normalizeChantSearchKey } from '../src/normalizeChantSearchKey';
 
 const prisma = new PrismaClient();
 
@@ -230,12 +231,14 @@ function buildGabcSourceInputs(
       continue;
     }
 
+    const name = chant.incipit?.trim() || `Chant ${chant.id}`;
     inputs.push({
-      name: chant.incipit?.trim() || `Chant ${chant.id}`,
+      name,
       mode: combineMode(chant),
       gabc,
       chantSourceId,
       chantUsageId,
+      searchKey: normalizeChantSearchKey(chant.incipit ?? name),
     });
   }
 

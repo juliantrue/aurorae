@@ -6,7 +6,7 @@ import {
   type ParsedDivinumOfficiumPage,
   type RunDivinumOfficiumOptions,
 } from '@aurorae/do-runner';
-import type { ChantSourceFilter } from './chants';
+import { assertChantSourceExists, type ChantSourceFilter } from './chants';
 import { attachChantsToElements, type EnrichedOrdoElement } from './ordoChants';
 
 export type {
@@ -38,6 +38,9 @@ export async function getOrdo(options: GetOrdoOptions): Promise<GetOrdoResult> {
   const structured = parsedPageToOrdo(parsed);
   const elements =
     structured.body.type === 'office' ? structured.body.office : structured.body.missal;
+  if (chantSource != null) {
+    await assertChantSourceExists(chantSource);
+  }
   const elementsWithChants =
     chantSource != null ? await attachChantsToElements(elements, chantSource) : elements;
   return { parsed, structured, elements, elementsWithChants };

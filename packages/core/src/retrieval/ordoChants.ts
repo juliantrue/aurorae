@@ -1,4 +1,5 @@
 import type { OrdoElement } from '@aurorae/do-runner';
+import { normalizeChantSearchKey } from '@aurorae/database';
 import { getOrdoChants, type ChantSourceFilter, type OrdoChant } from './chants';
 
 export type ChantLookupStrategy =
@@ -36,6 +37,7 @@ const TEXT_HEADINGS_WITH_CHANTS = [
 ] as const;
 
 const DEFAULT_INCIPIT_WORDS = 8;
+const DEFAULT_INCIPIT_CHARS = 10;
 
 /**
  * Attach chant metadata to each ordo element by querying a chant source.
@@ -91,22 +93,10 @@ function buildPsalmOrCanticleLookup(
   kind: 'psalm' | 'canticle',
 ): LookupResult {
   const cleanedAntiphon = cleanAntiphon(element.antiphon);
-  if (cleanedAntiphon) {
-    return {
-      query: cleanedAntiphon,
-      strategy: kind === 'psalm' ? 'psalmAntiphon' : 'canticleAntiphon',
-    };
-  }
-
-  const incipit = buildIncipit(element.body?.[0]?.content);
-  if (incipit) {
-    return {
-      query: incipit,
-      strategy: kind === 'psalm' ? 'psalmIncipit' : 'canticleIncipit',
-    };
-  }
-
-  return undefined;
+  return {
+    query: shortenIncipit(cleanedAntiphon),
+    strategy: kind === 'psalm' ? 'psalmAntiphon' : 'canticleAntiphon',
+  };
 }
 
 function buildHymnLookup(element: Extract<OrdoElement, { type: 'hymn' }>): LookupResult {
@@ -121,7 +111,7 @@ function buildHymnLookup(element: Extract<OrdoElement, { type: 'hymn' }>): Looku
   const firstLine = buildIncipit(firstNonEmptyLine(element.body), DEFAULT_INCIPIT_WORDS + 2);
   if (firstLine) {
     return {
-      query: firstLine,
+      query: shortenIncipit(firstLine),
       strategy: 'hymnFirstLine',
     };
   }
@@ -144,7 +134,7 @@ function buildResponsoryLookup(
   }
 
   return {
-    query: incipit,
+    query: shortenIncipit(incipit),
     strategy: 'responsoryLabel',
   };
 }
@@ -161,7 +151,7 @@ function buildTextLookup(element: Extract<OrdoElement, { type: 'text' }>): Looku
   }
 
   return {
-    query: firstLine,
+    query: shortenIncipit(firstLine),
     strategy: 'textHeading',
   };
 }
@@ -194,18 +184,24 @@ function buildIncipit(raw: string | undefined, maxWords: number = DEFAULT_INCIPI
   return normalizeChantQuery(words.join(' '));
 }
 
+function shortenIncipit(raw: string): string {
+  return raw.slice(0, DEFAULT_INCIPIT_CHARS).trim();
+}
+
 function normalizeChantQuery(raw: string | undefined): string {
   if (!raw) {
     return '';
   }
 
-  return raw
+  const cleaned = raw
     .replace(/[℣℟℞†*]/g, ' ')
     .replace(/[\[\]()]/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/^[\s,.;:!?'"-]+/, '')
     .replace(/[\s,.;:!?'"-]+$/, '')
     .trim();
+
+  return normalizeChantSearchKey(cleaned);
 }
 
 function shouldLookupHeading(heading: string): boolean {
