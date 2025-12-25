@@ -48,3 +48,4 @@ vendor/perl5/
 
 # rust
 target/
+dist/
