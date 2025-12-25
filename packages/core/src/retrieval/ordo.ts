@@ -9,11 +9,7 @@ import {
 import { assertChantSourceExists, type ChantSourceFilter } from './chants';
 import { attachChantsToElements, type EnrichedOrdoElement } from './ordoChants';
 
-export type {
-  ChantLookupMetadata,
-  ChantLookupStrategy,
-  EnrichedOrdoElement,
-} from './ordoChants';
+export type { ChantLookupMetadata, ChantLookupStrategy, EnrichedOrdoElement } from './ordoChants';
 
 export type { OrdoElement, StructuredOrdo as Ordo, ParsedDivinumOfficiumPage };
 

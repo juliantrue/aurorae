@@ -1,7 +1,7 @@
 // pointing.test.ts
 import { describe, expect, test } from "@jest/globals";
-import { pointText } from "../pointing";
-import type { Tone } from "../tone";
+import { pointText } from "../psalmody/pointing";
+import type { Tone } from "../psalmody/tone";
 
 function norm(s: string): string {
   return s.replace(/\s+/g, " ").trim();

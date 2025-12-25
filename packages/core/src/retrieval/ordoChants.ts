@@ -15,6 +15,7 @@ export type ChantLookupStrategy =
 export interface ChantLookupMetadata {
   query: string;
   strategy: ChantLookupStrategy;
+  fullQuery?: string;
 }
 
 export type EnrichedOrdoElement = OrdoElement & {
@@ -37,7 +38,7 @@ const TEXT_HEADINGS_WITH_CHANTS = [
 ] as const;
 
 const DEFAULT_INCIPIT_WORDS = 8;
-const DEFAULT_INCIPIT_CHARS = 10;
+const DEFAULT_INCIPIT_CHARS = 8;
 
 /**
  * Attach chant metadata to each ordo element by querying a chant source.
@@ -62,10 +63,11 @@ export async function attachChantsToElements(
       }
 
       const chants = await pending;
+      const selectedChants = selectBestChant(chants, lookup.fullQuery);
       return {
         ...element,
         chantLookup: lookup,
-        chants,
+        chants: selectedChants,
       };
     }),
   );
@@ -93,9 +95,23 @@ function buildPsalmOrCanticleLookup(
   kind: 'psalm' | 'canticle',
 ): LookupResult {
   const cleanedAntiphon = cleanAntiphon(element.antiphon);
+  if (cleanedAntiphon) {
+    return {
+      query: shortenIncipit(cleanedAntiphon),
+      fullQuery: cleanedAntiphon,
+      strategy: kind === 'psalm' ? 'psalmAntiphon' : 'canticleAntiphon',
+    };
+  }
+
+  const firstLine = buildIncipit(firstNonEmptyVerse(element.body));
+  if (!firstLine) {
+    return undefined;
+  }
+
   return {
-    query: shortenIncipit(cleanedAntiphon),
-    strategy: kind === 'psalm' ? 'psalmAntiphon' : 'canticleAntiphon',
+    query: shortenIncipit(firstLine),
+    fullQuery: firstLine,
+    strategy: kind === 'psalm' ? 'psalmIncipit' : 'canticleIncipit',
   };
 }
 
@@ -104,6 +120,7 @@ function buildHymnLookup(element: Extract<OrdoElement, { type: 'hymn' }>): Looku
   if (normalizedHeading) {
     return {
       query: normalizedHeading,
+      fullQuery: normalizedHeading,
       strategy: 'hymnHeading',
     };
   }
@@ -112,6 +129,7 @@ function buildHymnLookup(element: Extract<OrdoElement, { type: 'hymn' }>): Looku
   if (firstLine) {
     return {
       query: shortenIncipit(firstLine),
+      fullQuery: firstLine,
       strategy: 'hymnFirstLine',
     };
   }
@@ -135,6 +153,7 @@ function buildResponsoryLookup(
 
   return {
     query: shortenIncipit(incipit),
+    fullQuery: incipit,
     strategy: 'responsoryLabel',
   };
 }
@@ -152,6 +171,7 @@ function buildTextLookup(element: Extract<OrdoElement, { type: 'text' }>): Looku
 
   return {
     query: shortenIncipit(firstLine),
+    fullQuery: firstLine,
     strategy: 'textHeading',
   };
 }
@@ -188,6 +208,60 @@ function shortenIncipit(raw: string): string {
   return raw.slice(0, DEFAULT_INCIPIT_CHARS).trim();
 }
 
+function selectBestChant(chants: OrdoChant[], fullQuery: string | undefined): OrdoChant[] {
+  if (!fullQuery || chants.length <= 1) {
+    return chants;
+  }
+
+  const normalizedQuery = normalizeChantQuery(fullQuery);
+  if (!normalizedQuery) {
+    return chants;
+  }
+
+  let best = chants[0];
+  let bestScore = scoreChantSimilarity(normalizedQuery, best);
+  for (let index = 1; index < chants.length; index += 1) {
+    const chant = chants[index];
+    const score = scoreChantSimilarity(normalizedQuery, chant);
+    if (score > bestScore) {
+      best = chant;
+      bestScore = score;
+    }
+  }
+
+  return best ? [best] : [];
+}
+
+function scoreChantSimilarity(query: string, chant: OrdoChant): number {
+  const chantKey = chant.searchKey?.trim() ?? normalizeChantQuery(chant.name);
+  if (!chantKey) {
+    return 0;
+  }
+
+  if (chantKey.includes(query)) {
+    return 2 + query.length / chantKey.length;
+  }
+
+  const queryTokens = query.split(/\s+/).filter(Boolean);
+  const chantTokens = chantKey.split(/\s+/).filter(Boolean);
+  if (queryTokens.length === 0 || chantTokens.length === 0) {
+    return 0;
+  }
+
+  const chantTokenSet = new Set(chantTokens);
+  let overlap = 0;
+  for (const token of queryTokens) {
+    if (chantTokenSet.has(token)) {
+      overlap += 1;
+    }
+  }
+
+  const unionSize = new Set([...queryTokens, ...chantTokens]).size;
+  const coverage = overlap / queryTokens.length;
+  const jaccard = unionSize > 0 ? overlap / unionSize : 0;
+  return coverage + jaccard;
+}
+
 function normalizeChantQuery(raw: string | undefined): string {
   if (!raw) {
     return '';
@@ -218,6 +292,17 @@ function firstNonEmptyLine(text: string | undefined): string {
     .map((entry) => entry.trim())
     .find((entry) => entry.length > 0);
   return line ?? '';
+}
+
+function firstNonEmptyVerse(
+  verses: Array<{ content: string }> | undefined,
+): string {
+  if (!verses) {
+    return '';
+  }
+
+  const verse = verses.find((entry) => normalizeChantQuery(entry.content).length > 0);
+  return verse?.content ?? '';
 }
 
 export { normalizeChantQuery };

@@ -1,6 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getOrdo, type EnrichedOrdoElement, type ChantSourceFilter } from '@aurorae/core';
+import {
+  getOrdo,
+  inverse,
+  pointText,
+  TONE_META,
+  type ChantSourceFilter,
+  type EnrichedOrdoElement,
+  type Tone,
+} from '@aurorae/core';
 import { AntiphonList } from '../../components/antiphon-list';
 import { PsalmBlock } from '../../components/psalm-block';
 import { ResponsoryBlock } from '../../components/responsory-block';
@@ -119,13 +127,21 @@ export default async function OrdoPage({ params }: { params: OrdoParams }) {
 function renderElementContent(element: EnrichedOrdoElement) {
   switch (element.type) {
     case 'psalm':
-    case 'canticle':
+    case 'canticle': {
+      const tone = deriveToneFromAntiphon(element);
+      const verses = tone
+        ? element.body.map((verse) => ({
+            ...verse,
+            content: pointText(verse.content, tone),
+          }))
+        : element.body;
       return (
         <>
           <AntiphonList antiphons={element.antiphon} className="mt-0 border-t-0 pt-0" />
-          <PsalmBlock verses={element.body} />
+          <PsalmBlock verses={verses} renderHtml={Boolean(tone)} />
         </>
       );
+    }
     case 'hymn':
     case 'text':
       return <TextBlock text={element.body} />;
@@ -180,4 +196,29 @@ function hasHeading(
   element: EnrichedOrdoElement,
 ): element is EnrichedOrdoElement & { heading: string } {
   return 'heading' in element && typeof element.heading === 'string' && element.heading.length > 0;
+}
+
+function deriveToneFromAntiphon(element: EnrichedOrdoElement): Tone | null {
+  if (element.type !== 'psalm' && element.type !== 'canticle') {
+    return null;
+  }
+
+  const chants = element.chants ?? [];
+  if (chants.length === 0) {
+    return null;
+  }
+
+  const antiphonCandidates = chants.filter((chant) =>
+    chant.chantUsage.label.toLowerCase().includes('antiphon'),
+  );
+  const selected = antiphonCandidates[0] ?? chants[0];
+  if (!selected?.gabc) {
+    return null;
+  }
+
+  try {
+    return inverse(selected.gabc, TONE_META);
+  } catch {
+    return null;
+  }
 }

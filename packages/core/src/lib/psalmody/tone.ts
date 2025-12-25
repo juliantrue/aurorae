@@ -16,338 +16,288 @@ export type ToneMeta = Readonly<{
 
 export const TONE_META = {
   // --- Tone 1 ---
-  "1D": {
+  '1D': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        D: "hr g f 'gh gr gvFED.",
-      },
+      termination: "hr g f 'gh gr gvFED.",
     },
   },
-  "1D-": {
+  '1D-': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        "D-": "hr g f 'g gr gvFED.",
-      },
+      termination: "hr g f 'g gr gvFED.",
     },
   },
-  "1D2": {
+  '1D2': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        D2: "hr g f gr 'gf d.",
-      },
+      termination: "hr g f gr 'gf d.",
     },
   },
-  "1f": {
+  '1f': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        f: "hr g f 'gh gr gf..",
-      },
+      termination: "hr g f 'gh gr gf..",
     },
   },
-  "1g": {
+  '1g': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        g: "hr g f 'gh gr g.",
-      },
+      termination: "hr g f 'gh gr g.",
     },
   },
-  "1g2": {
+  '1g2': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        g2: "hr g f 'g gr ghg.",
-      },
+      termination: "hr g f 'g gr ghg.",
     },
   },
-  "1g3": {
+  '1g3': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        g3: "hr g f 'g gr g.",
-      },
+      termination: "hr g f 'g gr g.",
     },
   },
-  "1a": {
+  '1a': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        a: "hr g f 'g hr h.",
-      },
+      termination: "hr g f 'g hr h.",
     },
   },
-  "1a2": {
+  '1a2': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        a2: "hr g f 'g gr gh..",
-      },
+      termination: "hr g f 'g gr gh..",
     },
   },
-  "1a3": {
+  '1a3': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
-      termination: {
-        a3: "hr g f 'gh gr gh..",
-      },
+      termination: "hr g f 'gh gr gh..",
     },
   },
 
   // --- Tone 2 ---
-  "2": {
+  '2': {
     mediant: { accents: 1, preparatory: 0 },
     termination: { accents: 1, preparatory: 1 },
     gabc: {
-      clef: "f3",
+      clef: 'f3',
       mediant: "e f hr 'i hr h.",
       termination: "hr g 'e fr f.",
     },
   },
 
   // --- Tone 3 ---
-  "3b": {
+  '3b': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 1 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "g hj jr 'k jr jr 'ih j.",
-      termination: {
-        b: "jr h 'j jr i.",
-      },
+      termination: "jr h 'j jr i.",
     },
   },
-  "3a": {
+  '3a': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 1 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "g hj jr 'k jr jr 'ih j.",
-      termination: {
-        a: "jr h 'j jr ih..",
-      },
+      termination: "jr h 'j jr ih..",
     },
   },
-  "3a2": {
+  '3a2': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "g hj jr 'k jr jr 'ih j.",
-      termination: {
-        a2: "jr ji hi 'h gr gh..",
-      },
+      termination: "jr ji hi 'h gr gh..",
     },
   },
-  "3g": {
+  '3g': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "g hj jr 'k jr jr 'ih j.",
-      termination: {
-        g: "jr ji hi 'h gr g.",
-      },
+      termination: "jr ji hi 'h gr g.",
     },
   },
-  "3g2": {
+  '3g2': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 3 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "g hj jr 'k jr jr 'ih j.",
-      termination: {
-        g2: "jr h j i 'h gr g.",
-      },
+      termination: "jr h j i 'h gr g.",
     },
   },
 
   // --- Tone 4 ---
-  "4g": {
+  '4g': {
     mediant: { accents: 1, preparatory: 2 },
     termination: { accents: 1, preparatory: 0 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "h gh hr g h 'i hr h.",
-      termination: {
-        g: "hr 'h gr g.",
-      },
+      termination: "hr 'h gr g.",
     },
   },
-  "4E": {
+  '4E': {
     mediant: { accents: 1, preparatory: 2 },
     termination: { accents: 1, preparatory: 3 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "h gh hr g h 'i hr h.",
-      termination: {
-        E: "hr g h ih gr 'gf e.",
-      },
+      termination: "hr g h ih gr 'gf e.",
     },
   },
 
   // --- Tone 5 ---
-  "5": {
+  '5': {
     mediant: { accents: 1, preparatory: 0 },
     termination: { accents: 2, preparatory: 0 },
     gabc: {
-      clef: "c3",
+      clef: 'c3',
       mediant: "d f hr 'i hr h.",
       termination: "hr 'i gr 'h fr f.",
     },
   },
 
   // --- Tone 6 ---
-  "6": {
+  '6': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr f gh 'g fr f.",
     },
   },
 
   // --- Tone 7 ---
-  "7a": {
+  '7a': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 2, preparatory: 0 },
     gabc: {
-      clef: "c3",
+      clef: 'c3',
       mediant: "hg hi ir 'k jr 'i jr j.",
-      termination: {
-        a: "ir 'j ir 'h hr gf..",
-      },
+      termination: "ir 'j ir 'h hr gf..",
     },
   },
-  "7b": {
+  '7b': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 2, preparatory: 0 },
     gabc: {
-      clef: "c3",
+      clef: 'c3',
       mediant: "hg hi ir 'k jr 'i jr j.",
-      termination: {
-        b: "ir 'j ir 'h hr g.",
-      },
+      termination: "ir 'j ir 'h hr g.",
     },
   },
-  "7c": {
+  '7c': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 2, preparatory: 0 },
     gabc: {
-      clef: "c3",
+      clef: 'c3',
       mediant: "hg hi ir 'k jr 'i jr j.",
-      termination: {
-        c: "ir 'j ir 'h hr gh..",
-      },
+      termination: "ir 'j ir 'h hr gh..",
     },
   },
-  "7c2": {
+  '7c2': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 2, preparatory: 0 },
     gabc: {
-      clef: "c3",
+      clef: 'c3',
       mediant: "hg hi ir 'k jr 'i jr j.",
-      termination: {
-        c2: "ir 'j ir 'h hr ih..",
-      },
+      termination: "ir 'j ir 'h hr ih..",
     },
   },
-  "7d": {
+  '7d': {
     mediant: { accents: 2, preparatory: 0 },
     termination: { accents: 2, preparatory: 0 },
     gabc: {
-      clef: "c3",
+      clef: 'c3',
       mediant: "hg hi ir 'k jr 'i jr j.",
-      termination: {
-        d: "ir 'j ir 'h hr gi..",
-      },
+      termination: "ir 'j ir 'h hr gi..",
     },
   },
 
   // --- Tone 8 ---
-  "8G": {
+  '8G': {
     mediant: { accents: 1, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "g h jr 'k jr j.",
-      termination: {
-        G: "jr i j 'h gr g.",
-      },
+      termination: "jr i j 'h gr g.",
     },
   },
-  "8G*": {
+  '8G*': {
     mediant: { accents: 1, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "g h jr 'k jr j.",
-      termination: {
-        "G*": "jr i j 'h gr gh..",
-      },
+      termination: "jr i j 'h gr gh..",
     },
   },
-  "8c": {
+  '8c': {
     mediant: { accents: 1, preparatory: 0 },
     termination: { accents: 1, preparatory: 2 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "g h jr 'k jr j.",
-      termination: {
-        c: "jr h j 'k jr j.",
-      },
+      termination: "jr h j 'k jr j.",
     },
   },
 
   // --- Peregrinus ---
-  "per": {
+  per: {
     mediant: { accents: 1, preparatory: 3 },
     termination: { accents: 1, preparatory: 1 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "ixhi hr g ixi h 'g fr f.",
       termination: "gr d 'f fr ed..",
     },
   },
-  "per-alt": {
+  'per-alt': {
     mediant: { accents: 1, preparatory: 2 },
     termination: { accents: 1, preparatory: 1 },
     gabc: {
-      clef: "c4",
+      clef: 'c4',
       mediant: "ixhi hr ixi h 'g fr f.",
       termination: "ixhi gr d 'f fr ed..",
     },
