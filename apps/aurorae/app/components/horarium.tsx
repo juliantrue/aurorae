@@ -1,6 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  createSinusoidPoints,
+  getLocalTimeZone,
+  getPhaseForSolarNoon,
+  getSolarTimes,
+  getSinusoidMetrics,
+  getSinusoidPointAtFraction,
+  getTimeZoneDayFraction,
+} from '@core/lib/horarium';
 
 const WIDTH_FALLBACK = 480;
 const HEIGHT = 400;
@@ -42,14 +51,45 @@ export function Horarium({ now }: HorariumProps) {
     };
   }, []);
 
+  const timeZone = getLocalTimeZone();
   const resolvedWidth = Math.max(1, width ?? WIDTH_FALLBACK);
-  const points = createSinusoidPoints({
-    width: resolvedWidth,
-    height: HEIGHT,
-    cycles: CYCLES,
-    amplitude: AMPLITUDE,
-    phase: PHASE,
-  });
+  const { midline, resolvedAmplitude } = getSinusoidMetrics(HEIGHT, AMPLITUDE);
+  const {
+    points,
+    sunrisePoint,
+    nowPoint,
+  } = useMemo(() => {
+    const solarTimes = getSolarTimes(timeZone, now);
+    const resolvedPhase = getPhaseForSolarNoon(solarTimes?.solarNoonFraction, PHASE);
+    const nextPoints = createSinusoidPoints({
+      width: resolvedWidth,
+      height: HEIGHT,
+      cycles: CYCLES,
+      amplitude: AMPLITUDE,
+      phase: resolvedPhase,
+    });
+    const nextSunrisePoint = getSinusoidPointAtFraction(solarTimes?.sunriseFraction ?? null, {
+      width: resolvedWidth,
+      cycles: CYCLES,
+      midline,
+      amplitude: resolvedAmplitude,
+      phase: resolvedPhase,
+    });
+    const nowFraction = getTimeZoneDayFraction(now, timeZone);
+    const nextNowPoint = getSinusoidPointAtFraction(nowFraction, {
+      width: resolvedWidth,
+      cycles: CYCLES,
+      midline,
+      amplitude: resolvedAmplitude,
+      phase: resolvedPhase,
+    });
+
+    return {
+      points: nextPoints,
+      sunrisePoint: nextSunrisePoint,
+      nowPoint: nextNowPoint,
+    };
+  }, [midline, now, resolvedAmplitude, resolvedWidth, timeZone]);
 
   return (
     <div ref={wrapperRef} className="mx-auto w-full max-w-[500px]">
@@ -61,6 +101,11 @@ export function Horarium({ now }: HorariumProps) {
         role="img"
         aria-label="Horarium sinusoid"
       >
+        <defs>
+          <filter id="sun-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+          </filter>
+        </defs>
         <polyline
           points={points}
           fill="none"
@@ -69,35 +114,29 @@ export function Horarium({ now }: HorariumProps) {
           strokeLinejoin="round"
           className="stroke-oxblood"
         />
+        {sunrisePoint ? (
+          <line
+            x1={0}
+            y1={sunrisePoint.y}
+            x2={resolvedWidth}
+            y2={sunrisePoint.y}
+            strokeWidth={1}
+            className="stroke-muted"
+          />
+        ) : null}
+        {nowPoint ? (
+          <>
+            <circle
+              cx={nowPoint.x}
+              cy={nowPoint.y}
+              r={10}
+              className="fill-amber-400/60"
+              filter="url(#sun-glow)"
+            />
+            <circle cx={nowPoint.x} cy={nowPoint.y} r={4} className="fill-oxblood" />
+          </>
+        ) : null}
       </svg>
     </div>
   );
-}
-
-type SinusoidOptions = {
-  width: number;
-  height: number;
-  cycles: number;
-  amplitude?: number;
-  phase: number;
-};
-
-function createSinusoidPoints({ width, height, cycles, amplitude, phase }: SinusoidOptions) {
-  const safeWidth = Math.max(1, width);
-  const safeHeight = Math.max(1, height);
-  const midline = safeHeight / 2;
-  const maxAmplitude = Math.max(0, midline - 2);
-  const resolvedAmplitude = Math.min(Math.abs(amplitude ?? safeHeight * 0.4), maxAmplitude);
-  const steps = Math.max(48, Math.floor(safeWidth));
-  const points: string[] = [];
-
-  for (let i = 0; i <= steps; i += 1) {
-    const t = i / steps;
-    const x = t * safeWidth;
-    const angle = t * cycles * Math.PI * 2 + phase;
-    const y = midline - resolvedAmplitude * Math.sin(angle);
-    points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
-  }
-
-  return points.join(' ');
 }
