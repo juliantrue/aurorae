@@ -45,7 +45,7 @@ export function generateStaticParams(): OrdoParams[] {
   return ORDO_ROUTES.map((config) => ({ ordo: config.slug }));
 }
 
-export default async function OrdoPage({ params }: { params: OrdoParams }) {
+export default async function OrdoPage({ params }: { params: Promise<OrdoParams> }) {
   const ordo = (await params).ordo;
   const config = ORDO_LOOKUP[ordo];
   if (!config) {

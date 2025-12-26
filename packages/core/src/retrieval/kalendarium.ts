@@ -13,7 +13,7 @@
  * Algorithm (per date):
  *   1) Compute Easter for the year (Gregorian computus)
  *   2) Try MOVABLE feast    (offsetFromEaster == date - Easter) using inheritance chain
- *   3) Try FIXED feast      (month/day match)                   using inheritance chain
+ *   3) Try FIXED feast      (monthNumber/dayNumber match)       using inheritance chain
  *   4) Else SEASONAL day    (season/week/weekday → key)        using inheritance chain
  *
  * Inheritance:
@@ -351,14 +351,14 @@ async function findMovableWithInheritance(
 
 /**
  * Fixed feast lookup:
- *   Match month/day for the date; search version → parent → ...
+ *   Match monthNumber/dayNumber for the date; search version → parent → ...
  */
 async function findFixedWithInheritance(targetDate: Date, versionChain: Array<{ id: number }>) {
-  const month = targetDate.getUTCMonth() + 1;
-  const day = targetDate.getUTCDate();
+  const monthNumber = targetDate.getUTCMonth() + 1;
+  const dayNumber = targetDate.getUTCDate();
   for (const v of versionChain) {
     const feast = await prisma.fixedFeast.findFirst({
-      where: { riteVersionId: v.id, month, day },
+      where: { riteVersionId: v.id, monthNumber, dayNumber },
       include: { rank: true },
     });
     if (feast) return feast;
@@ -404,7 +404,7 @@ async function findSeasonalWithInheritance(
   return {
     key: seasonalKey,
     description: seasonalKey,
-    rank: { key: 'ferialis', latinName: 'Ferialis' }, // default
+    rank: { key: 'ferialis', name: 'Ferialis' }, // default
   } as any;
 }
 
@@ -432,7 +432,7 @@ export async function resolveLiturgicalDay(
   type: 'movable' | 'fixed' | 'seasonal';
   key: string;
   name: string;
-  rank: { key: string; latinName: string; precedence?: number | null };
+  rank: { key: string; name: string; precedence?: number | null };
   sourceVersion: { id: number; slug: string };
 }> {
   // 0) Build inheritance chain (selected → parent → grandparent ...)
@@ -453,7 +453,7 @@ export async function resolveLiturgicalDay(
       name: mov.name,
       rank: {
         key: mov.rank.key,
-        latinName: mov.rank.latinName,
+        name: mov.rank.name,
         precedence: mov.rank.precedence ?? null,
       },
       sourceVersion: { id: src.id, slug: src.slug },
@@ -470,7 +470,7 @@ export async function resolveLiturgicalDay(
       name: fix.name,
       rank: {
         key: fix.rank.key,
-        latinName: fix.rank.latinName,
+        name: fix.rank.name,
         precedence: fix.rank.precedence ?? null,
       },
       sourceVersion: { id: src.id, slug: src.slug },
@@ -490,7 +490,7 @@ export async function resolveLiturgicalDay(
     name: sea.description ?? sea.key,
     rank: {
       key: sea.rank.key,
-      latinName: sea.rank.latinName,
+      name: sea.rank.name,
       precedence: sea.rank.precedence ?? null,
     },
     sourceVersion: { id: source.id, slug: source.slug },

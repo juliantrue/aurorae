@@ -7,6 +7,7 @@
     "lint": "eslint",
     "test": "jest",
     "dev": "DATABASE_URL=file:./aurorae.db pnpm --filter @aurorae/aurorae run dev",
+    "build": "DATABASE_URL=file:./aurorae.db pnpm --filter @aurorae/aurorae run build",
     "start": "DATABASE_URL=file:./aurorae.db pnpm --filter @aurorae/aurorae run start",
     "editor:dev": "pnpm --filter @aurorae/editor dev",
     "editor:build": "pnpm --filter @aurorae/editor build",

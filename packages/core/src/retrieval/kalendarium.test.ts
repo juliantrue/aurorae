@@ -3,7 +3,7 @@
  * calendar resolver. Tests show how the resolver:
  *  - computes Easter (mocked)
  *  - resolves movable feasts (offset from Easter)
- *  - resolves fixed feasts (month/day)
+ *  - resolves fixed feasts (monthNumber/dayNumber)
  *  - falls back to seasonal days (season + week + weekday)
  *  - auto-detects EF vs OF seasonal rules by presence of season keys
  *  - walks the RiteVersion inheritance chain (child → parent → grandparent)
@@ -103,14 +103,14 @@ jest.mock('@aurorae/database', () => {
       }),
     };
 
-    // FIXED FEASTS (resolver calls findFirst with month/day + riteVersionId)
+    // FIXED FEASTS (resolver calls findFirst with monthNumber/dayNumber + riteVersionId)
     fixedFeast = {
       findFirst: jest.fn(async ({ where, include }: any) => {
         const row = (globalThis as any).__DB.fixedFeasts.find(
           (f: any) =>
             f.riteVersionId === where.riteVersionId &&
-            f.month === where.month &&
-            f.day === where.day,
+            f.monthNumber === where.monthNumber &&
+            f.dayNumber === where.dayNumber,
         );
         if (!row) return null;
         if (include?.rank) {
@@ -178,11 +178,11 @@ import { resolveLiturgicalDay } from './kalendarium';
 ------------------------------*/
 
 type RV = { id: number; slug: string; parentId?: number | null };
-type Season = { id: number; key: string; latinName: string; riteVersionId: number };
+type Season = { id: number; key: string; name: string; riteVersionId: number };
 type Rank = {
   id: number;
   key: string;
-  latinName: string;
+  name: string;
   precedence?: number;
   riteVersionId: number;
 };
@@ -198,8 +198,9 @@ type Fix = {
   id: number;
   key: string;
   name: string;
-  month: number;
-  day: number;
+  yearNumber: number;
+  monthNumber: number;
+  dayNumber: number;
   rankId: number;
   riteVersionId: number;
 };
@@ -226,39 +227,39 @@ function seedBasicDB() {
   // OF (1970) includes PerAnnum and *no* Septuagesimae.
   const seasons: Season[] = [
     // 1570 (EF)
-    { id: 101, key: 'Adventus', latinName: 'Tempus Adventus', riteVersionId: 1 },
-    { id: 102, key: 'Nativitatis', latinName: 'Tempus Nativitatis', riteVersionId: 1 },
-    { id: 103, key: 'Septuagesimae', latinName: 'Tempus Septuagesimae', riteVersionId: 1 },
-    { id: 104, key: 'Quadragesimae', latinName: 'Tempus Quadragesimae', riteVersionId: 1 },
-    { id: 105, key: 'Paschale', latinName: 'Tempus Paschale', riteVersionId: 1 },
-    { id: 106, key: 'PostPentecosten', latinName: 'Tempus post Pentecosten', riteVersionId: 1 },
+    { id: 101, key: 'Adventus', name: 'Tempus Adventus', riteVersionId: 1 },
+    { id: 102, key: 'Nativitatis', name: 'Tempus Nativitatis', riteVersionId: 1 },
+    { id: 103, key: 'Septuagesimae', name: 'Tempus Septuagesimae', riteVersionId: 1 },
+    { id: 104, key: 'Quadragesimae', name: 'Tempus Quadragesimae', riteVersionId: 1 },
+    { id: 105, key: 'Paschale', name: 'Tempus Paschale', riteVersionId: 1 },
+    { id: 106, key: 'PostPentecosten', name: 'Tempus post Pentecosten', riteVersionId: 1 },
 
     // 1962 (EF)
-    { id: 201, key: 'Adventus', latinName: 'Tempus Adventus', riteVersionId: 2 },
-    { id: 202, key: 'Nativitatis', latinName: 'Tempus Nativitatis', riteVersionId: 2 },
-    { id: 203, key: 'Septuagesimae', latinName: 'Tempus Septuagesimae', riteVersionId: 2 },
-    { id: 204, key: 'Quadragesimae', latinName: 'Tempus Quadragesimae', riteVersionId: 2 },
-    { id: 205, key: 'Paschale', latinName: 'Tempus Paschale', riteVersionId: 2 },
-    { id: 206, key: 'PostPentecosten', latinName: 'Tempus post Pentecosten', riteVersionId: 2 },
+    { id: 201, key: 'Adventus', name: 'Tempus Adventus', riteVersionId: 2 },
+    { id: 202, key: 'Nativitatis', name: 'Tempus Nativitatis', riteVersionId: 2 },
+    { id: 203, key: 'Septuagesimae', name: 'Tempus Septuagesimae', riteVersionId: 2 },
+    { id: 204, key: 'Quadragesimae', name: 'Tempus Quadragesimae', riteVersionId: 2 },
+    { id: 205, key: 'Paschale', name: 'Tempus Paschale', riteVersionId: 2 },
+    { id: 206, key: 'PostPentecosten', name: 'Tempus post Pentecosten', riteVersionId: 2 },
 
     // 1970 (OF)
-    { id: 301, key: 'Adventus', latinName: 'Tempus Adventus', riteVersionId: 3 },
-    { id: 302, key: 'Nativitatis', latinName: 'Tempus Nativitatis', riteVersionId: 3 },
-    { id: 303, key: 'Quadragesimae', latinName: 'Tempus Quadragesimae', riteVersionId: 3 },
-    { id: 304, key: 'Paschale', latinName: 'Tempus Paschale', riteVersionId: 3 },
-    { id: 305, key: 'PerAnnum', latinName: 'Tempus per Annum', riteVersionId: 3 },
+    { id: 301, key: 'Adventus', name: 'Tempus Adventus', riteVersionId: 3 },
+    { id: 302, key: 'Nativitatis', name: 'Tempus Nativitatis', riteVersionId: 3 },
+    { id: 303, key: 'Quadragesimae', name: 'Tempus Quadragesimae', riteVersionId: 3 },
+    { id: 304, key: 'Paschale', name: 'Tempus Paschale', riteVersionId: 3 },
+    { id: 305, key: 'PerAnnum', name: 'Tempus per Annum', riteVersionId: 3 },
   ];
 
   // Ranks: keep it simple — ferial & solemnity with precedence values.
   const ranks: Rank[] = [
-    { id: 1, key: 'ferialis', latinName: 'Ferialis', precedence: 99, riteVersionId: 1 },
-    { id: 2, key: 'sollemnitas', latinName: 'Sollemnitas', precedence: 1, riteVersionId: 1 },
+    { id: 1, key: 'ferialis', name: 'Ferialis', precedence: 99, riteVersionId: 1 },
+    { id: 2, key: 'sollemnitas', name: 'Sollemnitas', precedence: 1, riteVersionId: 1 },
 
-    { id: 3, key: 'ferialis', latinName: 'Ferialis', precedence: 99, riteVersionId: 2 },
-    { id: 4, key: 'sollemnitas', latinName: 'Sollemnitas', precedence: 1, riteVersionId: 2 },
+    { id: 3, key: 'ferialis', name: 'Ferialis', precedence: 99, riteVersionId: 2 },
+    { id: 4, key: 'sollemnitas', name: 'Sollemnitas', precedence: 1, riteVersionId: 2 },
 
-    { id: 5, key: 'ferialis', latinName: 'Ferialis', precedence: 99, riteVersionId: 3 },
-    { id: 6, key: 'sollemnitas', latinName: 'Sollemnitas', precedence: 1, riteVersionId: 3 },
+    { id: 5, key: 'ferialis', name: 'Ferialis', precedence: 99, riteVersionId: 3 },
+    { id: 6, key: 'sollemnitas', name: 'Sollemnitas', precedence: 1, riteVersionId: 3 },
   ];
 
   // Movable feasts (by offset from Easter)
@@ -310,15 +311,16 @@ function seedBasicDB() {
     },
   ];
 
-  // Fixed feasts (Gregorian month/day)
+  // Fixed feasts (Gregorian monthNumber/dayNumber)
   const fixedFeasts: Fix[] = [
     // Annunciation, present at 1970 level
     {
       id: 21,
       key: 'SOLEMNITY_ANNUNCIATION',
       name: 'Annuntiatio Domini',
-      month: 3,
-      day: 25,
+      yearNumber: 1,
+      monthNumber: 3,
+      dayNumber: 25,
       rankId: 6,
       riteVersionId: 3,
     },
@@ -328,8 +330,9 @@ function seedBasicDB() {
       id: 22,
       key: 'OLD_FESTUM',
       name: 'Festum Vetus',
-      month: 2,
-      day: 10,
+      yearNumber: 1,
+      monthNumber: 2,
+      dayNumber: 10,
       rankId: 2,
       riteVersionId: 1,
     },
