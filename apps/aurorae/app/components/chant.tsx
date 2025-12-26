@@ -8,13 +8,14 @@ type ChantProps = {
   className?: string;
   caption?: string;
   dropCap?: boolean;
+  annotation?: string;
   width?: number;
 };
 
-const BASE_CLASS = 'rounded-card border border-border bg-parchment p-5 shadow-pressed';
+const BASE_CLASS = 'rounded-card bg-ivory p-5';
 const DEFAULT_WIDTH = 640;
 
-export function Chant({ gabc, caption, className, dropCap = false, width }: ChantProps) {
+export function Chant({ gabc, caption, className, dropCap = false, annotation, width }: ChantProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(width ?? null);
   const [svgMarkup, setSvgMarkup] = useState('');
@@ -22,7 +23,8 @@ export function Chant({ gabc, caption, className, dropCap = false, width }: Chan
   const [renderError, setRenderError] = useState<string | null>(null);
 
   const resolvedWidth = Math.max(0, width ?? containerWidth ?? 0);
-  const trimmedNotation = preprocessGabc(gabc).trim();
+  const baseNotation = preprocessGabc(gabc).trim();
+  const annotatedNotation = preprocessGabc(gabc, annotation).trim();
   const combinedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export function Chant({ gabc, caption, className, dropCap = false, width }: Chan
       return;
     }
 
-    if (!trimmedNotation) {
+    if (!baseNotation) {
       setSvgMarkup('');
       setRenderError(null);
       setIsRendering(false);
@@ -85,10 +87,29 @@ export function Chant({ gabc, caption, className, dropCap = false, width }: Chan
           return;
         }
 
-        context = new exsurge.ChantContext();
-        setContextDefaults(context);
+        const createContext = () => {
+          const nextContext = new exsurge.ChantContext();
+          setContextDefaults(nextContext);
+          return nextContext;
+        };
 
-        const score = exsurge.Gabc.loadChantScore(context, trimmedNotation, dropCap);
+        context = createContext();
+
+        let score: ChantScore | null = null;
+        try {
+          score = exsurge.Gabc.loadChantScore(context, annotatedNotation, dropCap);
+        } catch (error) {
+          if (annotation) {
+            cleanupContext(context);
+            context = createContext();
+            score = exsurge.Gabc.loadChantScore(context, baseNotation, dropCap);
+          } else {
+            throw error;
+          }
+        }
+        if (!score) {
+          throw new Error('Unable to render chant notation.');
+        }
         await compileScore(score, context, resolvedWidth);
 
         if (cancelled) {
@@ -118,7 +139,7 @@ export function Chant({ gabc, caption, className, dropCap = false, width }: Chan
       cleanupContext(context);
       context = null;
     };
-  }, [dropCap, resolvedWidth, trimmedNotation]);
+  }, [annotatedNotation, annotation, baseNotation, dropCap, resolvedWidth]);
 
   const statusMessage = renderError
     ? renderError
@@ -173,13 +194,13 @@ function cleanupContext(context: ChantContext | null) {
   }
 }
 
-function preprocessGabc(gabc: string) {
+function preprocessGabc(gabc: string, annotation?: string) {
   if (!gabc) {
     return '';
   }
 
   return (
-    decodeUnicodeEscapes(gabc)
+    decodeUnicodeEscapes(injectAnnotation(gabc, annotation))
       // Ensure trailing neumes after <eu> inherit the melisma.
       .replace(/<\/eu>\s*\(/gi, '</eu>_(')
       // Guard empty neumes on the mediant marker (e.g. "*()").
@@ -187,6 +208,26 @@ function preprocessGabc(gabc: string) {
       // Guard standalone empty neumes that create zero-length lyrics.
       .replace(/(^|\s)\(\)(?=\s|$)/g, '$1_()')
   );
+}
+
+function injectAnnotation(gabc: string, annotation?: string) {
+  const cleanAnnotation = annotation?.trim();
+  if (!cleanAnnotation) {
+    return gabc;
+  }
+
+  if (/(^|\n)\s*annotation\s*:/i.test(gabc)) {
+    return gabc;
+  }
+
+  const markerIndex = gabc.search(/^%%/m);
+  if (markerIndex >= 0) {
+    return `${gabc.slice(0, markerIndex)}annotation: ${cleanAnnotation};\n${gabc.slice(
+      markerIndex,
+    )}`;
+  }
+
+  return `annotation: ${cleanAnnotation};\n%%\n${gabc}`;
 }
 
 function decodeUnicodeEscapes(value: string) {

@@ -6,8 +6,7 @@ type PsalmBlockProps = {
   renderHtml?: boolean;
 };
 
-const BASE_CLASS =
-  'mt-4 border-t border-border pt-4 text-base leading-7 text-ink space-y-3';
+const BASE_CLASS = 'mt-2 text-base leading-7 text-ink space-y-3';
 
 export function PsalmBlock({ verses, className, renderHtml = false }: PsalmBlockProps) {
   if (!verses?.length) {

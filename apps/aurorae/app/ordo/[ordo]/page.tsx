@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import {
   getOrdo,
@@ -64,13 +65,6 @@ export default async function OrdoPage({ params }: { params: Promise<OrdoParams>
   const feastTitle = metadata.feast ?? structured.title ?? config.label;
   const subtitle = metadata.subtitle ?? metadata.hora ?? config.description;
   const eyebrow = structured.body.type === 'missal' ? 'Missale Romanum' : 'Divinum Officium';
-  const metaItems = [
-    { label: 'Date', value: metadata.isoDate ?? isoDate },
-    { label: 'Office', value: metadata.hora ?? config.label },
-    { label: 'Source', value: 'Divinum Officium' },
-    { label: 'Elements', value: elements.length ? elements.length.toString() : '—' },
-  ];
-
   return (
     <article className="mx-auto flex w-full max-w-aurorae flex-col gap-6 rounded-card border border-border bg-ivory p-6 shadow-soft sm:p-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -78,27 +72,14 @@ export default async function OrdoPage({ params }: { params: Promise<OrdoParams>
           className="text-sm font-semibold uppercase tracking-[0.08em] text-oxblood transition-colors hover:text-oxblood-soft"
           href="/"
         >
-          ← All hours
+          ← Horarium
         </Link>
-        <p className={EYEBROW_TEXT}>{metadata.isoDate ?? isoDate}</p>
       </div>
 
-      <header className="rounded-card border border-border bg-parchment p-6 text-center shadow-pressed">
-        <p className={EYEBROW_TEXT}>{eyebrow}</p>
+      <header className="rounded-card border border-border bg-ivory p-6 text-center shadow-pressed">
         <h1 className="mt-2 font-display text-3xl font-medium sm:text-[2.6rem]">{feastTitle}</h1>
         {subtitle && <p className="mt-2 text-muted">{subtitle}</p>}
       </header>
-
-      <div className="grid gap-4 border-y border-border py-6 sm:grid-cols-2 lg:grid-cols-4">
-        {metaItems.map((item) => (
-          <div key={item.label} className="text-center">
-            <span className="block text-[0.68rem] uppercase tracking-[0.25em] text-muted">
-              {item.label}
-            </span>
-            <span className="font-display text-xl">{item.value}</span>
-          </div>
-        ))}
-      </div>
 
       {elements.length === 0 && (
         <p className="text-center italic text-muted">
@@ -106,27 +87,27 @@ export default async function OrdoPage({ params }: { params: Promise<OrdoParams>
         </p>
       )}
 
-      {elements.map((element, index) => (
-        <section
-          key={`${getElementHeading(element)}-${index}`}
-          className="flex flex-col gap-6 border-b border-border py-6 last:border-b-0"
-        >
-          <SectionHeading title={getElementHeading(element)} />
+      {elements.map((element, index) => {
+        const chantMatches = renderChantMatches(element);
+        return (
+          <section
+            key={`${getElementHeading(element)}-${index}`}
+            className="flex flex-col gap-2 border-b border-border py-6 last:border-b-0"
+          >
+            <SectionHeading title={getElementHeading(element)} />
 
-          <article className="flex flex-col gap-4 rounded-card border border-border bg-ivory p-5 shadow-pressed">
-            <p className="text-[0.7rem] uppercase tracking-[0.3em] text-muted">
-              {ELEMENT_LABELS[element.type]}
-            </p>
-            {renderElementContent(element)}
-            {renderChantMatches(element)}
-          </article>
-        </section>
-      ))}
+            <article className="flex flex-col gap-0 rounded-card bg-ivory p-5">
+              {renderElementContent(element, chantMatches)}
+              {shouldRenderChantMatchesOutside(element) ? chantMatches : null}
+            </article>
+          </section>
+        );
+      })}
     </article>
   );
 }
 
-function renderElementContent(element: EnrichedOrdoElement) {
+function renderElementContent(element: EnrichedOrdoElement, chantMatches: ReactNode) {
   switch (element.type) {
     case 'psalm':
     case 'canticle': {
@@ -141,8 +122,15 @@ function renderElementContent(element: EnrichedOrdoElement) {
         : element.body;
       return (
         <>
+          {chantMatches && <div className="flex justify-end">{chantMatches}</div>}
           {antiphonGabc ? (
-            <Chant gabc={antiphonGabc} caption="Antiphon" className="mt-0" />
+            <Chant
+              gabc={antiphonGabc}
+              caption="Antiphon"
+              className="mt-0"
+              dropCap
+              annotation={formatChantAnnotation(antiphonChant)}
+            />
           ) : (
             <AntiphonList antiphons={element.antiphon} className="mt-0 border-t-0 pt-0" />
           )}
@@ -160,21 +148,18 @@ function renderElementContent(element: EnrichedOrdoElement) {
   }
 }
 
+function shouldRenderChantMatchesOutside(element: EnrichedOrdoElement): boolean {
+  return element.type !== 'psalm' && element.type !== 'canticle';
+}
+
 function renderChantMatches(element: EnrichedOrdoElement) {
   if (element.chants && element.chants.length > 0) {
     return (
-      <div className="rounded-card border border-border bg-parchment p-4">
-        <p className="text-[0.65rem] uppercase tracking-[0.3em] text-muted">
-          Chant Sources ({element.chants.length})
-        </p>
-        <ul className="mt-2 space-y-2 text-sm leading-relaxed">
+      <div className="rounded-card bg-ivory px-3 py-2 text-right">
+        <ul className="space-y-2 text-sm leading-relaxed text-muted">
           {element.chants.map((chant) => (
             <li key={chant.id}>
-              <span className="font-semibold">{chant.name}</span>
-              {chant.mode && <span className="ml-2 text-muted">Mode {chant.mode}</span>}
-              <span className="block text-xs text-muted">
-                {chant.chantSource.title} ({chant.chantSource.year}) - {chant.chantUsage.label}
-              </span>
+              {chant.chantSource.title} ({chant.chantSource.year})
             </li>
           ))}
         </ul>
@@ -184,7 +169,9 @@ function renderChantMatches(element: EnrichedOrdoElement) {
 
   if (element.chantLookup) {
     return (
-      <p className="text-xs text-muted">No chant match found for "{element.chantLookup.query}".</p>
+      <p className="text-xs text-muted not-italic">
+        No chant match found for "{element.chantLookup.query}".
+      </p>
     );
   }
 
@@ -235,4 +222,27 @@ function selectAntiphonChant(element: EnrichedOrdoElement): OrdoChant | null {
     chant.chantUsage.label.toLowerCase().includes('antiphon'),
   );
   return antiphonCandidates[0] ?? chants[0] ?? null;
+}
+
+function formatChantAnnotation(chant: OrdoChant | null): string | undefined {
+  if (!chant?.mode) {
+    return undefined;
+  }
+
+  const mode = chant.mode.replace(/^(\d+)([A-Za-z].*)$/, '$1 $2');
+  const usageLabel = chant.chantUsage?.label?.toLowerCase() ?? '';
+  const prefix =
+    usageLabel.includes('antiphon')
+      ? 'Ant.'
+      : usageLabel.includes('responsory')
+        ? 'R.'
+        : usageLabel.includes('hymn')
+          ? 'Hym.'
+          : usageLabel.includes('psalm')
+            ? 'Ps.'
+            : usageLabel.includes('canticle')
+              ? 'Cant.'
+              : chant.chantUsage?.label ?? 'Ch.';
+
+  return `${prefix} ${mode}`.trim();
 }
