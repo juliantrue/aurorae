@@ -19,8 +19,9 @@ import { SectionHeading } from '../../components/section-heading';
 import { TextBlock } from '../../components/text-block';
 import { ORDO_LOOKUP, ORDO_ROUTES } from '../ordoConfig';
 
-export const runtime = 'nodejs';
-export const revalidate = 0;
+export function generateStaticParams(): OrdoParams[] {
+  return ORDO_ROUTES.map((config) => ({ ordo: config.slug }));
+}
 
 function todayIsoDate(): string {
   return new Date().toISOString().split('T')[0]!;
@@ -30,7 +31,6 @@ type OrdoParams = {
   ordo: string;
 };
 
-const EYEBROW_TEXT = 'text-[0.72rem] uppercase tracking-[0.4em] text-muted';
 const ELEMENT_LABELS: Record<EnrichedOrdoElement['type'], string> = {
   text: 'Reading',
   psalm: 'Psalm',
@@ -43,10 +43,6 @@ const DEFAULT_CHANT_SOURCE: ChantSourceFilter = {
   name: 'Liber antiphonarius',
   year: 1960,
 };
-
-export function generateStaticParams(): OrdoParams[] {
-  return ORDO_ROUTES.map((config) => ({ ordo: config.slug }));
-}
 
 export default async function OrdoPage({ params }: { params: Promise<OrdoParams> }) {
   const ordo = (await params).ordo;
@@ -231,18 +227,17 @@ function formatChantAnnotation(chant: OrdoChant | null): string | undefined {
 
   const mode = chant.mode.replace(/^(\d+)([A-Za-z].*)$/, '$1 $2');
   const usageLabel = chant.chantUsage?.label?.toLowerCase() ?? '';
-  const prefix =
-    usageLabel.includes('antiphon')
-      ? 'Ant.'
-      : usageLabel.includes('responsory')
-        ? 'R.'
-        : usageLabel.includes('hymn')
-          ? 'Hym.'
-          : usageLabel.includes('psalm')
-            ? 'Ps.'
-            : usageLabel.includes('canticle')
-              ? 'Cant.'
-              : chant.chantUsage?.label ?? 'Ch.';
+  const prefix = usageLabel.includes('antiphon')
+    ? 'Ant.'
+    : usageLabel.includes('responsory')
+      ? 'R.'
+      : usageLabel.includes('hymn')
+        ? 'Hym.'
+        : usageLabel.includes('psalm')
+          ? 'Ps.'
+          : usageLabel.includes('canticle')
+            ? 'Cant.'
+            : (chant.chantUsage?.label ?? 'Ch.');
 
   return `${prefix} ${mode}`.trim();
 }
