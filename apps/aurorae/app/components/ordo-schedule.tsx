@@ -72,6 +72,7 @@ export function OrdoSchedule({ routes }: { routes: OrdoRoute[] }) {
     return () => clearInterval(id);
   }, []);
 
+  const isoDate = useMemo(() => now.toISOString().split('T')[0]!, [now]);
   const horaRoutes = useMemo(() => routes.filter((route) => route.kind === 'hora'), [routes]);
   const routeByOrdo = useMemo(
     () => Object.fromEntries(horaRoutes.map((route) => [route.ordo, route])),
@@ -127,7 +128,7 @@ export function OrdoSchedule({ routes }: { routes: OrdoRoute[] }) {
           {routes.map((route) => (
             <Link
               key={route.slug}
-              href={`/ordo/${route.slug}`}
+              href={`/${isoDate}/${route.slug}`}
               className="flex h-full transform flex-col gap-2 rounded-card border border-border border-l-4 border-l-oxblood bg-ivory p-5 text-left transition duration-200 ease-out hover:-translate-y-1 hover:border-oxblood hover:shadow-[0_15px_30px_rgba(75,15,15,0.15)]"
             >
               <div className="flex flex-col gap-1">
@@ -194,7 +195,7 @@ export function OrdoSchedule({ routes }: { routes: OrdoRoute[] }) {
         <div className="flex flex-col gap-4">
           {currentRoute ? (
             <Link
-              href={`/ordo/${currentRoute.slug}`}
+              href={`/${isoDate}/${currentRoute.slug}`}
               className="flex h-full transform flex-col gap-2 rounded-card border border-border border-l-4 border-l-oxblood bg-ivory p-5 text-left transition duration-200 ease-out hover:-translate-y-1 hover:border-oxblood hover:shadow-[0_15px_30px_rgba(75,15,15,0.15)]"
             >
               <p className="text-[0.7rem] uppercase tracking-[0.3em] text-muted">Current hora</p>
@@ -208,7 +209,7 @@ export function OrdoSchedule({ routes }: { routes: OrdoRoute[] }) {
 
           {missaRoute ? (
             <Link
-              href={`/ordo/${missaRoute.slug}`}
+              href={`/${isoDate}/${missaRoute.slug}`}
               className="flex h-full transform flex-col gap-2 rounded-card border border-border border-l-4 border-l-oxblood bg-ivory p-5 text-left transition duration-200 ease-out hover:-translate-y-1 hover:border-oxblood hover:shadow-[0_15px_30px_rgba(75,15,15,0.15)]"
             >
               <p className="text-[0.7rem] uppercase tracking-[0.3em] text-muted">Missal</p>

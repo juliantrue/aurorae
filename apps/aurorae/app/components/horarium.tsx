@@ -116,6 +116,7 @@ export function Horarium({ now }: { now: Date }) {
     fraction: number;
     hora: keyof Horarium | null;
   } | null>(null);
+  const isoDate = useMemo(() => now.toISOString().split('T')[0]!, [now]);
 
   useEffect(() => {
     const element = wrapperRef.current;
@@ -449,7 +450,7 @@ export function Horarium({ now }: { now: Date }) {
           <>
             {activeHoraSlug ? (
               <a
-                href={`/ordo/${activeHoraSlug}`}
+                href={`/${isoDate}/${activeHoraSlug}`}
                 aria-label={`Open ${activeHoraLabel ?? 'hora'}`}
                 className="cursor-pointer"
               >

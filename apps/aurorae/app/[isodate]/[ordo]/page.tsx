@@ -17,17 +17,27 @@ import { PsalmBlock } from '../../components/psalm-block';
 import { ResponsoryBlock } from '../../components/responsory-block';
 import { SectionHeading } from '../../components/section-heading';
 import { TextBlock } from '../../components/text-block';
-import { ORDO_LOOKUP, ORDO_ROUTES } from '../ordoConfig';
+import { ORDO_LOOKUP, ORDO_ROUTES } from '../../ordo/ordoConfig';
 
 export function generateStaticParams(): OrdoParams[] {
-  return ORDO_ROUTES.map((config) => ({ ordo: config.slug }));
-}
+  const DATE_RANGE_DAYS = 180;
+  const today = new Date();
+  const params: OrdoParams[] = [];
 
-function todayIsoDate(): string {
-  return new Date().toISOString().split('T')[0]!;
+  for (let offset = 0; offset <= DATE_RANGE_DAYS; offset += 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + offset);
+    const isoDate = date.toISOString().split('T')[0]!;
+    for (const config of ORDO_ROUTES) {
+      params.push({ isodate: isoDate, ordo: config.slug });
+    }
+  }
+
+  return params;
 }
 
 type OrdoParams = {
+  isodate: string;
   ordo: string;
 };
 
@@ -45,13 +55,13 @@ const DEFAULT_CHANT_SOURCE: ChantSourceFilter = {
 };
 
 export default async function OrdoPage({ params }: { params: Promise<OrdoParams> }) {
-  const ordo = (await params).ordo;
+  const { ordo, isodate } = await params;
   const config = ORDO_LOOKUP[ordo];
   if (!config) {
     notFound();
   }
 
-  const isoDate = todayIsoDate();
+  const isoDate = isodate;
   const { parsed, structured, elementsWithChants } =
     config.kind === 'hora'
       ? await getOrdo({ hora: config.ordo, isoDate, chantSource: DEFAULT_CHANT_SOURCE })
