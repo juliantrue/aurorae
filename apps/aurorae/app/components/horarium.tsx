@@ -2,13 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  computeHorarium,
   createSinusoidPoints,
+  getCurrentHour,
   getLocalTimeZone,
   getPhaseForSolarNoon,
   getSolarTimes,
-  getSinusoidMetrics,
-  getSinusoidPointAtFraction,
+  getSinusoidPointAtFractionFromSamples,
+  getSunriseSunsetForTimeZone,
   getTimeZoneDayFraction,
+  type Horarium,
 } from '@core/lib/horarium';
 
 const WIDTH_FALLBACK = 480;
@@ -16,14 +19,101 @@ const HEIGHT = 400;
 const CYCLES = 1;
 const AMPLITUDE = 100;
 const PHASE = -0.5 * Math.PI;
-
-export type HorariumProps = {
-  now: Date;
+const HOVER_LABEL_WIDTH = 96;
+const ACTIVE_TOOLTIP_HEIGHT = 44;
+const HORA_TO_ORDO: Record<keyof Horarium, string> = {
+  Matins: 'Matutinum',
+  Lauds: 'Laudes',
+  Prime: 'Prima',
+  Terce: 'Tertia',
+  Sext: 'Sexta',
+  None: 'Nona',
+  Vespers: 'Vesperae',
+  Compline: 'Completorium',
 };
+const HORA_ORDER: (keyof Horarium)[] = [
+  'Matins',
+  'Lauds',
+  'Prime',
+  'Terce',
+  'Sext',
+  'None',
+  'Vespers',
+  'Compline',
+];
 
-export function Horarium({ now }: HorariumProps) {
+function formatSinusoidPoints(xValues: number[], yValues: number[]) {
+  const length = Math.min(xValues.length, yValues.length);
+  const points: string[] = [];
+
+  for (let i = 0; i < length; i += 1) {
+    points.push(`${xValues[i].toFixed(2)},${yValues[i].toFixed(2)}`);
+  }
+
+  return points.join(' ');
+}
+
+function formatFractionTime(fraction: number) {
+  const totalMinutes = Math.round(Math.min(1, Math.max(0, fraction)) * 24 * 60);
+  const hours = Math.floor(totalMinutes / 60) % 24;
+  const minutes = totalMinutes % 60;
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+function formatClockTime(date: Date, timeZone: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function getHoraSlug(hora: keyof Horarium | null) {
+  if (!hora) {
+    return null;
+  }
+
+  return HORA_TO_ORDO[hora].toLowerCase();
+}
+
+function getHoraForFraction(
+  fraction: number,
+  entries: { hora: keyof Horarium; fraction: number }[] | null,
+): keyof Horarium | null {
+  if (!entries || entries.length === 0) {
+    return null;
+  }
+
+  for (let i = 0; i < entries.length; i += 1) {
+    const current = entries[i];
+    const next = entries[(i + 1) % entries.length];
+    if (current.fraction <= next.fraction) {
+      if (fraction >= current.fraction && fraction < next.fraction) {
+        return current.hora;
+      }
+    } else if (fraction >= current.fraction || fraction < next.fraction) {
+      return current.hora;
+    }
+  }
+
+  return entries[entries.length - 1]?.hora ?? null;
+}
+
+export function Horarium({ now }: { now: Date }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const dragStartRef = useRef<{ x: number; pointerId: number } | null>(null);
+  const dragCaptureRef = useRef(false);
   const [width, setWidth] = useState<number | null>(null);
+  const [selectedFraction, setSelectedFraction] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hoverPoint, setHoverPoint] = useState<{
+    x: number;
+    y: number;
+    fraction: number;
+    hora: keyof Horarium | null;
+  } | null>(null);
 
   useEffect(() => {
     const element = wrapperRef.current;
@@ -53,58 +143,256 @@ export function Horarium({ now }: HorariumProps) {
 
   const timeZone = getLocalTimeZone();
   const resolvedWidth = Math.max(1, width ?? WIDTH_FALLBACK);
-  const { midline, resolvedAmplitude } = getSinusoidMetrics(HEIGHT, AMPLITUDE);
-  const {
-    points,
-    sunrisePoint,
-    nowPoint,
-  } = useMemo(() => {
+  const { points, sunrisePoint, nowPoint, samples } = useMemo(() => {
     const solarTimes = getSolarTimes(timeZone, now);
     const resolvedPhase = getPhaseForSolarNoon(solarTimes?.solarNoonFraction, PHASE);
-    const nextPoints = createSinusoidPoints({
+    const nextSamples = createSinusoidPoints({
       width: resolvedWidth,
       height: HEIGHT,
       cycles: CYCLES,
       amplitude: AMPLITUDE,
       phase: resolvedPhase,
     });
-    const nextSunrisePoint = getSinusoidPointAtFraction(solarTimes?.sunriseFraction ?? null, {
-      width: resolvedWidth,
-      cycles: CYCLES,
-      midline,
-      amplitude: resolvedAmplitude,
-      phase: resolvedPhase,
-    });
+    const nextPoints = formatSinusoidPoints(nextSamples[0], nextSamples[1]);
+    const nextSunrisePoint = getSinusoidPointAtFractionFromSamples(
+      solarTimes?.sunriseFraction ?? null,
+      nextSamples,
+    );
     const nowFraction = getTimeZoneDayFraction(now, timeZone);
-    const nextNowPoint = getSinusoidPointAtFraction(nowFraction, {
-      width: resolvedWidth,
-      cycles: CYCLES,
-      midline,
-      amplitude: resolvedAmplitude,
-      phase: resolvedPhase,
-    });
+    const nextNowPoint = getSinusoidPointAtFractionFromSamples(nowFraction, nextSamples);
 
     return {
       points: nextPoints,
       sunrisePoint: nextSunrisePoint,
       nowPoint: nextNowPoint,
+      samples: nextSamples,
     };
-  }, [midline, now, resolvedAmplitude, resolvedWidth, timeZone]);
+  }, [now, resolvedWidth, timeZone]);
+  const horaFractions = useMemo(() => {
+    const sunriseSunset = getSunriseSunsetForTimeZone(timeZone, now);
+    if (!sunriseSunset?.sunrise || !sunriseSunset?.sunset) {
+      return null;
+    }
+
+    const horarium = computeHorarium(sunriseSunset.sunrise, sunriseSunset.sunset);
+    return HORA_ORDER.map((hora) => ({
+      hora,
+      fraction: getTimeZoneDayFraction(horarium[hora], timeZone),
+    }));
+  }, [now, timeZone]);
+  const currentHora = useMemo(() => {
+    const sunriseSunset = getSunriseSunsetForTimeZone(timeZone, now);
+    if (!sunriseSunset?.sunrise || !sunriseSunset?.sunset) {
+      return null;
+    }
+
+    const horarium = computeHorarium(sunriseSunset.sunrise, sunriseSunset.sunset);
+    return getCurrentHour(horarium, now);
+  }, [now, timeZone]);
+  const currentHoraSlug = useMemo(() => getHoraSlug(currentHora), [currentHora]);
+  const currentHoraLabel = useMemo(() => {
+    if (!currentHora) {
+      return null;
+    }
+
+    return HORA_TO_ORDO[currentHora];
+  }, [currentHora]);
+  const selectedPoint = useMemo(() => {
+    if (selectedFraction === null) {
+      return null;
+    }
+
+    return getSinusoidPointAtFractionFromSamples(selectedFraction, samples);
+  }, [samples, selectedFraction]);
+  const selectedHora = useMemo(() => {
+    if (selectedFraction === null) {
+      return null;
+    }
+
+    return getHoraForFraction(selectedFraction, horaFractions);
+  }, [horaFractions, selectedFraction]);
+  const selectedHoraSlug = useMemo(() => getHoraSlug(selectedHora), [selectedHora]);
+  const selectedHoraLabel = useMemo(() => {
+    if (!selectedHora) {
+      return null;
+    }
+
+    return HORA_TO_ORDO[selectedHora];
+  }, [selectedHora]);
+  const sunriseFadeStops = useMemo(() => {
+    if (!sunrisePoint) {
+      return null;
+    }
+
+    const start = Math.min(1, Math.max(0, sunrisePoint.y / HEIGHT));
+    const end = Math.min(1, Math.max(start, (sunrisePoint.y + 40) / HEIGHT));
+
+    return { start, end };
+  }, [sunrisePoint]);
+  const activePoint = selectedPoint ?? nowPoint;
+  const hoverTooltipPosition = useMemo(() => {
+    if (!hoverPoint) {
+      return null;
+    }
+
+    const baseX = hoverPoint.x + 10;
+    const baseY = hoverPoint.y - 16;
+    let nextX = baseX;
+    let nextY = baseY;
+
+    if (activePoint) {
+      const overlapX = Math.abs(baseX - activePoint.x) < 90;
+      const overlapY = Math.abs(baseY - activePoint.y) < 70;
+      if (overlapX && overlapY) {
+        return null;
+      }
+    }
+
+    const clampedX = Math.min(Math.max(8, nextX), resolvedWidth - HOVER_LABEL_WIDTH);
+    const clampedY = Math.max(16, nextY);
+
+    return { x: clampedX, y: clampedY };
+  }, [activePoint, hoverPoint, resolvedWidth]);
+  const activeTooltip = activePoint ? (
+    <g
+      transform={`translate(${Math.min(
+        Math.max(8, activePoint.x + 16),
+        resolvedWidth - HOVER_LABEL_WIDTH,
+      )},${Math.max(16, activePoint.y - 28)})`}
+    >
+      <rect
+        x={-4}
+        y={-ACTIVE_TOOLTIP_HEIGHT + 6}
+        width={HOVER_LABEL_WIDTH + 8}
+        height={ACTIVE_TOOLTIP_HEIGHT}
+        fill="transparent"
+      />
+      <text
+        x={0}
+        y={-5}
+        textAnchor="start"
+        dominantBaseline="middle"
+        className="fill-muted text-[16px] font-mono font-semibold"
+      >
+        <>
+          <tspan x={0} dy="-0.4em">
+            {selectedHora ?? currentHora ?? 'Hora'}
+          </tspan>
+          <tspan x={0} dy="1.2em">
+            {selectedFraction !== null
+              ? formatFractionTime(selectedFraction)
+              : formatClockTime(now, timeZone)}
+          </tspan>
+          <tspan dx="0.4em" className="fill-oxblood text-[22px]" opacity={0.8}>
+            →
+          </tspan>
+        </>
+      </text>
+    </g>
+  ) : null;
+  const activeHoraSlug = selectedHoraSlug ?? currentHoraSlug;
+  const activeHoraLabel = selectedHoraLabel ?? currentHoraLabel;
 
   return (
     <div ref={wrapperRef} className="mx-auto w-full max-w-[500px]">
       <svg
-        className="h-auto w-full"
+        className="h-auto w-full cursor-crosshair select-none"
         width={resolvedWidth}
         height={HEIGHT}
         viewBox={`0 0 ${resolvedWidth} ${HEIGHT}`}
         role="img"
         aria-label="Horarium sinusoid"
+        onPointerDown={(event) => {
+          const isSunHandle =
+            event.target instanceof Element && event.target.closest('[data-sun-handle="true"]');
+          if (event.target instanceof Element && event.target.closest('a')) {
+            if (!isSunHandle) {
+              return;
+            }
+          }
+          if (!isSunHandle) {
+            dragStartRef.current = null;
+            dragCaptureRef.current = false;
+          } else {
+            dragStartRef.current = { x: event.clientX, pointerId: event.pointerId };
+          }
+          const rect = event.currentTarget.getBoundingClientRect();
+          const rawX = event.clientX - rect.left;
+          const clampedX = Math.min(Math.max(rawX, 0), resolvedWidth);
+          const fraction = resolvedWidth > 0 ? clampedX / resolvedWidth : 0;
+          setSelectedFraction(fraction);
+        }}
+        onPointerMove={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          const rawX = event.clientX - rect.left;
+          const clampedX = Math.min(Math.max(rawX, 0), resolvedWidth);
+          const fraction = resolvedWidth > 0 ? clampedX / resolvedWidth : 0;
+          const nextPoint = getSinusoidPointAtFractionFromSamples(fraction, samples);
+          if (nextPoint) {
+            setHoverPoint({
+              ...nextPoint,
+              fraction,
+              hora: getHoraForFraction(fraction, horaFractions),
+            });
+          }
+          if (dragStartRef.current) {
+            const delta = Math.abs(event.clientX - dragStartRef.current.x);
+            if (!isDragging && delta > 4) {
+              setIsDragging(true);
+              if (!dragCaptureRef.current) {
+                event.currentTarget.setPointerCapture(event.pointerId);
+                dragCaptureRef.current = true;
+              }
+            }
+          }
+          if (isDragging) {
+            setSelectedFraction(fraction);
+          }
+        }}
+        onPointerUp={(event) => {
+          setIsDragging(false);
+          if (dragCaptureRef.current) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+          }
+          dragStartRef.current = null;
+          dragCaptureRef.current = false;
+        }}
+        onPointerCancel={(event) => {
+          setIsDragging(false);
+          if (dragCaptureRef.current) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+          }
+          dragStartRef.current = null;
+          dragCaptureRef.current = false;
+        }}
+        onPointerLeave={() => {
+          setHoverPoint(null);
+          dragStartRef.current = null;
+          dragCaptureRef.current = false;
+          if (isDragging) {
+            setIsDragging(false);
+          }
+        }}
       >
         <defs>
           <filter id="sun-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
           </filter>
+          {sunriseFadeStops ? (
+            <linearGradient
+              id="sinusoid-fade"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2={HEIGHT}
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset={0} stopColor="currentColor" stopOpacity="1" />
+              <stop offset={sunriseFadeStops.start} stopColor="currentColor" stopOpacity="1" />
+              <stop offset={sunriseFadeStops.end} stopColor="currentColor" stopOpacity="0.35" />
+              <stop offset={1} stopColor="currentColor" stopOpacity="0.05" />
+            </linearGradient>
+          ) : null}
         </defs>
         <polyline
           points={points}
@@ -112,7 +400,8 @@ export function Horarium({ now }: HorariumProps) {
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="stroke-oxblood"
+          className="text-oxblood"
+          stroke={sunriseFadeStops ? 'url(#sinusoid-fade)' : 'currentColor'}
         />
         {sunrisePoint ? (
           <line
@@ -124,16 +413,90 @@ export function Horarium({ now }: HorariumProps) {
             className="stroke-muted"
           />
         ) : null}
-        {nowPoint ? (
+        {activePoint ? (
           <>
-            <circle
-              cx={nowPoint.x}
-              cy={nowPoint.y}
-              r={10}
-              className="fill-amber-400/60"
-              filter="url(#sun-glow)"
-            />
-            <circle cx={nowPoint.x} cy={nowPoint.y} r={4} className="fill-oxblood" />
+            {activeHoraSlug ? (
+              <a
+                href={`/ordo/${activeHoraSlug}`}
+                aria-label={`Open ${activeHoraLabel ?? 'hora'}`}
+                className="cursor-pointer"
+              >
+                <circle
+                  cx={activePoint.x}
+                  cy={activePoint.y}
+                  r={10}
+                  className="fill-amber-400/60"
+                  filter="url(#sun-glow)"
+                  data-sun-handle="true"
+                />
+                <circle
+                  cx={activePoint.x}
+                  cy={activePoint.y}
+                  r={4}
+                  className="fill-oxblood"
+                  data-sun-handle="true"
+                />
+                {activeTooltip}
+              </a>
+            ) : (
+              <>
+                <circle
+                  cx={activePoint.x}
+                  cy={activePoint.y}
+                  r={10}
+                  className="fill-amber-400/60"
+                  filter="url(#sun-glow)"
+                  data-sun-handle="true"
+                />
+                <circle
+                  cx={activePoint.x}
+                  cy={activePoint.y}
+                  r={4}
+                  className="fill-oxblood"
+                  data-sun-handle="true"
+                />
+                {activeTooltip}
+              </>
+            )}
+          </>
+        ) : null}
+        {hoverPoint ? (
+          <>
+            {hoverTooltipPosition ? (
+              <>
+                <line
+                  x1={hoverPoint.x}
+                  y1={0}
+                  x2={hoverPoint.x}
+                  y2={HEIGHT}
+                  strokeWidth={1}
+                  className="stroke-muted"
+                />
+                <circle cx={hoverPoint.x} cy={hoverPoint.y} r={6} className="fill-muted" />
+                <g transform={`translate(${hoverTooltipPosition.x},${hoverTooltipPosition.y})`}>
+                  <text
+                    x={0}
+                    y={-5}
+                    textAnchor="start"
+                    dominantBaseline="middle"
+                    className="fill-muted text-[16px] font-mono font-semibold"
+                  >
+                    {hoverPoint.hora ? (
+                      <>
+                        <tspan x={0} dy="-0.4em">
+                          {hoverPoint.hora}
+                        </tspan>
+                        <tspan x={0} dy="1.2em">
+                          {formatFractionTime(hoverPoint.fraction)}
+                        </tspan>
+                      </>
+                    ) : (
+                      formatFractionTime(hoverPoint.fraction)
+                    )}
+                  </text>
+                </g>
+              </>
+            ) : null}
           </>
         ) : null}
       </svg>

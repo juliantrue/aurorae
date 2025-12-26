@@ -24,21 +24,31 @@ export type SinusoidPoint = {
   y: number;
 };
 
-export function createSinusoidPoints({ width, height, cycles, amplitude, phase }: SinusoidOptions) {
+export type SinusoidSamples = [x: number[], y: number[]];
+
+export function createSinusoidPoints({
+  width,
+  height,
+  cycles,
+  amplitude,
+  phase,
+}: SinusoidOptions): SinusoidSamples {
   const safeWidth = Math.max(1, width);
   const { midline, resolvedAmplitude } = getSinusoidMetrics(height, amplitude);
   const steps = Math.max(48, Math.floor(safeWidth));
-  const points: string[] = [];
+  const xPoints: number[] = [];
+  const yPoints: number[] = [];
 
   for (let i = 0; i <= steps; i += 1) {
     const t = i / steps;
     const x = t * safeWidth;
     const angle = t * cycles * Math.PI * 2 + phase;
     const y = midline - resolvedAmplitude * Math.sin(angle);
-    points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+    xPoints.push(x);
+    yPoints.push(y);
   }
 
-  return points.join(' ');
+  return [xPoints, yPoints];
 }
 
 export function getSinusoidMetrics(height: number, amplitude?: number): SinusoidMetrics {
@@ -73,6 +83,35 @@ export function getSinusoidPointAtFraction(
   const x = t * width;
   const angle = t * cycles * Math.PI * 2 + phase;
   const y = midline - amplitude * Math.sin(angle);
+
+  return { x, y };
+}
+
+export function getSinusoidPointAtFractionFromSamples(
+  fraction: number | null,
+  [xValues, yValues]: SinusoidSamples,
+): SinusoidPoint | null {
+  if (fraction === null) {
+    return null;
+  }
+
+  const length = Math.min(xValues.length, yValues.length);
+  if (length === 0) {
+    return null;
+  }
+
+  if (length === 1) {
+    return { x: xValues[0], y: yValues[0] };
+  }
+
+  const t = Math.min(1, Math.max(0, fraction));
+  const maxIndex = length - 1;
+  const rawIndex = t * maxIndex;
+  const lowerIndex = Math.floor(rawIndex);
+  const upperIndex = Math.min(maxIndex, lowerIndex + 1);
+  const mix = rawIndex - lowerIndex;
+  const x = xValues[lowerIndex] + (xValues[upperIndex] - xValues[lowerIndex]) * mix;
+  const y = yValues[lowerIndex] + (yValues[upperIndex] - yValues[lowerIndex]) * mix;
 
   return { x, y };
 }

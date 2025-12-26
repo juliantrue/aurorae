@@ -99,10 +99,6 @@ describe('getOrdo', () => {
     expect(runDivinumOfficiumMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ hora: 'Vesperae', isoDate: '2025-11-24' }),
     );
-
-    console.dir(parsed, {
-      depth: null,
-    });
   });
 
   it('parses the missa metadata and sections', async () => {

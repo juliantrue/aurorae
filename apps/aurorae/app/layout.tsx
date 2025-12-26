@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
-import { ThemeToggle } from './components/theme-toggle';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 const playfair = Playfair_Display({
@@ -29,16 +28,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.className} ${playfair.variable} bg-parchment text-ink antialiased`}
-        data-theme="light"
-      >
+      <body className={`${inter.className} ${playfair.variable} bg-parchment text-ink antialiased`}>
         <div className="flex min-h-screen flex-col items-center gap-6 px-4 py-6 sm:px-8 lg:px-12">
-          <header className="w-full max-w-aurorae rounded-card border border-border bg-ivory p-6 text-center shadow-soft sm:p-8">
-            <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-between">
-              <ThemeToggle />
-            </div>
-          </header>
           <main className="flex w-full flex-1 justify-center">{children}</main>
         </div>
       </body>
