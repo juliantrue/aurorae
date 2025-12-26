@@ -22,7 +22,7 @@ export function Chant({ gabc, caption, className, dropCap = false, width }: Chan
   const [renderError, setRenderError] = useState<string | null>(null);
 
   const resolvedWidth = Math.max(0, width ?? containerWidth ?? 0);
-  const trimmedNotation = gabc?.trim() ?? '';
+  const trimmedNotation = preprocessGabc(gabc).trim();
   const combinedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
 
   useEffect(() => {
@@ -129,7 +129,9 @@ export function Chant({ gabc, caption, className, dropCap = false, width }: Chan
   return (
     <figure className={combinedClass}>
       {caption && (
-        <figcaption className="mb-3 text-center font-display text-lg text-oxblood">{caption}</figcaption>
+        <figcaption className="mb-3 text-center font-display text-lg text-ink">
+          {caption}
+        </figcaption>
       )}
       <div
         ref={wrapperRef}
@@ -169,4 +171,38 @@ function cleanupContext(context: ChantContext | null) {
   if (context && context.svgTextMeasurer?.parentNode) {
     context.svgTextMeasurer.parentNode.removeChild(context.svgTextMeasurer);
   }
+}
+
+function preprocessGabc(gabc: string) {
+  if (!gabc) {
+    return '';
+  }
+
+  return (
+    decodeUnicodeEscapes(gabc)
+      // Ensure trailing neumes after <eu> inherit the melisma.
+      .replace(/<\/eu>\s*\(/gi, '</eu>_(')
+      // Guard empty neumes on the mediant marker (e.g. "*()").
+      .replace(/\*\s*\(\)/g, '* _()')
+      // Guard standalone empty neumes that create zero-length lyrics.
+      .replace(/(^|\s)\(\)(?=\s|$)/g, '$1_()')
+  );
+}
+
+function decodeUnicodeEscapes(value: string) {
+  return value
+    .replace(/\\u\{([0-9a-fA-F]+)\}/g, (_match, hex) => {
+      const codePoint = Number.parseInt(hex, 16);
+      if (!Number.isFinite(codePoint)) {
+        return _match;
+      }
+      return String.fromCodePoint(codePoint);
+    })
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex) => {
+      const codePoint = Number.parseInt(hex, 16);
+      if (!Number.isFinite(codePoint)) {
+        return _match;
+      }
+      return String.fromCharCode(codePoint);
+    });
 }

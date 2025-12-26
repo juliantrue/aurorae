@@ -7,9 +7,11 @@ import {
   TONE_META,
   type ChantSourceFilter,
   type EnrichedOrdoElement,
+  type OrdoChant,
   type Tone,
 } from '@aurorae/core';
 import { AntiphonList } from '../../components/antiphon-list';
+import { Chant } from '../../components/chant';
 import { PsalmBlock } from '../../components/psalm-block';
 import { ResponsoryBlock } from '../../components/responsory-block';
 import { SectionHeading } from '../../components/section-heading';
@@ -128,6 +130,8 @@ function renderElementContent(element: EnrichedOrdoElement) {
   switch (element.type) {
     case 'psalm':
     case 'canticle': {
+      const antiphonChant = selectAntiphonChant(element);
+      const antiphonGabc = antiphonChant?.gabc?.trim();
       const tone = deriveToneFromAntiphon(element);
       const verses = tone
         ? element.body.map((verse) => ({
@@ -137,7 +141,11 @@ function renderElementContent(element: EnrichedOrdoElement) {
         : element.body;
       return (
         <>
-          <AntiphonList antiphons={element.antiphon} className="mt-0 border-t-0 pt-0" />
+          {antiphonGabc ? (
+            <Chant gabc={antiphonGabc} caption="Antiphon" className="mt-0" />
+          ) : (
+            <AntiphonList antiphons={element.antiphon} className="mt-0 border-t-0 pt-0" />
+          )}
           <PsalmBlock verses={verses} renderHtml={Boolean(tone)} />
         </>
       );
@@ -176,9 +184,7 @@ function renderChantMatches(element: EnrichedOrdoElement) {
 
   if (element.chantLookup) {
     return (
-      <p className="text-xs text-muted">
-        No chant match found for "{element.chantLookup.query}".
-      </p>
+      <p className="text-xs text-muted">No chant match found for "{element.chantLookup.query}".</p>
     );
   }
 
@@ -203,15 +209,7 @@ function deriveToneFromAntiphon(element: EnrichedOrdoElement): Tone | null {
     return null;
   }
 
-  const chants = element.chants ?? [];
-  if (chants.length === 0) {
-    return null;
-  }
-
-  const antiphonCandidates = chants.filter((chant) =>
-    chant.chantUsage.label.toLowerCase().includes('antiphon'),
-  );
-  const selected = antiphonCandidates[0] ?? chants[0];
+  const selected = selectAntiphonChant(element);
   if (!selected?.gabc) {
     return null;
   }
@@ -221,4 +219,20 @@ function deriveToneFromAntiphon(element: EnrichedOrdoElement): Tone | null {
   } catch {
     return null;
   }
+}
+
+function selectAntiphonChant(element: EnrichedOrdoElement): OrdoChant | null {
+  if (element.type !== 'psalm' && element.type !== 'canticle') {
+    return null;
+  }
+
+  const chants = element.chants ?? [];
+  if (chants.length === 0) {
+    return null;
+  }
+
+  const antiphonCandidates = chants.filter((chant) =>
+    chant.chantUsage.label.toLowerCase().includes('antiphon'),
+  );
+  return antiphonCandidates[0] ?? chants[0] ?? null;
 }
