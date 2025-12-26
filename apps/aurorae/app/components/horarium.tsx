@@ -15,9 +15,10 @@ import {
 } from '@core/lib/horarium';
 
 const WIDTH_FALLBACK = 480;
-const HEIGHT = 400;
+const HEIGHT_FALLBACK = 400;
+const ASPECT_RATIO = HEIGHT_FALLBACK / WIDTH_FALLBACK;
 const CYCLES = 1;
-const AMPLITUDE = 100;
+const AMPLITUDE_RATIO = 0.4;
 const PHASE = -0.5 * Math.PI;
 const HOVER_LABEL_WIDTH = 96;
 const ACTIVE_TOOLTIP_HEIGHT = 44;
@@ -106,6 +107,7 @@ export function Horarium({ now }: { now: Date }) {
   const dragStartRef = useRef<{ x: number; pointerId: number } | null>(null);
   const dragCaptureRef = useRef(false);
   const [width, setWidth] = useState<number | null>(null);
+  const [height, setHeight] = useState<number | null>(null);
   const [selectedFraction, setSelectedFraction] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hoverPoint, setHoverPoint] = useState<{
@@ -117,40 +119,67 @@ export function Horarium({ now }: { now: Date }) {
 
   useEffect(() => {
     const element = wrapperRef.current;
-    if (!element || typeof ResizeObserver === 'undefined') {
+    if (!element) {
       setWidth(WIDTH_FALLBACK);
       return;
     }
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === element) {
-          const nextWidth = Math.floor(entry.contentRect.width);
-          if (nextWidth > 0) {
-            setWidth(nextWidth);
+    const updateSize = () => {
+      const nextWidth = Math.floor(element.clientWidth);
+      const nextHeight = Math.floor(element.clientHeight);
+      if (nextWidth > 0) {
+        setWidth(nextWidth);
+      }
+      if (nextHeight > 0) {
+        setHeight(nextHeight);
+      }
+    };
+
+    updateSize();
+
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.target === element) {
+            const nextWidth = Math.floor(entry.contentRect.width);
+            const nextHeight = Math.floor(entry.contentRect.height);
+            if (nextWidth > 0) {
+              setWidth(nextWidth);
+            }
+            if (nextHeight > 0) {
+              setHeight(nextHeight);
+            }
           }
         }
-      }
-    });
+      });
+      observer.observe(element);
+    }
 
-    observer.observe(element);
-    setWidth(element.clientWidth || WIDTH_FALLBACK);
+    window.addEventListener('resize', updateSize);
 
     return () => {
-      observer.disconnect();
+      window.removeEventListener('resize', updateSize);
+      observer?.disconnect();
     };
   }, []);
 
   const timeZone = getLocalTimeZone();
-  const resolvedWidth = Math.max(1, width ?? WIDTH_FALLBACK);
+  const availableWidth = width ?? WIDTH_FALLBACK;
+  const availableHeight = height ?? HEIGHT_FALLBACK;
+  const resolvedWidth = Math.max(
+    1,
+    Math.min(availableWidth, Math.floor(availableHeight / ASPECT_RATIO)),
+  );
+  const resolvedHeight = Math.max(1, Math.round(resolvedWidth * ASPECT_RATIO));
   const { points, sunrisePoint, nowPoint, samples } = useMemo(() => {
     const solarTimes = getSolarTimes(timeZone, now);
     const resolvedPhase = getPhaseForSolarNoon(solarTimes?.solarNoonFraction, PHASE);
     const nextSamples = createSinusoidPoints({
       width: resolvedWidth,
-      height: HEIGHT,
+      height: resolvedHeight,
       cycles: CYCLES,
-      amplitude: AMPLITUDE,
+      amplitude: resolvedHeight * AMPLITUDE_RATIO,
       phase: resolvedPhase,
     });
     const nextPoints = formatSinusoidPoints(nextSamples[0], nextSamples[1]);
@@ -167,7 +196,7 @@ export function Horarium({ now }: { now: Date }) {
       nowPoint: nextNowPoint,
       samples: nextSamples,
     };
-  }, [now, resolvedWidth, timeZone]);
+  }, [now, resolvedHeight, resolvedWidth, timeZone]);
   const horaFractions = useMemo(() => {
     const sunriseSunset = getSunriseSunsetForTimeZone(timeZone, now);
     if (!sunriseSunset?.sunrise || !sunriseSunset?.sunset) {
@@ -224,11 +253,11 @@ export function Horarium({ now }: { now: Date }) {
       return null;
     }
 
-    const start = Math.min(1, Math.max(0, sunrisePoint.y / HEIGHT));
-    const end = Math.min(1, Math.max(start, (sunrisePoint.y + 40) / HEIGHT));
+    const start = Math.min(1, Math.max(0, sunrisePoint.y / resolvedHeight));
+    const end = Math.min(1, Math.max(start, (sunrisePoint.y + 40) / resolvedHeight));
 
     return { start, end };
-  }, [sunrisePoint]);
+  }, [resolvedHeight, sunrisePoint]);
   const activePoint = selectedPoint ?? nowPoint;
   const hoverTooltipPosition = useMemo(() => {
     if (!hoverPoint) {
@@ -294,12 +323,15 @@ export function Horarium({ now }: { now: Date }) {
   const activeHoraLabel = selectedHoraLabel ?? currentHoraLabel;
 
   return (
-    <div ref={wrapperRef} className="mx-auto w-full max-w-[500px]">
+    <div
+      ref={wrapperRef}
+      className="mx-auto h-full max-h-[80vh] w-full max-w-[800px] box-border p-6"
+    >
       <svg
         className="h-auto w-full cursor-crosshair select-none"
         width={resolvedWidth}
-        height={HEIGHT}
-        viewBox={`0 0 ${resolvedWidth} ${HEIGHT}`}
+        height={resolvedHeight}
+        viewBox={`0 0 ${resolvedWidth} ${resolvedHeight}`}
         role="img"
         aria-label="Horarium sinusoid"
         onPointerDown={(event) => {
@@ -384,7 +416,7 @@ export function Horarium({ now }: { now: Date }) {
               x1="0"
               y1="0"
               x2="0"
-              y2={HEIGHT}
+              y2={resolvedHeight}
               gradientUnits="userSpaceOnUse"
             >
               <stop offset={0} stopColor="currentColor" stopOpacity="1" />
@@ -468,7 +500,7 @@ export function Horarium({ now }: { now: Date }) {
                   x1={hoverPoint.x}
                   y1={0}
                   x2={hoverPoint.x}
-                  y2={HEIGHT}
+                  y2={resolvedHeight}
                   strokeWidth={1}
                   className="stroke-muted"
                 />
