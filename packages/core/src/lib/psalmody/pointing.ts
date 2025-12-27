@@ -1,5 +1,4 @@
-
-import { TONE_META, Tone, ToneCounts } from "./tone";
+import { TONE_META, Tone, ToneCounts } from './tone';
 
 const REGEX_VOWEL = /(?:[cgq]u|[iy])?([aeiouyáéëíóúýǽæœ]+)/i;
 const REGEX_ACCENT = /[áéíóúýǽ\u0301]/i;
@@ -42,27 +41,25 @@ function pointSegment(text: string, counts: ToneCounts): string {
   let doneAccents = 0;
   let donePrep = 0;
   let lastAccentI = syls.length;
-  let result = "";
+  let result = '';
   const minAccentIndex = counts.preparatory;
 
   for (let i = lastAccentI - 1; i >= 0; i--) {
     const s = syls[i];
     const isAccentCandidate = s.accent && i >= minAccentIndex;
-    const prevIsAccentCandidate =
-      i > 0 ? syls[i - 1].accent && i - 1 >= minAccentIndex : false;
+    const prevIsAccentCandidate = i > 0 ? syls[i - 1].accent && i - 1 >= minAccentIndex : false;
 
     // Accent syllables (bold)
     if (
       doneAccents < counts.accents &&
-      (isAccentCandidate ||
-        (i === lastAccentI - 2 && (i === 0 || !prevIsAccentCandidate)))
+      (isAccentCandidate || (i === lastAccentI - 2 && (i === 0 || !prevIsAccentCandidate)))
     ) {
       if (doneAccents === counts.accents - 1 && i < minAccentIndex) {
         continue;
       }
       lastAccentI = i;
       result = s.punctuation + result;
-      result = s.prepunctuation + renderSyllable(s, "b") + result;
+      result = s.prepunctuation + renderSyllable(s, 'b') + result;
       doneAccents++;
       continue;
     }
@@ -70,7 +67,7 @@ function pointSegment(text: string, counts: ToneCounts): string {
     // Preparatory syllables (italic), after accents are satisfied
     if (doneAccents === counts.accents && donePrep < counts.preparatory) {
       result = s.punctuation + result;
-      result = s.prepunctuation + renderSyllable(s, "i") + result;
+      result = s.prepunctuation + renderSyllable(s, 'i') + result;
       donePrep++;
       continue;
     }
@@ -82,12 +79,12 @@ function pointSegment(text: string, counts: ToneCounts): string {
   return result;
 }
 
-function renderSyllable(s: Syllable, tag: "b" | "i"): string {
+function renderSyllable(s: Syllable, tag: 'b' | 'i'): string {
   return `${s.openTags}${s.prespace}<${tag}>${s.sylnospace}</${tag}>${s.closeTags}`;
 }
 
 function splitOnMediantAsterisk(
-  text: string
+  text: string,
 ): { left: string; delim: string; right: string } | null {
   const re = /\s+\*\s+/g;
   const m = re.exec(text);
@@ -101,7 +98,7 @@ function splitOnMediantAsterisk(
 // --- Syllabification ---
 
 function getLatinSyllables(text: string): Syllable[] {
-  if (typeof text !== "string") return [];
+  if (typeof text !== 'string') return [];
 
   const out: Syllable[] = [];
   let lastI = 0;
@@ -117,30 +114,29 @@ function getLatinSyllables(text: string): Syllable[] {
     if (startsWithNCU && out.length > 0) {
       const prev = out[out.length - 1];
       if (!prev.space && !prev.punctuation) {
-        prev.syl += "n";
-        prev.sylnospace += "n";
+        prev.syl += 'n';
+        prev.sylnospace += 'n';
       }
     }
 
     const pre = text.slice(lastI, matchIndex);
-  const openTags = m[1] ?? "";
-  const all = m[2] ?? m[0];
-  const rawSyl = m[3] ?? m[0];
-  const hasTrailingAsterisk = rawSyl.endsWith("*");
-  const cleanedRawSyl = hasTrailingAsterisk ? rawSyl.slice(0, -1) : rawSyl;
-  const rawPrespace = m[4] ?? "";
-  const vowel = (m[5] ?? REGEX_VOWEL.exec(cleanedRawSyl)?.[0] ?? "") as string;
-  const separator = m[6] ?? "";
-  const punct = (m[7] ?? "").replace(/\s+$/g, "");
-  const space = m[8] ?? "";
-  const closeTags = m[9] ?? "";
+    const openTags = m[1] ?? '';
+    const all = m[2] ?? m[0];
+    const rawSyl = m[3] ?? m[0];
+    const hasTrailingAsterisk = rawSyl.endsWith('*');
+    const cleanedRawSyl = hasTrailingAsterisk ? rawSyl.slice(0, -1) : rawSyl;
+    const rawPrespace = m[4] ?? '';
+    const vowel = (m[5] ?? REGEX_VOWEL.exec(cleanedRawSyl)?.[0] ?? '') as string;
+    const separator = m[6] ?? '';
+    const punct = (m[7] ?? '').replace(/\s+$/g, '');
+    const space = m[8] ?? '';
+    const closeTags = m[9] ?? '';
 
-  const prespace = pre ? "" : rawPrespace;
-  const sylnospace = cleanedRawSyl.slice(rawPrespace.length);
-  const isAccent =
-    separator === "*" || hasTrailingAsterisk || REGEX_ACCENT.test(cleanedRawSyl);
+    const prespace = pre ? '' : rawPrespace;
+    const sylnospace = cleanedRawSyl.slice(rawPrespace.length);
+    const isAccent = separator === '*' || hasTrailingAsterisk || REGEX_ACCENT.test(cleanedRawSyl);
 
-  const syl = openTags + (pre ? sylnospace : cleanedRawSyl) + closeTags;
+    const syl = openTags + (pre ? sylnospace : cleanedRawSyl) + closeTags;
 
     out.push({
       index: matchIndex,
@@ -189,7 +185,7 @@ function assignWordAccents(syls: Syllable[]): void {
           first.accent = true;
         } else {
           for (const wSyl of curWord) {
-            if (wSyl.vowel === "æ" || wSyl.vowel === "œ") {
+            if (wSyl.vowel === 'æ' || wSyl.vowel === 'œ') {
               wSyl.accent = true;
               break;
             }

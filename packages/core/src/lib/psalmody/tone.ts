@@ -9,6 +9,16 @@ export type ToneMeta = Readonly<{
   termination: ToneCounts;
   gabc: Readonly<{
     clef: string;
+
+    // NEW: intonation + tenor metadata
+    // - intonation is the part before the first reciting-note token (e.g. "... hr ..." / "... jr ..." / "... ir ...")
+    // - tenor is the reciting note for each half
+    intonation: string;
+    tenor: Readonly<{
+      mediant: string;
+      termination: string;
+    }>;
+
     mediant: string;
     termination: string | Record<string, string>; // some tones have multiple endings
   }>;
@@ -21,6 +31,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'gh gr gvFED.",
     },
@@ -30,6 +42,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'g gr gvFED.",
     },
@@ -39,6 +53,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f gr 'gf d.",
     },
@@ -48,6 +64,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'gh gr gf..",
     },
@@ -57,6 +75,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'gh gr g.",
     },
@@ -66,6 +86,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'g gr ghg.",
     },
@@ -75,6 +97,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'g gr g.",
     },
@@ -84,6 +108,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'g hr h.",
     },
@@ -93,6 +119,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'g gr gh..",
     },
@@ -102,6 +130,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr g f 'gh gr gh..",
     },
@@ -113,6 +143,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 1 },
     gabc: {
       clef: 'f3',
+      intonation: 'e f',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "e f hr 'i hr h.",
       termination: "hr g 'e fr f.",
     },
@@ -124,6 +156,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 1 },
     gabc: {
       clef: 'c4',
+      intonation: 'g hj',
+      tenor: { mediant: 'j', termination: 'j' },
       mediant: "g hj jr 'k jr jr 'ih j.",
       termination: "jr h 'j jr i.",
     },
@@ -133,6 +167,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 1 },
     gabc: {
       clef: 'c4',
+      intonation: 'g hj',
+      tenor: { mediant: 'j', termination: 'j' },
       mediant: "g hj jr 'k jr jr 'ih j.",
       termination: "jr h 'j jr ih..",
     },
@@ -142,6 +178,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'g hj',
+      tenor: { mediant: 'j', termination: 'j' },
       mediant: "g hj jr 'k jr jr 'ih j.",
       termination: "jr ji hi 'h gr gh..",
     },
@@ -151,6 +189,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'g hj',
+      tenor: { mediant: 'j', termination: 'j' },
       mediant: "g hj jr 'k jr jr 'ih j.",
       termination: "jr ji hi 'h gr g.",
     },
@@ -160,6 +200,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 3 },
     gabc: {
       clef: 'c4',
+      intonation: 'g hj',
+      tenor: { mediant: 'j', termination: 'j' },
       mediant: "g hj jr 'k jr jr 'ih j.",
       termination: "jr h j i 'h gr g.",
     },
@@ -171,6 +213,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 0 },
     gabc: {
       clef: 'c4',
+      intonation: 'h gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "h gh hr g h 'i hr h.",
       termination: "hr 'h gr g.",
     },
@@ -180,6 +224,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 3 },
     gabc: {
       clef: 'c4',
+      intonation: 'h gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "h gh hr g h 'i hr h.",
       termination: "hr g h ih gr 'gf e.",
     },
@@ -191,6 +237,8 @@ export const TONE_META = {
     termination: { accents: 2, preparatory: 0 },
     gabc: {
       clef: 'c3',
+      intonation: 'd f',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "d f hr 'i hr h.",
       termination: "hr 'i gr 'h fr f.",
     },
@@ -202,6 +250,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'f gh',
+      tenor: { mediant: 'h', termination: 'h' },
       mediant: "f gh hr 'ixi hr 'g hr h.",
       termination: "hr f gh 'g fr f.",
     },
@@ -213,6 +263,8 @@ export const TONE_META = {
     termination: { accents: 2, preparatory: 0 },
     gabc: {
       clef: 'c3',
+      intonation: 'hg hi',
+      tenor: { mediant: 'i', termination: 'i' },
       mediant: "hg hi ir 'k jr 'i jr j.",
       termination: "ir 'j ir 'h hr gf..",
     },
@@ -222,6 +274,8 @@ export const TONE_META = {
     termination: { accents: 2, preparatory: 0 },
     gabc: {
       clef: 'c3',
+      intonation: 'hg hi',
+      tenor: { mediant: 'i', termination: 'i' },
       mediant: "hg hi ir 'k jr 'i jr j.",
       termination: "ir 'j ir 'h hr g.",
     },
@@ -231,6 +285,8 @@ export const TONE_META = {
     termination: { accents: 2, preparatory: 0 },
     gabc: {
       clef: 'c3',
+      intonation: 'hg hi',
+      tenor: { mediant: 'i', termination: 'i' },
       mediant: "hg hi ir 'k jr 'i jr j.",
       termination: "ir 'j ir 'h hr gh..",
     },
@@ -240,6 +296,8 @@ export const TONE_META = {
     termination: { accents: 2, preparatory: 0 },
     gabc: {
       clef: 'c3',
+      intonation: 'hg hi',
+      tenor: { mediant: 'i', termination: 'i' },
       mediant: "hg hi ir 'k jr 'i jr j.",
       termination: "ir 'j ir 'h hr ih..",
     },
@@ -249,6 +307,8 @@ export const TONE_META = {
     termination: { accents: 2, preparatory: 0 },
     gabc: {
       clef: 'c3',
+      intonation: 'hg hi',
+      tenor: { mediant: 'i', termination: 'i' },
       mediant: "hg hi ir 'k jr 'i jr j.",
       termination: "ir 'j ir 'h hr gi..",
     },
@@ -260,6 +320,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'g h',
+      tenor: { mediant: 'j', termination: 'j' },
       mediant: "g h jr 'k jr j.",
       termination: "jr i j 'h gr g.",
     },
@@ -269,6 +331,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'g h',
+      tenor: { mediant: 'j', termination: 'j' },
       mediant: "g h jr 'k jr j.",
       termination: "jr i j 'h gr gh..",
     },
@@ -278,6 +342,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 2 },
     gabc: {
       clef: 'c4',
+      intonation: 'g h',
+      tenor: { mediant: 'j', termination: 'j' },
       mediant: "g h jr 'k jr j.",
       termination: "jr h j 'k jr j.",
     },
@@ -289,6 +355,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 1 },
     gabc: {
       clef: 'c4',
+      intonation: 'ixhi',
+      tenor: { mediant: 'h', termination: 'g' },
       mediant: "ixhi hr g ixi h 'g fr f.",
       termination: "gr d 'f fr ed..",
     },
@@ -298,6 +366,8 @@ export const TONE_META = {
     termination: { accents: 1, preparatory: 1 },
     gabc: {
       clef: 'c4',
+      intonation: 'ixhi',
+      tenor: { mediant: 'h', termination: 'i' },
       mediant: "ixhi hr ixi h 'g fr f.",
       termination: "ixhi gr d 'f fr ed..",
     },

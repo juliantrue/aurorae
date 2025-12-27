@@ -20,11 +20,14 @@ import { TextBlock } from '../../components/text-block';
 import { ORDO_LOOKUP, ORDO_ROUTES } from '../../ordo/ordoConfig';
 
 export function generateStaticParams(): OrdoParams[] {
-  const DATE_RANGE_DAYS = 180;
+  const DEFAULT_RANGE_DAYS = 180;
+  const envRangeDays = Number(process.env.GENERATE_NEXT_N_DAYS);
+  const rangeDays =
+    Number.isFinite(envRangeDays) && envRangeDays >= 0 ? envRangeDays : DEFAULT_RANGE_DAYS;
   const today = new Date();
   const params: OrdoParams[] = [];
 
-  for (let offset = 0; offset <= DATE_RANGE_DAYS; offset += 1) {
+  for (let offset = 0; offset <= rangeDays; offset += 1) {
     const date = new Date(today);
     date.setDate(today.getDate() + offset);
     const isoDate = date.toISOString().split('T')[0]!;
