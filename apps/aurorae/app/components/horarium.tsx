@@ -20,8 +20,12 @@ const ASPECT_RATIO = HEIGHT_FALLBACK / WIDTH_FALLBACK;
 const CYCLES = 1;
 const AMPLITUDE_RATIO = 0.4;
 const PHASE = -0.5 * Math.PI;
-const HOVER_LABEL_WIDTH = 96;
+const HOVER_LABEL_WIDTH = 60;
 const ACTIVE_TOOLTIP_HEIGHT = 44;
+const TOOLTIP_OFFSET_X = 16;
+const TOOLTIP_OFFSET_Y = 28;
+const TOOLTIP_MARGIN = 8;
+const ACTIVE_TOOLTIP_CENTER_RANGE = 0.06;
 const HORA_TO_ORDO: Record<keyof Horarium, string> = {
   Matins: 'Matutinum',
   Lauds: 'Laudes',
@@ -173,7 +177,7 @@ export function Horarium({ now }: { now: Date }) {
     Math.min(availableWidth, Math.floor(availableHeight / ASPECT_RATIO)),
   );
   const resolvedHeight = Math.max(1, Math.round(resolvedWidth * ASPECT_RATIO));
-  const { points, sunrisePoint, nowPoint, samples } = useMemo(() => {
+  const { points, sunrisePoint, solarNoonPoint, nowPoint, samples } = useMemo(() => {
     const solarTimes = getSolarTimes(timeZone, now);
     const resolvedPhase = getPhaseForSolarNoon(solarTimes?.solarNoonFraction, PHASE);
     const nextSamples = createSinusoidPoints({
@@ -188,12 +192,17 @@ export function Horarium({ now }: { now: Date }) {
       solarTimes?.sunriseFraction ?? null,
       nextSamples,
     );
+    const nextSolarNoonPoint = getSinusoidPointAtFractionFromSamples(
+      solarTimes?.solarNoonFraction ?? null,
+      nextSamples,
+    );
     const nowFraction = getTimeZoneDayFraction(now, timeZone);
     const nextNowPoint = getSinusoidPointAtFractionFromSamples(nowFraction, nextSamples);
 
     return {
       points: nextPoints,
       sunrisePoint: nextSunrisePoint,
+      solarNoonPoint: nextSolarNoonPoint,
       nowPoint: nextNowPoint,
       samples: nextSamples,
     };
@@ -260,13 +269,13 @@ export function Horarium({ now }: { now: Date }) {
     return { start, end };
   }, [resolvedHeight, sunrisePoint]);
   const activePoint = selectedPoint ?? nowPoint;
-  const hoverTooltipPosition = useMemo(() => {
+  const hoverTooltipLayout = useMemo(() => {
     if (!hoverPoint) {
       return null;
     }
 
-    const baseX = hoverPoint.x + 10;
-    const baseY = hoverPoint.y - 16;
+    const baseX = hoverPoint.x + TOOLTIP_OFFSET_X;
+    const baseY = hoverPoint.y - TOOLTIP_OFFSET_Y;
     let nextX = baseX;
     let nextY = baseY;
 
@@ -278,37 +287,66 @@ export function Horarium({ now }: { now: Date }) {
       }
     }
 
-    const clampedX = Math.min(Math.max(8, nextX), resolvedWidth - HOVER_LABEL_WIDTH);
+    const noonX = solarNoonPoint?.x ?? resolvedWidth / 2;
+    const centerRange = Math.max(24, resolvedWidth * ACTIVE_TOOLTIP_CENTER_RANGE);
+    const deltaX = hoverPoint.x - noonX;
+    const normalized = Math.min(1, Math.max(-1, deltaX / centerRange));
+    const anchorRatio = (1 - normalized) / 2;
+    nextX = hoverPoint.x + TOOLTIP_OFFSET_X * normalized;
+    const minX = anchorRatio * HOVER_LABEL_WIDTH + TOOLTIP_MARGIN;
+    const maxX = resolvedWidth - (1 - anchorRatio) * HOVER_LABEL_WIDTH - TOOLTIP_MARGIN;
+    const clampedX = Math.min(Math.max(minX, nextX), maxX);
     const clampedY = Math.max(16, nextY);
 
-    return { x: clampedX, y: clampedY };
-  }, [activePoint, hoverPoint, resolvedWidth]);
-  const activeTooltip = activePoint ? (
-    <g
-      transform={`translate(${Math.min(
-        Math.max(8, activePoint.x + 16),
-        resolvedWidth - HOVER_LABEL_WIDTH,
-      )},${Math.max(16, activePoint.y - 28)})`}
-    >
+    const rectX = -anchorRatio * HOVER_LABEL_WIDTH - 4;
+    const textX = -anchorRatio * HOVER_LABEL_WIDTH;
+
+    return { x: clampedX, y: clampedY, rectX, textX };
+  }, [activePoint, hoverPoint, resolvedWidth, solarNoonPoint]);
+  const activeTooltipLayout = useMemo(() => {
+    if (!activePoint) {
+      return null;
+    }
+
+    const noonX = solarNoonPoint?.x ?? resolvedWidth / 2;
+    const centerRange = Math.max(24, resolvedWidth * ACTIVE_TOOLTIP_CENTER_RANGE);
+    const deltaX = activePoint.x - noonX;
+    const normalized = Math.min(1, Math.max(-1, deltaX / centerRange));
+    const anchorRatio = (1 - normalized) / 2;
+    const baseX = activePoint.x + TOOLTIP_OFFSET_X * normalized;
+    const minX = anchorRatio * HOVER_LABEL_WIDTH + TOOLTIP_MARGIN;
+    const maxX = resolvedWidth - (1 - anchorRatio) * HOVER_LABEL_WIDTH - TOOLTIP_MARGIN;
+    const rectX = -anchorRatio * HOVER_LABEL_WIDTH - 4;
+    const textX = -anchorRatio * HOVER_LABEL_WIDTH;
+
+    return {
+      x: Math.min(Math.max(minX, baseX), maxX),
+      y: Math.max(16, activePoint.y - TOOLTIP_OFFSET_Y),
+      rectX,
+      textX,
+    };
+  }, [activePoint, resolvedWidth, solarNoonPoint]);
+  const activeTooltip = activeTooltipLayout ? (
+    <g transform={`translate(${activeTooltipLayout.x},${activeTooltipLayout.y})`}>
       <rect
-        x={-4}
+        x={activeTooltipLayout.rectX}
         y={-ACTIVE_TOOLTIP_HEIGHT + 6}
         width={HOVER_LABEL_WIDTH + 8}
         height={ACTIVE_TOOLTIP_HEIGHT}
         fill="transparent"
       />
       <text
-        x={0}
+        x={activeTooltipLayout.textX}
         y={-5}
         textAnchor="start"
         dominantBaseline="middle"
         className="fill-muted text-[16px] font-mono font-semibold"
       >
         <>
-          <tspan x={0} dy="-0.4em">
+          <tspan x={activeTooltipLayout.textX} dy="-0.4em">
             {selectedHora ?? currentHora ?? 'Hora'}
           </tspan>
-          <tspan x={0} dy="1.2em">
+          <tspan x={activeTooltipLayout.textX} dy="1.2em">
             {selectedFraction !== null
               ? formatFractionTime(selectedFraction)
               : formatClockTime(now, timeZone)}
@@ -495,7 +533,7 @@ export function Horarium({ now }: { now: Date }) {
         ) : null}
         {hoverPoint ? (
           <>
-            {hoverTooltipPosition ? (
+            {hoverTooltipLayout ? (
               <>
                 <line
                   x1={hoverPoint.x}
@@ -506,9 +544,16 @@ export function Horarium({ now }: { now: Date }) {
                   className="stroke-muted"
                 />
                 <circle cx={hoverPoint.x} cy={hoverPoint.y} r={6} className="fill-muted" />
-                <g transform={`translate(${hoverTooltipPosition.x},${hoverTooltipPosition.y})`}>
+                <g transform={`translate(${hoverTooltipLayout.x},${hoverTooltipLayout.y})`}>
+                  <rect
+                    x={hoverTooltipLayout.rectX}
+                    y={-ACTIVE_TOOLTIP_HEIGHT + 6}
+                    width={HOVER_LABEL_WIDTH + 8}
+                    height={ACTIVE_TOOLTIP_HEIGHT}
+                    fill="transparent"
+                  />
                   <text
-                    x={0}
+                    x={hoverTooltipLayout.textX}
                     y={-5}
                     textAnchor="start"
                     dominantBaseline="middle"
@@ -516,10 +561,10 @@ export function Horarium({ now }: { now: Date }) {
                   >
                     {hoverPoint.hora ? (
                       <>
-                        <tspan x={0} dy="-0.4em">
+                        <tspan x={hoverTooltipLayout.textX} dy="-0.4em">
                           {hoverPoint.hora}
                         </tspan>
-                        <tspan x={0} dy="1.2em">
+                        <tspan x={hoverTooltipLayout.textX} dy="1.2em">
                           {formatFractionTime(hoverPoint.fraction)}
                         </tspan>
                       </>
