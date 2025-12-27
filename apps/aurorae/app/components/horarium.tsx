@@ -110,7 +110,6 @@ export function Horarium({ now }: { now: Date }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef<{ x: number; pointerId: number } | null>(null);
   const dragCaptureRef = useRef(false);
-  const didDragRef = useRef(false);
   const [width, setWidth] = useState<number | null>(null);
   const [height, setHeight] = useState<number | null>(null);
   const [selectedFraction, setSelectedFraction] = useState<number | null>(null);
@@ -270,6 +269,8 @@ export function Horarium({ now }: { now: Date }) {
     return { start, end };
   }, [resolvedHeight, sunrisePoint]);
   const activePoint = selectedPoint ?? nowPoint;
+  const activeHoraSlug = selectedHoraSlug ?? currentHoraSlug;
+  const activeHoraLabel = selectedHoraLabel ?? currentHoraLabel;
   const hoverTooltipLayout = useMemo(() => {
     if (!hoverPoint) {
       return null;
@@ -327,7 +328,7 @@ export function Horarium({ now }: { now: Date }) {
       textX,
     };
   }, [activePoint, resolvedWidth, solarNoonPoint]);
-  const activeTooltip = activeTooltipLayout ? (
+  const activeTooltipContent = activeTooltipLayout ? (
     <g transform={`translate(${activeTooltipLayout.x},${activeTooltipLayout.y})`}>
       <rect
         x={activeTooltipLayout.rectX}
@@ -359,8 +360,18 @@ export function Horarium({ now }: { now: Date }) {
       </text>
     </g>
   ) : null;
-  const activeHoraSlug = selectedHoraSlug ?? currentHoraSlug;
-  const activeHoraLabel = selectedHoraLabel ?? currentHoraLabel;
+  const activeTooltip =
+    activeTooltipContent && activeHoraSlug ? (
+      <a
+        href={`/${isoDate}/${activeHoraSlug}`}
+        aria-label={`Open ${activeHoraLabel ?? 'hora'}`}
+        className="cursor-pointer"
+      >
+        {activeTooltipContent}
+      </a>
+    ) : (
+      activeTooltipContent
+    );
 
   return (
     <div
@@ -375,17 +386,19 @@ export function Horarium({ now }: { now: Date }) {
         role="img"
         aria-label="Horarium sinusoid"
         onPointerDown={(event) => {
-          didDragRef.current = false;
           const isSunHandle =
             event.target instanceof Element && event.target.closest('[data-sun-handle="true"]');
+          const isSinusoid =
+            event.target instanceof Element && event.target.closest('[data-sinusoid-hit="true"]');
           if (event.target instanceof Element && event.target.closest('a')) {
             if (!isSunHandle) {
               return;
             }
           }
-          if (!isSunHandle) {
+          if (!isSunHandle && !isSinusoid) {
             dragStartRef.current = null;
             dragCaptureRef.current = false;
+            return;
           } else {
             dragStartRef.current = { x: event.clientX, pointerId: event.pointerId };
           }
@@ -412,7 +425,6 @@ export function Horarium({ now }: { now: Date }) {
             const delta = Math.abs(event.clientX - dragStartRef.current.x);
             if (!isDragging && delta > 4) {
               setIsDragging(true);
-              didDragRef.current = true;
               if (!dragCaptureRef.current) {
                 event.currentTarget.setPointerCapture(event.pointerId);
                 dragCaptureRef.current = true;
@@ -471,11 +483,20 @@ export function Horarium({ now }: { now: Date }) {
         <polyline
           points={points}
           fill="none"
+          strokeWidth={18}
+          stroke="transparent"
+          pointerEvents="stroke"
+          data-sinusoid-hit="true"
+        />
+        <polyline
+          points={points}
+          fill="none"
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
           className="text-oxblood"
           stroke={sunriseFadeStops ? 'url(#sinusoid-fade)' : 'currentColor'}
+          data-sinusoid-hit="true"
         />
         {sunrisePoint ? (
           <line
@@ -490,33 +511,33 @@ export function Horarium({ now }: { now: Date }) {
         {activePoint ? (
           <>
             {activeHoraSlug ? (
-              <a
-                href={`/${isoDate}/${activeHoraSlug}`}
-                aria-label={`Open ${activeHoraLabel ?? 'hora'}`}
-                className="cursor-pointer"
-                onClick={(event) => {
-                  if (didDragRef.current) {
-                    event.preventDefault();
-                  }
-                }}
-              >
-                <circle
-                  cx={activePoint.x}
-                  cy={activePoint.y}
-                  r={10}
-                  className="fill-amber-400/60"
-                  filter="url(#sun-glow)"
-                  data-sun-handle="true"
-                />
-                <circle
-                  cx={activePoint.x}
-                  cy={activePoint.y}
-                  r={4}
-                  className="fill-oxblood"
-                  data-sun-handle="true"
-                />
-                {activeTooltip ? <g pointerEvents="none">{activeTooltip}</g> : null}
-              </a>
+              <>
+                <g aria-label={`Active ${activeHoraLabel ?? 'hora'}`} className="cursor-pointer">
+                  <circle
+                    cx={activePoint.x}
+                    cy={activePoint.y}
+                    r={18}
+                    fill="transparent"
+                    data-sun-handle="true"
+                  />
+                  <circle
+                    cx={activePoint.x}
+                    cy={activePoint.y}
+                    r={10}
+                    className="fill-amber-400/60"
+                    filter="url(#sun-glow)"
+                    data-sun-handle="true"
+                  />
+                  <circle
+                    cx={activePoint.x}
+                    cy={activePoint.y}
+                    r={4}
+                    className="fill-oxblood"
+                    data-sun-handle="true"
+                  />
+                </g>
+                {activeTooltip}
+              </>
             ) : (
               <>
                 <circle
@@ -548,11 +569,24 @@ export function Horarium({ now }: { now: Date }) {
                   y1={0}
                   x2={hoverPoint.x}
                   y2={resolvedHeight}
+                  strokeWidth={12}
+                  stroke="transparent"
+                  pointerEvents="stroke"
+                  data-sinusoid-hit="true"
+                />
+                <line
+                  x1={hoverPoint.x}
+                  y1={0}
+                  x2={hoverPoint.x}
+                  y2={resolvedHeight}
                   strokeWidth={1}
                   className="stroke-muted"
                 />
                 <circle cx={hoverPoint.x} cy={hoverPoint.y} r={6} className="fill-muted" />
-                <g transform={`translate(${hoverTooltipLayout.x},${hoverTooltipLayout.y})`}>
+                <g
+                  transform={`translate(${hoverTooltipLayout.x},${hoverTooltipLayout.y})`}
+                  pointerEvents="none"
+                >
                   <rect
                     x={hoverTooltipLayout.rectX}
                     y={-ACTIVE_TOOLTIP_HEIGHT + 6}

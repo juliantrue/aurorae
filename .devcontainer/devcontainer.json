@@ -12,7 +12,12 @@
     "source=${localEnv:HOME}/.codex,target=/root/.codex,type=bind"
   ],
   "postCreateCommand": "",
-  "forwardPorts": [4000],
+  "forwardPorts": [3300],
+  "portsAttributes": {
+    "3300": {
+      "visibility": "public"
+    }
+  },
   "customizations": {
     "vscode": {
       "settings": {
