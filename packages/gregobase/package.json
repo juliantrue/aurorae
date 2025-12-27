@@ -1,0 +1,16 @@
+{
+  "name": "@aurorae/gregobase",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "scrape": "tsx src/scrape.ts",
+    "tc": "tsc --noEmit --incremental false"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20"
+  }
+}

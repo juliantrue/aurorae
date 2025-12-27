@@ -17,6 +17,8 @@ const CSV_PATHS = {
   chantSources: path.join(SCRIPT_DIR, 'GregoBase Chant Sources.csv'),
 } as const;
 
+const LIBER_ANTIPHONARIUS_PATH = path.join(SCRIPT_DIR, 'liber_antiphonarius.json');
+
 type GregoBaseSourceRow = {
   id: string;
   year: string;
@@ -56,6 +58,26 @@ type GregoBaseChantSourceRow = {
   sequence: string;
   extent: string;
 };
+
+type LiberAntiphonariusEntry = {
+  text: string;
+  gabc: string;
+};
+
+type SeedRows = {
+  chantRows: GregoBaseChantRow[];
+  sourceRows: GregoBaseSourceRow[];
+  chantSourceRows: GregoBaseChantSourceRow[];
+};
+
+async function main() {
+  if (process.env.SEED_FROM_CSVS === 'true') {
+    await seedFromCsvs();
+    return;
+  }
+
+  await seedLiberAntiphonarius();
+}
 
 const USAGE_LABEL_OVERRIDES: Record<string, string> = {
   al: 'Alleluia',
@@ -135,6 +157,32 @@ function combineMode(chant: GregoBaseChantRow): string {
   return mode || variant || '?';
 }
 
+function parseGabcHeaderValue(gabc: string, key: string): string | undefined {
+  const header = gabc.split('%%')[0] ?? '';
+  const normalizedKey = key.toLowerCase();
+
+  for (const line of header.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    const colonIndex = trimmed.indexOf(':');
+    if (colonIndex === -1) {
+      continue;
+    }
+
+    const fieldKey = trimmed.slice(0, colonIndex).trim().toLowerCase();
+    if (fieldKey !== normalizedKey) {
+      continue;
+    }
+
+    return trimmed.slice(colonIndex + 1).trim().replace(/;$/, '').trim();
+  }
+
+  return undefined;
+}
+
 function chunkArray<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
@@ -151,6 +199,11 @@ async function loadCsvData() {
   ]);
 
   return { chantRows, sourceRows, chantSourceRows };
+}
+
+async function loadLiberAntiphonariusData() {
+  const raw = await readFile(LIBER_ANTIPHONARIUS_PATH, 'utf8');
+  return JSON.parse(raw) as LiberAntiphonariusEntry[];
 }
 
 async function resetTables() {
@@ -261,8 +314,106 @@ async function seedGabcSources(data: Prisma.GabcSourceCreateManyInput[]) {
   return inserted;
 }
 
-async function main() {
-  const { chantRows, sourceRows, chantSourceRows } = await loadCsvData();
+async function ensureLiberAntiphonariusSource() {
+  return prisma.chantSource.upsert({
+    where: { code: 'LA1960' },
+    update: {
+      title: 'Liber antiphonarius',
+      year: 1960,
+      editor: null,
+      publisher: null,
+    },
+    create: {
+      code: 'LA1960',
+      title: 'Liber antiphonarius',
+      year: 1960,
+      editor: null,
+      publisher: null,
+    },
+  });
+}
+
+async function seedLiberAntiphonariusUsage(entries: LiberAntiphonariusEntry[]) {
+  const usageSet = new Set<string>();
+  for (const entry of entries) {
+    const usage = parseGabcHeaderValue(entry.gabc, 'office-part');
+    usageSet.add(normaliseUsage(usage));
+  }
+
+  const usageIdMap = new Map<string, number>();
+  for (const key of usageSet) {
+    const usage = await prisma.chantUsage.upsert({
+      where: { key },
+      update: { label: usageLabel(key) },
+      create: { key, label: usageLabel(key) },
+    });
+    usageIdMap.set(key, usage.id);
+  }
+
+  return usageIdMap;
+}
+
+function buildLiberAntiphonariusInputs(
+  entries: LiberAntiphonariusEntry[],
+  chantSourceId: number,
+  usageIdMap: Map<string, number>,
+): Prisma.GabcSourceCreateManyInput[] {
+  const inputs: Prisma.GabcSourceCreateManyInput[] = [];
+  let skipped = 0;
+
+  for (const entry of entries) {
+    const gabc = extractGabc(entry.gabc);
+    if (!gabc) {
+      skipped += 1;
+      continue;
+    }
+
+    const usageKey = normaliseUsage(parseGabcHeaderValue(gabc, 'office-part'));
+    const chantUsageId = usageIdMap.get(usageKey);
+    if (!chantUsageId) {
+      skipped += 1;
+      continue;
+    }
+
+    const name =
+      entry.text?.trim() || parseGabcHeaderValue(gabc, 'name')?.trim() || 'Unknown chant';
+    const mode = parseGabcHeaderValue(gabc, 'mode')?.trim() || '?';
+
+    inputs.push({
+      name,
+      mode,
+      gabc,
+      chantSourceId,
+      chantUsageId,
+      searchKey: normalizeChantSearchKey(name),
+    });
+  }
+
+  if (skipped > 0) {
+    console.warn(`Skipped ${skipped} Liber antiphonarius chants due to missing data`);
+  }
+
+  return inputs;
+}
+
+async function seedLiberAntiphonarius() {
+  const entries = await loadLiberAntiphonariusData();
+  console.log(`Loaded ${entries.length} Liber antiphonarius chants`);
+
+  await resetTables();
+
+  const source = await ensureLiberAntiphonariusSource();
+  const usageIdMap = await seedLiberAntiphonariusUsage(entries);
+
+  const gabcInputs = buildLiberAntiphonariusInputs(entries, source.id, usageIdMap);
+  const gabcCount = await seedGabcSources(gabcInputs);
+
+  console.log(
+    `Inserted 1 chant source, ${usageIdMap.size} usages, ${gabcCount} GABC sources`,
+  );
+}
+
+async function seedFromRows({ chantRows, sourceRows, chantSourceRows }: SeedRows) {
   console.log(
     `Loaded ${sourceRows.length} sources, ${chantRows.length} chants, ${chantSourceRows.length} chant-source links`,
   );
@@ -280,6 +431,11 @@ async function main() {
   console.log(
     `Inserted ${sourceIdMap.size} chant sources, ${usageIdMap.size} usages, ${gabcCount} GABC sources`,
   );
+}
+
+async function seedFromCsvs() {
+  const rows = await loadCsvData();
+  await seedFromRows(rows);
 }
 
 main()
