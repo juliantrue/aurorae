@@ -96,4 +96,20 @@ describe("pointText", () => {
     const out = pointText(input, "2");
     expect(out).toBe("");
   });
+
+  test("mixed output uses gabc for first line and markup for the rest", () => {
+    const input = "a a a* a\nb b b* b";
+    const out = pointText(input, "2", "mixed");
+    const [first, second] = out.split("\n");
+
+    expect(first.includes("<b>")).toBe(false);
+    expect(first.includes("<i>")).toBe(false);
+    expect(first.includes("(")).toBe(true);
+    expect(first.includes(")")).toBe(true);
+
+    expect(second.includes("<b>")).toBe(true);
+    expect(second.includes("<i>")).toBe(true);
+    expect(second.includes("(")).toBe(false);
+    expect(second.includes(")")).toBe(false);
+  });
 });

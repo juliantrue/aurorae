@@ -29,12 +29,14 @@ export function Chant({
   const [svgMarkup, setSvgMarkup] = useState('');
   const [isRendering, setIsRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
-  const [showGabc, setShowGabc] = useState(false);
 
   const resolvedWidth = Math.max(0, width ?? containerWidth ?? 0);
   const { notation: baseNotation } = preprocessGabc(gabc);
+  const hasRenderableNotation = /\([a-mA-M]/.test(baseNotation);
+  const [showGabc, setShowGabc] = useState(!hasRenderableNotation);
   const resolvedAnnotation = annotation?.trim();
   const combinedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
+  const displayGabc = showGabc || !hasRenderableNotation;
 
   useEffect(() => {
     if (typeof width === 'number') {
@@ -68,6 +70,13 @@ export function Chant({
   }, [width]);
 
   useEffect(() => {
+    if (!hasRenderableNotation) {
+      setSvgMarkup('');
+      setRenderError(null);
+      setIsRendering(false);
+      return;
+    }
+
     if (!wrapperRef.current) {
       return;
     }
@@ -145,6 +154,12 @@ export function Chant({
     };
   }, [baseNotation, dropCap, resolvedAnnotation, resolvedWidth]);
 
+  useEffect(() => {
+    if (!hasRenderableNotation) {
+      setShowGabc(true);
+    }
+  }, [hasRenderableNotation]);
+
   const statusMessage = renderError
     ? renderError
     : isRendering
@@ -158,22 +173,24 @@ export function Chant({
           {caption}
         </figcaption>
       )}
-      <div className="mb-3 flex justify-end">
-        <button
-          type="button"
-          className="rounded-full border border-border px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-oxblood transition hover:text-oxblood-soft"
-          onClick={() => setShowGabc((current) => !current)}
-        >
-          {showGabc ? 'Show chant' : 'Show GABC'}
-        </button>
-      </div>
+      {hasRenderableNotation ? (
+        <div className="mb-3 flex justify-end">
+          <button
+            type="button"
+            className="rounded-full border border-border px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-oxblood transition hover:text-oxblood-soft"
+            onClick={() => setShowGabc((current) => !current)}
+          >
+            {showGabc ? 'Show chant' : 'Show GABC'}
+          </button>
+        </div>
+      ) : null}
       <div
         ref={wrapperRef}
         className="chant-notation relative overflow-x-auto text-center"
         aria-busy={isRendering}
         aria-live="polite"
       >
-        {showGabc ? (
+        {displayGabc ? (
           <pre className="whitespace-pre-wrap text-left text-xs leading-relaxed text-ink">
             {gabc}
           </pre>

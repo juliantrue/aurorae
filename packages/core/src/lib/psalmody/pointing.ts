@@ -3,9 +3,11 @@ import { TONE_META, Tone, ToneCounts } from './tone';
 const REGEX_VOWEL = /(?:[cgq]u|[iy])?([aeiouyáéëíóúýǽæœ]+)/i;
 const REGEX_ACCENT = /[áéíóúýǽ\u0301]/i;
 
-// Core syllable-regex from the original file (HTML tags supported).
 const REGEX_LATIN =
   /((?:<\w+>)*)(((?:(?:(\s+)|)(?:(?:i(?!i)|(?:n[cg]|q)u)(?=[aeiouyáéëíóúýǽœ́æœ])|[bcdfghjklmnprstvwxz]*)([aá]u|[ao][eé]?|[eiuyáéëíóúýǽæœ]\u0301?)(?:(?:[\wáéíóúýǽæœ]\u0301?)*(?=-)|(?=(?:n[cg]u|sc|[sc][tp]r?|gn|ps)[aeiouyáéëíóúýǽæœ]\u0301?|[bcdgptf][lrh][\wáéíóúýǽæœ]\u0301?)|(?:[bcdfghjklmnpqrstvwxz]+(?=$|[^\wáëéíóúýǽæœ])|[bcdfghjklmnpqrstvwxz](?=[bcdfghjklmnpqrstvwxz]+))?)))(?:([\*-])|((?:[^\w\sáëéíóúýǽæœ\u0301])*(?:\s[:;†\^\*"«»‘’“”„‟‹›‛])*\.?(?=\s|$))?)(?=(\s*|$)))((?:<\/\w+>)*)/gi;
+
+type OutputMode = 'markup' | 'gabc' | 'mixed';
+type RenderMode = Exclude<OutputMode, 'mixed'>;
 
 type Syllable = {
   index: number;
@@ -22,20 +24,50 @@ type Syllable = {
   word?: Syllable[];
 };
 
-export function pointText(text: string, tone: Tone): string {
+export function pointText(text: string, tone: Tone, output: OutputMode = 'markup'): string {
+  if (output === 'mixed') {
+    return pointTextMixed(text, tone);
+  }
+
+  return pointTextSingleMode(text, tone, output);
+}
+
+function pointTextMixed(text: string, tone: Tone): string {
+  if (!/\r?\n/.test(text)) {
+    return pointTextSingleMode(text, tone, 'markup');
+  }
+
+  const lines = splitLinesPreserve(text);
+  if (lines.length === 0) return '';
+
+  let result = '';
+  for (let i = 0; i < lines.length; i++) {
+    const { line, newline } = lines[i];
+    const mode: RenderMode = i === 0 ? 'gabc' : 'markup';
+    result += pointTextSingleMode(line, tone, mode) + newline;
+  }
+
+  return result;
+}
+
+function pointTextSingleMode(text: string, tone: Tone, output: RenderMode): string {
+  if (output === 'gabc') {
+    return pointTextGabc(text, tone);
+  }
+
   const meta = TONE_META[tone];
 
   const split = splitOnMediantAsterisk(text);
   if (!split) {
-    return pointSegment(text, meta.termination);
+    return pointSegment(text, meta.termination, output);
   }
 
-  const left = pointSegment(split.left, meta.mediant);
-  const right = pointSegment(split.right, meta.termination);
+  const left = pointSegment(split.left, meta.mediant, output);
+  const right = pointSegment(split.right, meta.termination, output);
   return left + split.delim + right;
 }
 
-function pointSegment(text: string, counts: ToneCounts): string {
+function pointSegment(text: string, counts: ToneCounts, output: RenderMode): string {
   const syls = getLatinSyllables(text);
 
   let doneAccents = 0;
@@ -49,38 +81,114 @@ function pointSegment(text: string, counts: ToneCounts): string {
     const isAccentCandidate = s.accent && i >= minAccentIndex;
     const prevIsAccentCandidate = i > 0 ? syls[i - 1].accent && i - 1 >= minAccentIndex : false;
 
-    // Accent syllables (bold)
+    // Accent syllables
     if (
       doneAccents < counts.accents &&
       (isAccentCandidate || (i === lastAccentI - 2 && (i === 0 || !prevIsAccentCandidate)))
     ) {
-      if (doneAccents === counts.accents - 1 && i < minAccentIndex) {
-        continue;
-      }
+      if (doneAccents === counts.accents - 1 && i < minAccentIndex) continue;
+
       lastAccentI = i;
       result = s.punctuation + result;
-      result = s.prepunctuation + renderSyllable(s, 'b') + result;
+      result = s.prepunctuation + renderSyllable(s, 'accent', output) + result;
       doneAccents++;
       continue;
     }
 
-    // Preparatory syllables (italic), after accents are satisfied
+    // Preparatory syllables
     if (doneAccents === counts.accents && donePrep < counts.preparatory) {
       result = s.punctuation + result;
-      result = s.prepunctuation + renderSyllable(s, 'i') + result;
+      result = s.prepunctuation + renderSyllable(s, 'prep', output) + result;
       donePrep++;
       continue;
     }
 
     // Plain syllable
-    result = s.prepunctuation + s.syl + s.punctuation + result;
+    result = s.prepunctuation + renderSyllable(s, 'plain', output) + s.punctuation + result;
   }
 
   return result;
 }
 
-function renderSyllable(s: Syllable, tag: 'b' | 'i'): string {
-  return `${s.openTags}${s.prespace}<${tag}>${s.sylnospace}</${tag}>${s.closeTags}`;
+type Emphasis = 'accent' | 'prep' | 'plain';
+
+function renderSyllable(s: Syllable, kind: Emphasis, output: RenderMode): string {
+  if (output === 'markup') {
+    if (kind === 'plain') return s.syl; // preserves existing tags exactly like before
+    const tag = kind === 'accent' ? 'b' : 'i';
+    return `${s.openTags}${s.prespace}<${tag}>${s.sylnospace}</${tag}>${s.closeTags}`;
+  }
+
+  // output === 'gabc' is handled by pointTextGabc to emit valid GABC.
+  return `${s.prespace}${s.sylnospace}`;
+}
+
+function splitLinesPreserve(text: string): Array<{ line: string; newline: string }> {
+  const out: Array<{ line: string; newline: string }> = [];
+  let lastIndex = 0;
+  const re = /\r?\n/g;
+  let m: RegExpExecArray | null;
+
+  while ((m = re.exec(text))) {
+    out.push({ line: text.slice(lastIndex, m.index), newline: m[0] });
+    lastIndex = m.index + m[0].length;
+  }
+
+  out.push({ line: text.slice(lastIndex), newline: '' });
+  return out;
+}
+
+function pointTextGabc(text: string, tone: Tone): string {
+  const meta = TONE_META[tone];
+  const clef = meta.gabc.clef;
+  const split = splitOnMediantAsterisk(text);
+
+  const intonationNotes = parseGabcNotes(meta.gabc.intonation);
+  const tenorMediant = normalizeGabcNote(meta.gabc.tenor.mediant) ?? 'h';
+  const tenorTermination = normalizeGabcNote(meta.gabc.tenor.termination) ?? tenorMediant;
+
+  if (!split) {
+    const body = renderGabcSegment(text, tenorTermination, intonationNotes);
+    return body ? `(${clef}) ${body} (::)` : '';
+  }
+
+  const left = renderGabcSegment(split.left, tenorMediant, intonationNotes);
+  const right = renderGabcSegment(split.right, tenorTermination, []);
+  if (!left && !right) return '';
+
+  const delim = ' *(:) ';
+  return `(${clef}) ${left}${delim}${right} (::)`;
+}
+
+function renderGabcSegment(text: string, tenor: string, intonation: string[]): string {
+  const syls = getLatinSyllables(text);
+  if (syls.length === 0) return '';
+
+  let result = '';
+  for (let i = 0; i < syls.length; i++) {
+    const s = syls[i];
+    const note = i < intonation.length ? intonation[i] : tenor;
+    result += s.prepunctuation + renderSyllableGabc(s, note) + s.punctuation;
+  }
+
+  return result.trim();
+}
+
+function renderSyllableGabc(s: Syllable, note: string): string {
+  const cleanNote = normalizeGabcNote(note) ?? 'h';
+  return `${s.prespace}${s.sylnospace}(${cleanNote})`;
+}
+
+function parseGabcNotes(raw: string): string[] {
+  return raw
+    .split(/\s+/)
+    .map((token) => normalizeGabcNote(token))
+    .filter((token): token is string => Boolean(token));
+}
+
+function normalizeGabcNote(raw: string): string | null {
+  const match = raw.match(/[a-mA-M]/);
+  return match ? match[0].toLowerCase() : null;
 }
 
 function splitOnMediantAsterisk(
@@ -109,7 +217,6 @@ function getLatinSyllables(text: string): Syllable[] {
 
     const matchIndex = m.index ?? 0;
 
-    // Special case: if syllable starts with ncu-/ngu- and previous syllable is mid-word, attach initial "n".
     const startsWithNCU = /^n[cg]u[aeiouyáéëíóúýǽæœ]/i.test(m[0]);
     if (startsWithNCU && out.length > 0) {
       const prev = out[out.length - 1];

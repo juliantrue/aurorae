@@ -126,9 +126,14 @@ function renderElementContent(element: EnrichedOrdoElement, chantMatches: ReactN
       const verses = tone
         ? element.body.map((verse) => ({
             ...verse,
-            content: pointText(verse.content, tone),
+            content: pointText(verse.content, tone, 'markup'),
           }))
         : element.body;
+      const firstLineGabc =
+        tone && element.body[0]?.content
+          ? pointText(element.body[0].content, tone, 'gabc')
+          : '';
+      const versesToRender = firstLineGabc ? verses.slice(1) : verses;
       return (
         <>
           {chantMatches && <div className="flex justify-end">{chantMatches}</div>}
@@ -143,7 +148,8 @@ function renderElementContent(element: EnrichedOrdoElement, chantMatches: ReactN
           ) : (
             <AntiphonList antiphons={element.antiphon} className="mt-0 border-t-0 pt-0" />
           )}
-          <PsalmBlock verses={verses} renderHtml={Boolean(tone)} />
+          {firstLineGabc ? <Chant gabc={firstLineGabc} /> : null}
+          <PsalmBlock verses={versesToRender} renderHtml={Boolean(tone)} />
         </>
       );
     }
