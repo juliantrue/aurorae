@@ -13,9 +13,14 @@ declare module 'exsurge' {
     glyphScaling: number;
   }
 
+  export class Annotation {
+    constructor(ctxt: ChantContext, text: string);
+  }
+
   export interface ChantScore {
     bounds: { width: number; height: number };
     compiled: boolean;
+    annotation: Annotation | null;
     performLayout(ctxt: ChantContext, finishedCallback?: () => void): void;
     layoutChantLines(
       ctxt: ChantContext,

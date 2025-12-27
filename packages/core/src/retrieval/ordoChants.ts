@@ -213,15 +213,18 @@ function selectBestChant(chants: OrdoChant[], fullQuery: string | undefined): Or
     return chants;
   }
 
+  const euouaeCandidates = chants.filter((chant) => endsWithEuouae(chant.gabc));
+  const candidates = euouaeCandidates.length > 0 ? euouaeCandidates : chants;
+
   const normalizedQuery = normalizeChantQuery(fullQuery);
   if (!normalizedQuery) {
-    return chants;
+    return candidates;
   }
 
-  let best = chants[0];
+  let best = candidates[0];
   let bestScore = scoreChantSimilarity(normalizedQuery, best);
-  for (let index = 1; index < chants.length; index += 1) {
-    const chant = chants[index];
+  for (let index = 1; index < candidates.length; index += 1) {
+    const chant = candidates[index];
     const score = scoreChantSimilarity(normalizedQuery, chant);
     if (score > bestScore) {
       best = chant;
@@ -230,6 +233,27 @@ function selectBestChant(chants: OrdoChant[], fullQuery: string | undefined): Or
   }
 
   return best ? [best] : [];
+}
+
+function endsWithEuouae(gabc: string | null | undefined): boolean {
+  if (!gabc) {
+    return false;
+  }
+
+  const markerIndex = gabc.search(/^%%\s*$/m);
+  const notation =
+    markerIndex >= 0
+      ? gabc.slice(markerIndex).replace(/^%%\s*$/m, '')
+      : gabc;
+  const lyricText = notation
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[^a-zA-Z\s]/g, ' ')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return lyricText.endsWith('e u o u a e');
 }
 
 function scoreChantSimilarity(query: string, chant: OrdoChant): number {

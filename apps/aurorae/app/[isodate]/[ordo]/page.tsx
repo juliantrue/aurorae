@@ -235,19 +235,14 @@ function formatChantAnnotation(chant: OrdoChant | null): string | undefined {
     return undefined;
   }
 
-  const mode = chant.mode.replace(/^(\d+)([A-Za-z].*)$/, '$1 $2');
-  const usageLabel = chant.chantUsage?.label?.toLowerCase() ?? '';
-  const prefix = usageLabel.includes('antiphon')
-    ? 'Ant.'
-    : usageLabel.includes('responsory')
-      ? 'R.'
-      : usageLabel.includes('hymn')
-        ? 'Hym.'
-        : usageLabel.includes('psalm')
-          ? 'Ps.'
-          : usageLabel.includes('canticle')
-            ? 'Cant.'
-            : (chant.chantUsage?.label ?? 'Ch.');
-
-  return `${prefix} ${mode}`.trim();
+  let mode = chant.mode;
+  if (chant.gabc) {
+    try {
+      mode = inverse(chant.gabc, TONE_META);
+    } catch {
+      mode = chant.mode;
+    }
+  }
+  const formattedMode = mode.replace(/^(\d+)([A-Za-z].*)$/, '$1 $2');
+  return formattedMode.trim();
 }
