@@ -110,6 +110,7 @@ export function Horarium({ now }: { now: Date }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef<{ x: number; pointerId: number } | null>(null);
   const dragCaptureRef = useRef(false);
+  const didDragRef = useRef(false);
   const [width, setWidth] = useState<number | null>(null);
   const [height, setHeight] = useState<number | null>(null);
   const [selectedFraction, setSelectedFraction] = useState<number | null>(null);
@@ -364,16 +365,17 @@ export function Horarium({ now }: { now: Date }) {
   return (
     <div
       ref={wrapperRef}
-      className="mx-auto h-full max-h-[80vh] w-full max-w-[800px] box-border p-6"
+      className="mx-auto h-full max-h-[80vh] w-full max-w-[800px] overscroll-contain box-border p-6"
     >
       <svg
-        className="h-auto w-full cursor-crosshair select-none"
+        className="h-auto w-full cursor-crosshair select-none touch-none"
         width={resolvedWidth}
         height={resolvedHeight}
         viewBox={`0 0 ${resolvedWidth} ${resolvedHeight}`}
         role="img"
         aria-label="Horarium sinusoid"
         onPointerDown={(event) => {
+          didDragRef.current = false;
           const isSunHandle =
             event.target instanceof Element && event.target.closest('[data-sun-handle="true"]');
           if (event.target instanceof Element && event.target.closest('a')) {
@@ -410,6 +412,7 @@ export function Horarium({ now }: { now: Date }) {
             const delta = Math.abs(event.clientX - dragStartRef.current.x);
             if (!isDragging && delta > 4) {
               setIsDragging(true);
+              didDragRef.current = true;
               if (!dragCaptureRef.current) {
                 event.currentTarget.setPointerCapture(event.pointerId);
                 dragCaptureRef.current = true;
@@ -491,6 +494,11 @@ export function Horarium({ now }: { now: Date }) {
                 href={`/${isoDate}/${activeHoraSlug}`}
                 aria-label={`Open ${activeHoraLabel ?? 'hora'}`}
                 className="cursor-pointer"
+                onClick={(event) => {
+                  if (didDragRef.current) {
+                    event.preventDefault();
+                  }
+                }}
               >
                 <circle
                   cx={activePoint.x}
@@ -507,7 +515,7 @@ export function Horarium({ now }: { now: Date }) {
                   className="fill-oxblood"
                   data-sun-handle="true"
                 />
-                {activeTooltip}
+                {activeTooltip ? <g pointerEvents="none">{activeTooltip}</g> : null}
               </a>
             ) : (
               <>
