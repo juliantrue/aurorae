@@ -146,28 +146,41 @@ function pointTextGabc(text: string, tone: Tone): string {
   const intonationNotes = parseGabcNotes(meta.gabc.intonation);
   const tenorMediant = normalizeGabcNote(meta.gabc.tenor.mediant) ?? 'h';
   const tenorTermination = normalizeGabcNote(meta.gabc.tenor.termination) ?? tenorMediant;
+  const mediantCadence = parseGabcNotes(meta.gabc.mediant);
+  const terminationCadence = parseTerminationCadence(meta.gabc.termination);
 
   if (!split) {
-    const body = renderGabcSegment(text, tenorTermination, intonationNotes);
+    const body = renderGabcSegment(text, tenorTermination, intonationNotes, terminationCadence);
     return body ? `(${clef}) ${body} (::)` : '';
   }
 
-  const left = renderGabcSegment(split.left, tenorMediant, intonationNotes);
-  const right = renderGabcSegment(split.right, tenorTermination, []);
+  const left = renderGabcSegment(split.left, tenorMediant, intonationNotes, mediantCadence);
+  const right = renderGabcSegment(split.right, tenorTermination, [], terminationCadence);
   if (!left && !right) return '';
 
   const delim = ' *(:) ';
   return `(${clef}) ${left}${delim}${right} (::)`;
 }
 
-function renderGabcSegment(text: string, tenor: string, intonation: string[]): string {
+function renderGabcSegment(
+  text: string,
+  tenor: string,
+  intonation: string[],
+  cadence: string[],
+): string {
   const syls = getLatinSyllables(text);
   if (syls.length === 0) return '';
 
   let result = '';
+  const cadenceStart = Math.max(0, syls.length - cadence.length);
   for (let i = 0; i < syls.length; i++) {
     const s = syls[i];
-    const note = i < intonation.length ? intonation[i] : tenor;
+    const note =
+      i < intonation.length
+        ? intonation[i]
+        : i >= cadenceStart && cadence.length > 0
+          ? cadence[i - cadenceStart]
+          : tenor;
     result += s.prepunctuation + renderSyllableGabc(s, note) + s.punctuation;
   }
 
@@ -184,6 +197,11 @@ function parseGabcNotes(raw: string): string[] {
     .split(/\s+/)
     .map((token) => normalizeGabcNote(token))
     .filter((token): token is string => Boolean(token));
+}
+
+function parseTerminationCadence(raw: string | Record<string, string>): string[] {
+  const source = typeof raw === 'string' ? raw : Object.values(raw)[0] ?? '';
+  return parseGabcNotes(source);
 }
 
 function normalizeGabcNote(raw: string): string | null {
