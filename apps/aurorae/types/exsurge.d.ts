@@ -21,6 +21,11 @@ declare module 'exsurge' {
     bounds: { width: number; height: number };
     compiled: boolean;
     annotation: Annotation | null;
+    notations: Array<{
+      lyric?: unknown;
+      keepWithNext?: boolean;
+      notes?: unknown[];
+    }>;
     performLayout(ctxt: ChantContext, finishedCallback?: () => void): void;
     layoutChantLines(
       ctxt: ChantContext,
