@@ -16,12 +16,20 @@ const BASE_CLASS = 'rounded-card bg-ivory p-5';
 const DEFAULT_WIDTH = 640;
 let exsurgePatched = false;
 
-export function Chant({ gabc, caption, className, dropCap = false, annotation, width }: ChantProps) {
+export function Chant({
+  gabc,
+  caption,
+  className,
+  dropCap = false,
+  annotation,
+  width,
+}: ChantProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(width ?? null);
   const [svgMarkup, setSvgMarkup] = useState('');
   const [isRendering, setIsRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [showGabc, setShowGabc] = useState(false);
 
   const resolvedWidth = Math.max(0, width ?? containerWidth ?? 0);
   const { notation: baseNotation } = preprocessGabc(gabc);
@@ -102,6 +110,7 @@ export function Chant({ gabc, caption, className, dropCap = false, annotation, w
         if (!score) {
           throw new Error('Unable to render chant notation.');
         }
+        keepSyllablesTogether(score);
         if (resolvedAnnotation) {
           score.annotation = new exsurge.Annotation(context, resolvedAnnotation);
         }
@@ -149,13 +158,26 @@ export function Chant({ gabc, caption, className, dropCap = false, annotation, w
           {caption}
         </figcaption>
       )}
+      <div className="mb-3 flex justify-end">
+        <button
+          type="button"
+          className="rounded-full border border-border px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-oxblood transition hover:text-oxblood-soft"
+          onClick={() => setShowGabc((current) => !current)}
+        >
+          {showGabc ? 'Show chant' : 'Show GABC'}
+        </button>
+      </div>
       <div
         ref={wrapperRef}
         className="chant-notation relative overflow-x-auto text-center"
         aria-busy={isRendering}
         aria-live="polite"
       >
-        {svgMarkup ? (
+        {showGabc ? (
+          <pre className="whitespace-pre-wrap text-left text-xs leading-relaxed text-ink">
+            {gabc}
+          </pre>
+        ) : svgMarkup ? (
           <div dangerouslySetInnerHTML={{ __html: svgMarkup }} />
         ) : (
           <p className="text-sm text-muted">{statusMessage}</p>
@@ -226,8 +248,7 @@ function patchExsurgeForEmptyLyrics(exsurge: typeof import('exsurge')) {
     TextElement.prototype.recalculateMetrics?.call(this, ctxt);
 
     const widthWithoutConnector = this.bounds.width;
-    const connector =
-      (ctxt as unknown as { syllableConnector?: string }).syllableConnector ?? '-';
+    const connector = (ctxt as unknown as { syllableConnector?: string }).syllableConnector ?? '-';
     const hyphenWidth = (ctxt as unknown as { hyphenWidth?: number }).hyphenWidth ?? 0;
 
     this.widthWithoutConnector = widthWithoutConnector;
@@ -265,6 +286,41 @@ function patchExsurgeForEmptyLyrics(exsurge: typeof import('exsurge')) {
   Lyric.prototype.recalculateMetrics = wrapped;
 }
 
+function keepSyllablesTogether(score: ChantScore) {
+  const notations = score.notations as Array<{
+    lyric?: unknown;
+    keepWithNext?: boolean;
+    notes?: unknown[];
+  }>;
+  let inSyllable = false;
+
+  for (let index = 0; index < notations.length - 1; index += 1) {
+    const current = notations[index];
+    const next = notations[index + 1];
+    const currentHasLyric = Boolean(current?.lyric);
+    const currentIsNeume = Array.isArray(current?.notes) && current.notes.length > 0;
+
+    if (currentHasLyric) {
+      inSyllable = true;
+    }
+
+    if (!inSyllable || !currentIsNeume) {
+      inSyllable = false;
+      continue;
+    }
+
+    const nextHasLyric = Boolean(next?.lyric);
+    const nextIsNeume = Array.isArray(next?.notes) && next.notes.length > 0;
+
+    if (nextIsNeume && !nextHasLyric) {
+      current.keepWithNext = true;
+      continue;
+    }
+
+    inSyllable = nextHasLyric;
+  }
+}
+
 function sanitizeSvgMarkup(svgMarkup: string): string {
   return svgMarkup.replace(/<tspan([^>]*)>\s*_\s*<\/tspan>/g, '');
 }
@@ -278,13 +334,7 @@ function preprocessGabc(gabc: string) {
   const { notation } = splitGabcHeader(decoded);
   const cleanedNotation = notation
     // Strip <eu> wrappers so the "e u o u a e" renders as lyric text.
-    .replace(/<\/?eu>/gi, '')
-    // Ensure trailing neumes after <eu> inherit the melisma.
-    .replace(/<\/eu>\s*\(/gi, '</eu>_(')
-    // Guard empty neumes on the mediant marker (e.g. "*()").
-    .replace(/\*\s*\(\)/g, '* _()')
-    // Guard standalone empty neumes that create zero-length lyrics.
-    .replace(/(^|\s)\(\)(?=\s|$)/g, '$1_()');
+    .replace(/<\/?eu>/gi, '');
 
   return {
     notation: cleanedNotation.trim(),
@@ -298,7 +348,10 @@ function splitGabcHeader(gabc: string) {
   }
 
   const header = gabc.slice(0, markerIndex);
-  const notation = gabc.slice(markerIndex).replace(/^%%\s*$/m, '').trimStart();
+  const notation = gabc
+    .slice(markerIndex)
+    .replace(/^%%\s*$/m, '')
+    .trimStart();
   void header;
   return { notation };
 }

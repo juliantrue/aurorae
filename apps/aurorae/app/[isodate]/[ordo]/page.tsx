@@ -207,11 +207,7 @@ function deriveToneFromAntiphon(element: EnrichedOrdoElement): Tone | null {
     return null;
   }
 
-  try {
-    return inverse(selected.gabc, TONE_META);
-  } catch {
-    return null;
-  }
+  return inverse(selected.gabc, TONE_META) ?? null;
 }
 
 function selectAntiphonChant(element: EnrichedOrdoElement): OrdoChant | null {
@@ -231,18 +227,15 @@ function selectAntiphonChant(element: EnrichedOrdoElement): OrdoChant | null {
 }
 
 function formatChantAnnotation(chant: OrdoChant | null): string | undefined {
-  if (!chant?.mode) {
+  if (!chant?.gabc) {
     return undefined;
   }
 
-  let mode = chant.mode;
-  if (chant.gabc) {
-    try {
-      mode = inverse(chant.gabc, TONE_META);
-    } catch {
-      mode = chant.mode;
-    }
+  const mode = inverse(chant.gabc, TONE_META);
+  if (!mode) {
+    return undefined;
   }
+
   const formattedMode = mode.replace(/^(\d+)([A-Za-z].*)$/, '$1 $2');
   return formattedMode.trim();
 }
