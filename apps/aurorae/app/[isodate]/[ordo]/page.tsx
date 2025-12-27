@@ -75,7 +75,7 @@ export default async function OrdoPage({ params }: { params: Promise<OrdoParams>
   const subtitle = metadata.subtitle ?? metadata.hora ?? config.description;
   const eyebrow = structured.body.type === 'missal' ? 'Missale Romanum' : 'Divinum Officium';
   return (
-    <article className="mx-auto flex w-full max-w-aurorae flex-col gap-6 rounded-card border border-border bg-ivory p-6 shadow-soft sm:p-10">
+    <article className="mx-auto flex w-full max-w-aurorae flex-col gap-5 rounded-card border border-border bg-ivory p-4 text-[14px] shadow-soft sm:gap-6 sm:p-10 sm:text-base">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Link
           className="text-sm font-semibold uppercase tracking-[0.08em] text-oxblood transition-colors hover:text-oxblood-soft"
@@ -85,8 +85,10 @@ export default async function OrdoPage({ params }: { params: Promise<OrdoParams>
         </Link>
       </div>
 
-      <header className="rounded-card border border-border bg-ivory p-6 text-center shadow-pressed">
-        <h1 className="mt-2 font-display text-3xl font-medium sm:text-[2.6rem]">{feastTitle}</h1>
+      <header className="rounded-card border border-border bg-ivory p-4 text-center shadow-pressed sm:p-6">
+        <h1 className="mt-2 font-display text-[1.6rem] font-medium sm:text-[2.6rem]">
+          {feastTitle}
+        </h1>
         {subtitle && <p className="mt-2 text-muted">{subtitle}</p>}
       </header>
 
@@ -101,11 +103,15 @@ export default async function OrdoPage({ params }: { params: Promise<OrdoParams>
         return (
           <section
             key={`${getElementHeading(element)}-${index}`}
-            className="flex flex-col gap-2 border-b border-border py-6 last:border-b-0"
+            className="flex flex-col gap-2 border-b border-border py-4 last:border-b-0 sm:py-6"
           >
             <SectionHeading title={getElementHeading(element)} />
 
-            <article className="flex flex-col gap-0 rounded-card bg-ivory p-5">
+            <article
+              className={`flex flex-col gap-0 rounded-card bg-ivory ${getElementContainerClass(
+                element,
+              )}`}
+            >
               {renderElementContent(element, chantMatches)}
               {shouldRenderChantMatchesOutside(element) ? chantMatches : null}
             </article>
@@ -161,6 +167,14 @@ function renderElementContent(element: EnrichedOrdoElement, chantMatches: ReactN
     default:
       return null;
   }
+}
+
+function getElementContainerClass(element: EnrichedOrdoElement): string {
+  if (element.type === 'psalm' || element.type === 'canticle') {
+    return 'p-0 sm:p-5';
+  }
+
+  return 'p-4 sm:p-5';
 }
 
 function shouldRenderChantMatchesOutside(element: EnrichedOrdoElement): boolean {

@@ -17,6 +17,7 @@ import {
 const WIDTH_FALLBACK = 480;
 const HEIGHT_FALLBACK = 400;
 const ASPECT_RATIO = HEIGHT_FALLBACK / WIDTH_FALLBACK;
+const HEIGHT_SCALE = 1.2;
 const CYCLES = 1;
 const AMPLITUDE_RATIO = 0.4;
 const PHASE = -0.5 * Math.PI;
@@ -176,7 +177,8 @@ export function Horarium({ now }: { now: Date }) {
     1,
     Math.min(availableWidth, Math.floor(availableHeight / ASPECT_RATIO)),
   );
-  const resolvedHeight = Math.max(1, Math.round(resolvedWidth * ASPECT_RATIO));
+  const baseHeight = Math.max(1, Math.round(resolvedWidth * ASPECT_RATIO));
+  const resolvedHeight = Math.max(1, Math.round(baseHeight * HEIGHT_SCALE));
   const { points, sunrisePoint, solarNoonPoint, nowPoint, samples } = useMemo(() => {
     const solarTimes = getSolarTimes(timeZone, now);
     const resolvedPhase = getPhaseForSolarNoon(solarTimes?.solarNoonFraction, PHASE);
@@ -184,7 +186,7 @@ export function Horarium({ now }: { now: Date }) {
       width: resolvedWidth,
       height: resolvedHeight,
       cycles: CYCLES,
-      amplitude: resolvedHeight * AMPLITUDE_RATIO,
+      amplitude: baseHeight * AMPLITUDE_RATIO,
       phase: resolvedPhase,
     });
     const nextPoints = formatSinusoidPoints(nextSamples[0], nextSamples[1]);

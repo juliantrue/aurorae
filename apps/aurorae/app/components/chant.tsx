@@ -12,7 +12,7 @@ type ChantProps = {
   width?: number;
 };
 
-const BASE_CLASS = 'rounded-card bg-ivory p-5';
+const BASE_CLASS = 'rounded-card bg-ivory p-0 sm:p-5';
 const DEFAULT_WIDTH = 640;
 let exsurgePatched = false;
 
@@ -169,12 +169,12 @@ export function Chant({
   return (
     <figure className={combinedClass}>
       {caption && (
-        <figcaption className="mb-3 text-center font-display text-lg text-ink">
+        <figcaption className="mb-0 text-center font-display text-lg text-ink sm:mb-3">
           {caption}
         </figcaption>
       )}
       {hasRenderableNotation ? (
-        <div className="mb-3 flex justify-end">
+        <div className="mb-0 flex justify-end sm:mb-3">
           <button
             type="button"
             className="rounded-full border border-border px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-oxblood transition hover:text-oxblood-soft"
