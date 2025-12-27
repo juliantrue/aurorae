@@ -376,7 +376,7 @@ export function Horarium({ now }: { now: Date }) {
   return (
     <div
       ref={wrapperRef}
-      className="mx-auto h-full max-h-[80vh] w-full max-w-[800px] overscroll-contain box-border p-6"
+      className="mx-auto h-auto max-h-[80vh] w-full max-w-[800px] overscroll-contain box-border p-6"
     >
       <svg
         className="h-auto w-full cursor-crosshair select-none touch-none"

@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${inter.className} ${playfair.variable} bg-parchment text-ink antialiased`}>
         <div className="flex min-h-screen flex-col items-center gap-6 px-4 py-6 sm:px-8 lg:px-12 box-border">
-          <main className="flex w-full flex-1 justify-center">{children}</main>
+          <main className="flex w-full flex-1 items-center justify-center">{children}</main>
         </div>
       </body>
     </html>
