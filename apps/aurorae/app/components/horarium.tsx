@@ -283,14 +283,6 @@ export function Horarium({ now }: { now: Date }) {
     let nextX = baseX;
     let nextY = baseY;
 
-    if (activePoint) {
-      const overlapX = Math.abs(baseX - activePoint.x) < 90;
-      const overlapY = Math.abs(baseY - activePoint.y) < 70;
-      if (overlapX && overlapY) {
-        return null;
-      }
-    }
-
     const noonX = solarNoonPoint?.x ?? resolvedWidth / 2;
     const centerRange = Math.max(24, resolvedWidth * ACTIVE_TOOLTIP_CENTER_RANGE);
     const deltaX = hoverPoint.x - noonX;
@@ -362,18 +354,7 @@ export function Horarium({ now }: { now: Date }) {
       </text>
     </g>
   ) : null;
-  const activeTooltip =
-    activeTooltipContent && activeHoraSlug ? (
-      <a
-        href={`/${isoDate}/${activeHoraSlug}`}
-        aria-label={`Open ${activeHoraLabel ?? 'hora'}`}
-        className="cursor-pointer"
-      >
-        {activeTooltipContent}
-      </a>
-    ) : (
-      activeTooltipContent
-    );
+  const activeTooltip = activeTooltipContent;
 
   return (
     <div
@@ -388,21 +369,10 @@ export function Horarium({ now }: { now: Date }) {
         role="img"
         aria-label="Horarium sinusoid"
         onPointerDown={(event) => {
-          const isSunHandle =
-            event.target instanceof Element && event.target.closest('[data-sun-handle="true"]');
-          const isSinusoid =
-            event.target instanceof Element && event.target.closest('[data-sinusoid-hit="true"]');
-          if (event.target instanceof Element && event.target.closest('a')) {
-            if (!isSunHandle) {
-              return;
-            }
-          }
-          if (!isSunHandle && !isSinusoid) {
-            dragStartRef.current = null;
-            dragCaptureRef.current = false;
+          dragStartRef.current = { x: event.clientX, pointerId: event.pointerId };
+          if (hoverPoint) {
+            setSelectedFraction(hoverPoint.fraction);
             return;
-          } else {
-            dragStartRef.current = { x: event.clientX, pointerId: event.pointerId };
           }
           const rect = event.currentTarget.getBoundingClientRect();
           const rawX = event.clientX - rect.left;
@@ -622,6 +592,28 @@ export function Horarium({ now }: { now: Date }) {
           </>
         ) : null}
       </svg>
+      <div className="fixed bottom-6 right-6 z-20 flex gap-2">
+        <button
+          type="button"
+          className="rounded-full border border-oxblood/30 px-4 py-1 text-sm font-semibold text-oxblood transition hover:border-oxblood/60"
+          onClick={() => setSelectedFraction(null)}
+        >
+          Now
+        </button>
+        <button
+          type="button"
+          className="rounded-full bg-oxblood px-4 py-1 text-sm font-semibold text-amber-50 transition hover:bg-oxblood/90 disabled:cursor-not-allowed disabled:opacity-40"
+          onClick={() => {
+            if (activeHoraSlug) {
+              window.location.href = `/${isoDate}/${activeHoraSlug}`;
+            }
+          }}
+          disabled={!activeHoraSlug}
+          aria-label={`Go to ${activeHoraLabel ?? 'hora'}`}
+        >
+          Go
+        </button>
+      </div>
     </div>
   );
 }
