@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import {
   computeHorarium,
   createSinusoidPoints,
@@ -13,6 +13,7 @@ import {
   getTimeZoneDayFraction,
   type Horarium,
 } from '@core/lib/horarium';
+import { formatCivilDateInTimeZone, HORA_ORDER, HORA_TO_ORDO } from './horarium-shared';
 
 const WIDTH_FALLBACK = 480;
 const HEIGHT_FALLBACK = 400;
@@ -27,26 +28,8 @@ const TOOLTIP_OFFSET_X = 16;
 const TOOLTIP_OFFSET_Y = 28;
 const TOOLTIP_MARGIN = 8;
 const ACTIVE_TOOLTIP_CENTER_RANGE = 0.06;
-const HORA_TO_ORDO: Record<keyof Horarium, string> = {
-  Matins: 'Matutinum',
-  Lauds: 'Laudes',
-  Prime: 'Prima',
-  Terce: 'Tertia',
-  Sext: 'Sexta',
-  None: 'Nona',
-  Vespers: 'Vesperae',
-  Compline: 'Completorium',
-};
-const HORA_ORDER: (keyof Horarium)[] = [
-  'Matins',
-  'Lauds',
-  'Prime',
-  'Terce',
-  'Sext',
-  'None',
-  'Vespers',
-  'Compline',
-];
+const TOOLTIP_MIN_Y = 16;
+const DRAG_ACTIVATION_DELTA = 4;
 
 function formatSinusoidPoints(xValues: number[], yValues: number[]) {
   const length = Math.min(xValues.length, yValues.length);
@@ -74,6 +57,29 @@ function formatClockTime(date: Date, timeZone: string) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date);
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getTooltipLayout(
+  point: { x: number; y: number },
+  width: number,
+  noonX: number,
+) {
+  const centerRange = Math.max(24, width * ACTIVE_TOOLTIP_CENTER_RANGE);
+  const normalized = clamp((point.x - noonX) / centerRange, -1, 1);
+  const anchorRatio = (1 - normalized) / 2;
+  const minX = anchorRatio * HOVER_LABEL_WIDTH + TOOLTIP_MARGIN;
+  const maxX = width - (1 - anchorRatio) * HOVER_LABEL_WIDTH - TOOLTIP_MARGIN;
+
+  return {
+    x: clamp(point.x + TOOLTIP_OFFSET_X * normalized, minX, maxX),
+    y: Math.max(TOOLTIP_MIN_Y, point.y - TOOLTIP_OFFSET_Y),
+    rectX: -anchorRatio * HOVER_LABEL_WIDTH - 4,
+    textX: -anchorRatio * HOVER_LABEL_WIDTH,
+  };
 }
 
 function getHoraSlug(hora: keyof Horarium | null) {
@@ -109,7 +115,7 @@ function getHoraForFraction(
 
 export function Horarium({ now }: { now: Date }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const dragStartRef = useRef<{ x: number; pointerId: number } | null>(null);
+  const dragStartRef = useRef<{ x: number } | null>(null);
   const dragCaptureRef = useRef(false);
   const [width, setWidth] = useState<number | null>(null);
   const [height, setHeight] = useState<number | null>(null);
@@ -121,7 +127,6 @@ export function Horarium({ now }: { now: Date }) {
     fraction: number;
     hora: keyof Horarium | null;
   } | null>(null);
-  const isoDate = useMemo(() => now.toISOString().split('T')[0]!, [now]);
 
   useEffect(() => {
     const element = wrapperRef.current;
@@ -171,6 +176,7 @@ export function Horarium({ now }: { now: Date }) {
   }, []);
 
   const timeZone = getLocalTimeZone();
+  const isoDate = useMemo(() => formatCivilDateInTimeZone(now, timeZone), [now, timeZone]);
   const availableWidth = width ?? WIDTH_FALLBACK;
   const availableHeight = height ?? HEIGHT_FALLBACK;
   const resolvedWidth = Math.max(
@@ -273,56 +279,55 @@ export function Horarium({ now }: { now: Date }) {
   const activePoint = selectedPoint ?? nowPoint;
   const activeHoraSlug = selectedHoraSlug ?? currentHoraSlug;
   const activeHoraLabel = selectedHoraLabel ?? currentHoraLabel;
+  const noonX = solarNoonPoint?.x ?? resolvedWidth / 2;
   const hoverTooltipLayout = useMemo(() => {
     if (!hoverPoint) {
       return null;
     }
 
-    const baseX = hoverPoint.x + TOOLTIP_OFFSET_X;
-    const baseY = hoverPoint.y - TOOLTIP_OFFSET_Y;
-    let nextX = baseX;
-    let nextY = baseY;
-
-    const noonX = solarNoonPoint?.x ?? resolvedWidth / 2;
-    const centerRange = Math.max(24, resolvedWidth * ACTIVE_TOOLTIP_CENTER_RANGE);
-    const deltaX = hoverPoint.x - noonX;
-    const normalized = Math.min(1, Math.max(-1, deltaX / centerRange));
-    const anchorRatio = (1 - normalized) / 2;
-    nextX = hoverPoint.x + TOOLTIP_OFFSET_X * normalized;
-    const minX = anchorRatio * HOVER_LABEL_WIDTH + TOOLTIP_MARGIN;
-    const maxX = resolvedWidth - (1 - anchorRatio) * HOVER_LABEL_WIDTH - TOOLTIP_MARGIN;
-    const clampedX = Math.min(Math.max(minX, nextX), maxX);
-    const clampedY = Math.max(16, nextY);
-
-    const rectX = -anchorRatio * HOVER_LABEL_WIDTH - 4;
-    const textX = -anchorRatio * HOVER_LABEL_WIDTH;
-
-    return { x: clampedX, y: clampedY, rectX, textX };
-  }, [activePoint, hoverPoint, resolvedWidth, solarNoonPoint]);
+    return getTooltipLayout(hoverPoint, resolvedWidth, noonX);
+  }, [hoverPoint, noonX, resolvedWidth]);
   const activeTooltipLayout = useMemo(() => {
     if (!activePoint) {
       return null;
     }
 
-    const noonX = solarNoonPoint?.x ?? resolvedWidth / 2;
-    const centerRange = Math.max(24, resolvedWidth * ACTIVE_TOOLTIP_CENTER_RANGE);
-    const deltaX = activePoint.x - noonX;
-    const normalized = Math.min(1, Math.max(-1, deltaX / centerRange));
-    const anchorRatio = (1 - normalized) / 2;
-    const baseX = activePoint.x + TOOLTIP_OFFSET_X * normalized;
-    const minX = anchorRatio * HOVER_LABEL_WIDTH + TOOLTIP_MARGIN;
-    const maxX = resolvedWidth - (1 - anchorRatio) * HOVER_LABEL_WIDTH - TOOLTIP_MARGIN;
-    const rectX = -anchorRatio * HOVER_LABEL_WIDTH - 4;
-    const textX = -anchorRatio * HOVER_LABEL_WIDTH;
+    return getTooltipLayout(activePoint, resolvedWidth, noonX);
+  }, [activePoint, noonX, resolvedWidth]);
 
-    return {
-      x: Math.min(Math.max(minX, baseX), maxX),
-      y: Math.max(16, activePoint.y - TOOLTIP_OFFSET_Y),
-      rectX,
-      textX,
-    };
-  }, [activePoint, resolvedWidth, solarNoonPoint]);
-  const activeTooltipContent = activeTooltipLayout ? (
+  const getPointerFraction = (event: ReactPointerEvent<SVGSVGElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = clamp(event.clientX - rect.left, 0, resolvedWidth);
+    return resolvedWidth > 0 ? x / resolvedWidth : 0;
+  };
+
+  const updateHoverFromFraction = (fraction: number) => {
+    const nextPoint = getSinusoidPointAtFractionFromSamples(fraction, samples);
+    if (!nextPoint) {
+      setHoverPoint(null);
+      return;
+    }
+
+    setHoverPoint({
+      ...nextPoint,
+      fraction,
+      hora: getHoraForFraction(fraction, horaFractions),
+    });
+  };
+
+  const clearDragState = (event?: ReactPointerEvent<SVGSVGElement>) => {
+    if (
+      event &&
+      dragCaptureRef.current &&
+      event.currentTarget.hasPointerCapture(event.pointerId)
+    ) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    dragStartRef.current = null;
+    dragCaptureRef.current = false;
+    setIsDragging(false);
+  };
+  const activeTooltip = activeTooltipLayout ? (
     <g transform={`translate(${activeTooltipLayout.x},${activeTooltipLayout.y})`}>
       <rect
         x={activeTooltipLayout.rectX}
@@ -354,7 +359,6 @@ export function Horarium({ now }: { now: Date }) {
       </text>
     </g>
   ) : null;
-  const activeTooltip = activeTooltipContent;
 
   return (
     <div
@@ -369,33 +373,24 @@ export function Horarium({ now }: { now: Date }) {
         role="img"
         aria-label="Horarium sinusoid"
         onPointerDown={(event) => {
-          dragStartRef.current = { x: event.clientX, pointerId: event.pointerId };
-          if (hoverPoint) {
-            setSelectedFraction(hoverPoint.fraction);
-            return;
-          }
-          const rect = event.currentTarget.getBoundingClientRect();
-          const rawX = event.clientX - rect.left;
-          const clampedX = Math.min(Math.max(rawX, 0), resolvedWidth);
-          const fraction = resolvedWidth > 0 ? clampedX / resolvedWidth : 0;
+          dragStartRef.current = { x: event.clientX };
+          const fraction = hoverPoint?.fraction ?? getPointerFraction(event);
           setSelectedFraction(fraction);
         }}
         onPointerMove={(event) => {
-          const rect = event.currentTarget.getBoundingClientRect();
-          const rawX = event.clientX - rect.left;
-          const clampedX = Math.min(Math.max(rawX, 0), resolvedWidth);
-          const fraction = resolvedWidth > 0 ? clampedX / resolvedWidth : 0;
-          const nextPoint = getSinusoidPointAtFractionFromSamples(fraction, samples);
-          if (nextPoint) {
-            setHoverPoint({
-              ...nextPoint,
-              fraction,
-              hora: getHoraForFraction(fraction, horaFractions),
-            });
+          const fraction = getPointerFraction(event);
+          updateHoverFromFraction(fraction);
+
+          const dragStart = dragStartRef.current;
+          if (!dragStart) {
+            return;
           }
-          if (dragStartRef.current) {
-            const delta = Math.abs(event.clientX - dragStartRef.current.x);
-            if (!isDragging && delta > 4) {
+
+          let dragging = isDragging;
+          if (!dragging) {
+            const delta = Math.abs(event.clientX - dragStart.x);
+            if (delta > DRAG_ACTIVATION_DELTA) {
+              dragging = true;
               setIsDragging(true);
               if (!dragCaptureRef.current) {
                 event.currentTarget.setPointerCapture(event.pointerId);
@@ -403,33 +398,20 @@ export function Horarium({ now }: { now: Date }) {
               }
             }
           }
-          if (isDragging) {
+
+          if (dragging) {
             setSelectedFraction(fraction);
           }
         }}
         onPointerUp={(event) => {
-          setIsDragging(false);
-          if (dragCaptureRef.current) {
-            event.currentTarget.releasePointerCapture(event.pointerId);
-          }
-          dragStartRef.current = null;
-          dragCaptureRef.current = false;
+          clearDragState(event);
         }}
         onPointerCancel={(event) => {
-          setIsDragging(false);
-          if (dragCaptureRef.current) {
-            event.currentTarget.releasePointerCapture(event.pointerId);
-          }
-          dragStartRef.current = null;
-          dragCaptureRef.current = false;
+          clearDragState(event);
         }}
-        onPointerLeave={() => {
+        onPointerLeave={(event) => {
           setHoverPoint(null);
-          dragStartRef.current = null;
-          dragCaptureRef.current = false;
-          if (isDragging) {
-            setIsDragging(false);
-          }
+          clearDragState(event);
         }}
       >
         <defs>
@@ -595,8 +577,9 @@ export function Horarium({ now }: { now: Date }) {
       <div className="fixed bottom-6 right-6 z-20 flex gap-2">
         <button
           type="button"
-          className="rounded-full border border-oxblood/30 px-4 py-1 text-sm font-semibold text-oxblood transition hover:border-oxblood/60"
+          className="rounded-full border border-oxblood/30 px-4 py-1 text-sm font-semibold text-oxblood transition hover:border-oxblood/60 disabled:cursor-not-allowed disabled:opacity-40"
           onClick={() => setSelectedFraction(null)}
+          disabled={selectedFraction === null}
         >
           Now
         </button>

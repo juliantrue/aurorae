@@ -70,21 +70,18 @@ export function Chant({
   }, [width]);
 
   useEffect(() => {
-    if (!hasRenderableNotation) {
+    const resetRenderState = () => {
       setSvgMarkup('');
       setRenderError(null);
       setIsRendering(false);
+    };
+
+    if (!hasRenderableNotation || !baseNotation) {
+      resetRenderState();
       return;
     }
 
     if (!wrapperRef.current) {
-      return;
-    }
-
-    if (!baseNotation) {
-      setSvgMarkup('');
-      setRenderError(null);
-      setIsRendering(false);
       return;
     }
 
@@ -152,7 +149,7 @@ export function Chant({
       cleanupContext(context);
       context = null;
     };
-  }, [baseNotation, dropCap, resolvedAnnotation, resolvedWidth]);
+  }, [baseNotation, dropCap, hasRenderableNotation, resolvedAnnotation, resolvedWidth]);
 
   useEffect(() => {
     if (!hasRenderableNotation) {

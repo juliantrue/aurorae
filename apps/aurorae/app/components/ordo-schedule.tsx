@@ -7,8 +7,8 @@ import {
   getCurrentHour,
   getLocalTimeZone,
   getSunriseSunsetForTimeZone,
-  type Horarium,
 } from '@core/lib/horarium';
+import { formatCivilDateInTimeZone, HORA_ORDER, HORA_TO_ORDO } from './horarium-shared';
 
 type OrdoRoute =
   | {
@@ -25,28 +25,6 @@ type OrdoRoute =
       kind: 'missa';
       ordo: 'Missa';
     };
-
-const HORA_ORDER: (keyof Horarium)[] = [
-  'Matins',
-  'Lauds',
-  'Prime',
-  'Terce',
-  'Sext',
-  'None',
-  'Vespers',
-  'Compline',
-];
-
-const HORA_TO_ORDO: Record<keyof Horarium, string> = {
-  Matins: 'Matutinum',
-  Lauds: 'Laudes',
-  Prime: 'Prima',
-  Terce: 'Tertia',
-  Sext: 'Sexta',
-  None: 'Nona',
-  Vespers: 'Vesperae',
-  Compline: 'Completorium',
-};
 
 function formatHoraTime(date: Date, timeZone: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -72,7 +50,7 @@ export function OrdoSchedule({ routes }: { routes: OrdoRoute[] }) {
     return () => clearInterval(id);
   }, []);
 
-  const isoDate = useMemo(() => now.toISOString().split('T')[0]!, [now]);
+  const isoDate = useMemo(() => formatCivilDateInTimeZone(now, timeZone), [now, timeZone]);
   const horaRoutes = useMemo(() => routes.filter((route) => route.kind === 'hora'), [routes]);
   const routeByOrdo = useMemo(
     () => Object.fromEntries(horaRoutes.map((route) => [route.ordo, route])),
