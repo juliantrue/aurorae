@@ -1,4 +1,6 @@
 import type { ResponsePart } from '@aurorae/do-runner';
+import { LabeledRowList, type LabeledRow } from './typography/shared';
+import { cn } from './ui/cn';
 
 type ResponsoryBlockProps = {
   parts?: ResponsePart[];
@@ -13,18 +15,18 @@ export function ResponsoryBlock({ parts, className }: ResponsoryBlockProps) {
     return null;
   }
 
-  const combinedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
+  const rows: LabeledRow[] = parts.map((part, index) => ({
+    key: `responsory-${part.label ?? 'part'}-${index}`,
+    label: part.label ?? '',
+    content: part.content,
+  }));
 
   return (
-    <div className={combinedClass}>
-      {parts.map((part, index) => (
-        <p key={`responsory-${part.label ?? 'part'}-${index}`} className="m-0 flex gap-3">
-          <span className="min-w-[2.5rem] text-xs font-semibold uppercase tracking-[0.3em] text-muted">
-            {part.label ?? ''}
-          </span>
-          <span className="flex-1">{part.content}</span>
-        </p>
-      ))}
-    </div>
+    <LabeledRowList
+      className={cn(BASE_CLASS, className)}
+      rows={rows}
+      rowClassName="gap-3"
+      labelClassName="min-w-[2.5rem] text-xs font-semibold uppercase tracking-[0.3em] text-muted"
+    />
   );
 }

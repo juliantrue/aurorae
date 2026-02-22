@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { ChantContext, ChantScore } from 'exsurge';
+import { useElementSize } from './hooks/use-element-size';
+import { cn } from './ui/cn';
 
 type ChantProps = {
   gabc: string;
@@ -25,49 +27,21 @@ export function Chant({
   width,
 }: ChantProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState<number | null>(width ?? null);
+  const { width: measuredWidth } = useElementSize(wrapperRef, {
+    fallbackWidth: DEFAULT_WIDTH,
+    fallbackHeight: 0,
+  });
   const [svgMarkup, setSvgMarkup] = useState('');
   const [isRendering, setIsRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
 
-  const resolvedWidth = Math.max(0, width ?? containerWidth ?? 0);
+  const resolvedWidth = Math.max(0, width ?? measuredWidth);
   const { notation: baseNotation } = preprocessGabc(gabc);
   const hasRenderableNotation = /\([a-mA-M]/.test(baseNotation);
   const [showGabc, setShowGabc] = useState(!hasRenderableNotation);
   const resolvedAnnotation = annotation?.trim();
-  const combinedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
+  const combinedClass = cn(BASE_CLASS, className);
   const displayGabc = showGabc || !hasRenderableNotation;
-
-  useEffect(() => {
-    if (typeof width === 'number') {
-      setContainerWidth(width);
-      return;
-    }
-
-    const element = wrapperRef.current;
-    if (!element || typeof ResizeObserver === 'undefined') {
-      setContainerWidth(DEFAULT_WIDTH);
-      return;
-    }
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === element) {
-          const nextWidth = Math.floor(entry.contentRect.width);
-          if (nextWidth > 0) {
-            setContainerWidth(nextWidth);
-          }
-        }
-      }
-    });
-
-    observer.observe(element);
-    setContainerWidth(element.clientWidth || DEFAULT_WIDTH);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [width]);
 
   useEffect(() => {
     const resetRenderState = () => {

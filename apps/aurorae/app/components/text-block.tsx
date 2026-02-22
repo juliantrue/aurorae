@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { linesWithBreaks, splitIntoParagraphs } from './typography/shared';
+import { cn } from './ui/cn';
 
 type TextBlockProps = {
   text: string;
@@ -12,51 +13,15 @@ export function TextBlock({ text, className }: TextBlockProps) {
     return null;
   }
 
-  const combinedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
-  const paragraphs = paragraphBlocks(text);
+  const paragraphs = splitIntoParagraphs(text);
 
   return (
-    <div className={combinedClass}>
+    <div className={cn(BASE_CLASS, className)}>
       {paragraphs.map((paragraph, index) => (
         <p key={`text-block-${index}`} className="m-0">
-          {paragraphTextWithLineBreaks(paragraph)}
+          {linesWithBreaks(paragraph)}
         </p>
       ))}
     </div>
   );
-}
-
-function paragraphBlocks(text: string): string[] {
-  const lines = text.split('\n');
-  const paragraphs: string[] = [];
-  let buffer: string[] = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      if (buffer.length) {
-        paragraphs.push(buffer.join('\n'));
-        buffer = [];
-      }
-      continue;
-    }
-    buffer.push(trimmed);
-  }
-
-  if (buffer.length) {
-    paragraphs.push(buffer.join('\n'));
-  }
-
-  return paragraphs.length > 0 ? paragraphs : [text];
-}
-
-function paragraphTextWithLineBreaks(text: string): ReactNode[] {
-  const lines = text.split('\n');
-  return lines.reduce<ReactNode[]>((acc, line, index) => {
-    acc.push(line);
-    if (index < lines.length - 1) {
-      acc.push(<br key={`paragraph-br-${index}`} />);
-    }
-    return acc;
-  }, []);
 }

@@ -1,5 +1,5 @@
 type SectionHeadingProps = {
-  title: string;
+  title?: string;
 };
 
 export function SectionHeading({ title }: SectionHeadingProps) {

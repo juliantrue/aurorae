@@ -1,4 +1,6 @@
 import type { Verse } from '@aurorae/do-runner';
+import { LabeledRowList, type LabeledRow } from './typography/shared';
+import { cn } from './ui/cn';
 
 type PsalmBlockProps = {
   verses?: Verse[];
@@ -13,20 +15,22 @@ export function PsalmBlock({ verses, className, renderHtml = false }: PsalmBlock
     return null;
   }
 
-  const combinedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
+  const rows: LabeledRow[] = verses.map((verse, index) => ({
+    key: `psalm-verse-${verse.index}-${index}`,
+    label: `${verse.index}.`,
+    content: renderHtml ? (
+      <span dangerouslySetInnerHTML={{ __html: verse.content }} />
+    ) : (
+      verse.content
+    ),
+  }));
 
   return (
-    <div className={combinedClass}>
-      {verses.map((verse, index) => (
-        <p key={`psalm-verse-${verse.index}-${index}`} className="m-0 flex gap-2">
-          <span className="min-w-[2rem] text-right font-semibold text-muted">{verse.index}.</span>
-          {renderHtml ? (
-            <span className="flex-1" dangerouslySetInnerHTML={{ __html: verse.content }} />
-          ) : (
-            <span className="flex-1">{verse.content}</span>
-          )}
-        </p>
-      ))}
-    </div>
+    <LabeledRowList
+      className={cn(BASE_CLASS, className)}
+      rows={rows}
+      rowClassName="gap-2"
+      labelClassName="min-w-[2rem] text-right font-semibold text-muted"
+    />
   );
 }
