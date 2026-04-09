@@ -1,4 +1,4 @@
-import { HorariumClient } from './components/horarium-client';
+import { HorariumClient } from '../components/horarium-client';
 
 export default function Home() {
   return (

@@ -12,10 +12,11 @@
   "dependencies": {
     "@aurorae/core": "workspace:*",
     "@aurorae/do-runner": "workspace:*",
+    "exsurge": "0.0.0",
     "next": "^16.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "exsurge": "0.0.0"
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "@types/node": "^20",

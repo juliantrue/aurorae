@@ -46,12 +46,17 @@ jobs:
         run: pnpm run init
       - name: Build
         run: pnpm run build
+      - name: Promote chant route to site root
+        run: |
+          rm -rf apps/aurorae/pages
+          cp -R apps/aurorae/dist apps/aurorae/pages
+          cp apps/aurorae/dist/chant/index.html apps/aurorae/pages/index.html
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/aurorae/dist
+          path: apps/aurorae/pages
 
   deploy:
     needs: build

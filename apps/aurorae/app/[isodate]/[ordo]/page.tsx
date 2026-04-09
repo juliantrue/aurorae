@@ -11,12 +11,12 @@ import {
   type OrdoChant,
   type Tone,
 } from '@aurorae/core';
-import { AntiphonList } from '../../components/antiphon-list';
-import { Chant } from '../../components/chant';
-import { PsalmBlock } from '../../components/psalm-block';
-import { ResponsoryBlock } from '../../components/responsory-block';
-import { SectionHeading } from '../../components/section-heading';
-import { TextBlock } from '../../components/text-block';
+import { AntiphonList } from '../../../components/antiphon-list';
+import { Chant } from '../../../components/chant';
+import { PsalmBlock } from '../../../components/psalm-block';
+import { ResponsoryBlock } from '../../../components/responsory-block';
+import { SectionHeading } from '../../../components/section-heading';
+import { TextBlock } from '../../../components/text-block';
 import { ORDO_LOOKUP, ORDO_ROUTES } from '../../ordo/ordoConfig';
 
 export function generateStaticParams(): OrdoParams[] {
@@ -136,9 +136,7 @@ function renderElementContent(element: EnrichedOrdoElement, chantMatches: ReactN
           }))
         : element.body;
       const firstLineGabc =
-        tone && element.body[0]?.content
-          ? pointText(element.body[0].content, tone, 'gabc')
-          : '';
+        tone && element.body[0]?.content ? pointText(element.body[0].content, tone, 'gabc') : '';
       const versesToRender = firstLineGabc ? verses.slice(1) : verses;
       return (
         <>
