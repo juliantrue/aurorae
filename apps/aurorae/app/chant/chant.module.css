@@ -42,7 +42,7 @@
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-:global(.chant-route) .page-shell {
+:global(.chant-route) :global(.page-shell) {
   display: grid;
   min-height: 100vh;
   justify-items: center;
@@ -50,7 +50,7 @@
   padding: 1.25rem;
 }
 
-:global(.chant-route) .page-panel {
+:global(.chant-route) :global(.page-panel) {
   display: grid;
   min-height: calc(100vh - 2.5rem);
   gap: 1.25rem;
@@ -60,14 +60,14 @@
   padding: 0;
 }
 
-:global(.chant-route) .controls-row {
+:global(.chant-route) :global(.controls-row) {
   position: relative;
   z-index: 1;
   display: grid;
   gap: 0.75rem;
 }
 
-:global(.chant-route) .mode-select-wrap {
+:global(.chant-route) :global(.mode-select-wrap) {
   position: relative;
   display: inline-flex;
   flex-direction: column;
@@ -75,7 +75,7 @@
   width: 100%;
 }
 
-:global(.chant-route) .mode-select {
+:global(.chant-route) :global(.mode-select) {
   appearance: none;
   width: 100%;
   min-width: 0;
@@ -90,7 +90,7 @@
   cursor: pointer;
 }
 
-:global(.chant-route) .mode-select-wrap::after {
+:global(.chant-route) :global(.mode-select-wrap)::after {
   content: '';
   position: absolute;
   top: 1.1rem;
@@ -106,18 +106,18 @@
   pointer-events: none;
 }
 
-:global(.chant-route) .mode-select:focus-visible {
+:global(.chant-route) :global(.mode-select):focus-visible {
   outline: none;
 }
 
-:global(.chant-route) .mode-meta {
+:global(.chant-route) :global(.mode-meta) {
   color: var(--muted);
   font-size: 0.86rem;
   font-weight: 600;
   line-height: 1.1;
 }
 
-:global(.chant-route) .staff-frame {
+:global(.chant-route) :global(.staff-frame) {
   display: flex;
   position: relative;
   z-index: 1;
@@ -135,7 +135,7 @@
   overflow: hidden;
 }
 
-:global(.chant-route) .staff-scroll {
+:global(.chant-route) :global(.staff-scroll) {
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -145,30 +145,30 @@
   overflow-y: auto;
 }
 
-:global(.chant-route) .staff-markup {
+:global(.chant-route) :global(.staff-markup) {
   min-width: 100%;
   transform-origin: left center;
 }
 
-:global(.chant-route) .staff-markup svg {
+:global(.chant-route) :global(.staff-markup) svg {
   display: block;
   width: 100%;
   height: auto;
 }
 
-:global(.chant-route) .staff-status {
+:global(.chant-route) :global(.staff-status) {
   margin: 0;
   color: var(--muted);
   font-size: 1rem;
   text-align: left;
 }
 
-:global(.chant-route) .play-controls {
+:global(.chant-route) :global(.play-controls) {
   display: grid;
   gap: 0.45rem;
 }
 
-:global(.chant-route) .sr-only {
+:global(.chant-route) :global(.sr-only) {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -180,7 +180,7 @@
   border: 0;
 }
 
-:global(.chant-route) .randomize-button {
+:global(.chant-route) :global(.randomize-button) {
   width: 100%;
   min-height: 2.5rem;
   padding: 0.55rem 0.8rem;
@@ -202,23 +202,23 @@
     filter 180ms ease;
 }
 
-:global(.chant-route) .randomize-button:hover {
+:global(.chant-route) :global(.randomize-button):hover {
   filter: brightness(1.03);
 }
 
-:global(.chant-route) .randomize-button:active {
+:global(.chant-route) :global(.randomize-button):active {
   transform: translateY(1px) scale(0.995);
   box-shadow:
     0 8px 18px rgba(111, 45, 23, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
-:global(.chant-route) .randomize-button:focus-visible {
+:global(.chant-route) :global(.randomize-button):focus-visible {
   outline: 3px solid rgba(159, 79, 43, 0.22);
   outline-offset: 3px;
 }
 
-:global(.chant-route) .zoom-button {
+:global(.chant-route) :global(.zoom-button) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -240,38 +240,38 @@
     filter 180ms ease;
 }
 
-:global(.chant-route) .zoom-button:hover {
+:global(.chant-route) :global(.zoom-button):hover {
   border-color: rgba(111, 45, 23, 0.48);
 }
 
-:global(.chant-route) .zoom-button:active {
+:global(.chant-route) :global(.zoom-button):active {
   transform: translateY(1px);
 }
 
-:global(.chant-route) .zoom-button:disabled {
+:global(.chant-route) :global(.zoom-button):disabled {
   opacity: 0.4;
   cursor: default;
 }
 
-:global(.chant-route) .zoom-button:focus-visible {
+:global(.chant-route) :global(.zoom-button):focus-visible {
   outline: 3px solid rgba(159, 79, 43, 0.16);
   outline-offset: 4px;
 }
 
-:global(.chant-route) .zoom-controls {
+:global(.chant-route) :global(.zoom-controls) {
   display: inline-flex;
   align-items: center;
   gap: 0.8rem;
 }
 
-:global(.chant-route) .zoom-readout {
+:global(.chant-route) :global(.zoom-readout) {
   min-width: 4rem;
   text-align: center;
   font-size: 1rem;
   font-weight: 700;
 }
 
-:global(.chant-route) .play-button {
+:global(.chant-route) :global(.play-button) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -298,41 +298,41 @@
     filter 180ms ease;
 }
 
-:global(.chant-route) .play-button.is-droning {
+:global(.chant-route) :global(.play-button):global(.is-droning) {
   border-color: rgba(111, 45, 23, 0.34);
   background: linear-gradient(180deg, rgba(255, 248, 239, 0.98), rgba(232, 216, 197, 0.98));
   color: var(--accent-strong);
 }
 
-:global(.chant-route) .play-button:hover {
+:global(.chant-route) :global(.play-button):hover {
   border-color: rgba(111, 45, 23, 0.28);
   filter: brightness(1.02);
 }
 
-:global(.chant-route) .play-button:disabled {
+:global(.chant-route) :global(.play-button):disabled {
   opacity: 0.5;
   cursor: default;
 }
 
-:global(.chant-route) .play-button:active {
+:global(.chant-route) :global(.play-button):active {
   transform: translateY(1px);
   box-shadow:
     0 5px 10px rgba(111, 45, 23, 0.07),
     inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
-:global(.chant-route) .play-button:focus-visible {
+:global(.chant-route) :global(.play-button):focus-visible {
   outline: 3px solid rgba(159, 79, 43, 0.18);
   outline-offset: 3px;
 }
 
-:global(.chant-route) .play-button-icon {
+:global(.chant-route) :global(.play-button-icon) {
   width: 1rem;
   height: 1rem;
   flex: 0 0 auto;
 }
 
-:global(.chant-route) .settings-fab {
+:global(.chant-route) :global(.settings-fab) {
   position: fixed;
   top: 1rem;
   right: 1rem;
@@ -358,27 +358,27 @@
     filter 180ms ease;
 }
 
-:global(.chant-route) .settings-fab:hover {
+:global(.chant-route) :global(.settings-fab):hover {
   border-color: rgba(111, 45, 23, 0.28);
   filter: brightness(1.02);
 }
 
-:global(.chant-route) .settings-fab:active {
+:global(.chant-route) :global(.settings-fab):active {
   transform: translateY(1px) scale(0.99);
 }
 
-:global(.chant-route) .settings-fab:focus-visible {
+:global(.chant-route) :global(.settings-fab):focus-visible {
   outline: 3px solid rgba(159, 79, 43, 0.2);
   outline-offset: 4px;
 }
 
-:global(.chant-route) .settings-icon {
+:global(.chant-route) :global(.settings-icon) {
   width: 1.35rem;
   height: 1.35rem;
   fill: currentColor;
 }
 
-:global(.chant-route) .settings-backdrop {
+:global(.chant-route) :global(.settings-backdrop) {
   position: fixed;
   inset: 0;
   z-index: 50;
@@ -390,7 +390,7 @@
   backdrop-filter: blur(8px);
 }
 
-:global(.chant-route) .settings-popover {
+:global(.chant-route) :global(.settings-popover) {
   width: min(100%, 22rem);
   display: grid;
   gap: 1rem;
@@ -404,14 +404,14 @@
     0 2px 0 rgba(255, 255, 255, 0.45) inset;
 }
 
-:global(.chant-route) .settings-header {
+:global(.chant-route) :global(.settings-header) {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
 }
 
-:global(.chant-route) .settings-title {
+:global(.chant-route) :global(.settings-title) {
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
@@ -419,7 +419,7 @@
   text-transform: uppercase;
 }
 
-:global(.chant-route) .settings-close {
+:global(.chant-route) :global(.settings-close) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -436,73 +436,73 @@
   cursor: pointer;
 }
 
-:global(.chant-route) .settings-close:hover {
+:global(.chant-route) :global(.settings-close):hover {
   color: var(--text);
   border-color: rgba(111, 45, 23, 0.28);
 }
 
-:global(.chant-route) .settings-close:focus-visible {
+:global(.chant-route) :global(.settings-close):focus-visible {
   outline: 3px solid rgba(159, 79, 43, 0.2);
   outline-offset: 3px;
 }
 
-:global(.chant-route) .settings-popover .mode-select-wrap {
+:global(.chant-route) :global(.settings-popover) :global(.mode-select-wrap) {
   width: 100%;
 }
 
-:global(.chant-route) .settings-popover .mode-select {
+:global(.chant-route) :global(.settings-popover) :global(.mode-select) {
   padding-right: 1.6rem;
 }
 
-:global(.chant-route) .settings-popover .zoom-controls {
+:global(.chant-route) :global(.settings-popover) :global(.zoom-controls) {
   justify-content: space-between;
   width: 100%;
   padding-top: 0.25rem;
 }
 
-:global(.chant-route) .settings-popover .zoom-readout {
+:global(.chant-route) :global(.settings-popover) :global(.zoom-readout) {
   flex: 1;
 }
 
 @media (min-width: 48rem) {
-  :global(.chant-route) .page-shell {
+  :global(.chant-route) :global(.page-shell) {
     padding: 2rem 3rem 2rem 2rem;
   }
 
-  :global(.chant-route) .controls-row {
+  :global(.chant-route) :global(.controls-row) {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     padding-right: 6rem;
   }
 
-  :global(.chant-route) .play-controls {
+  :global(.chant-route) :global(.play-controls) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: stretch;
     gap: 0.35rem;
   }
 
-  :global(.chant-route) .page-panel {
+  :global(.chant-route) :global(.page-panel) {
     gap: 1.5rem;
     min-height: calc(100vh - 4rem);
   }
 
-  :global(.chant-route) .staff-frame {
+  :global(.chant-route) :global(.staff-frame) {
     min-height: 16rem;
     padding: 0.75rem 0;
   }
 
-  :global(.chant-route) .randomize-button {
+  :global(.chant-route) :global(.randomize-button) {
     min-width: 0;
   }
 
-  :global(.chant-route) .settings-backdrop {
+  :global(.chant-route) :global(.settings-backdrop) {
     padding: 1.5rem;
   }
 
-  :global(.chant-route) .settings-popover {
+  :global(.chant-route) :global(.settings-popover) {
     width: 22.5rem;
   }
 
-  :global(.chant-route) .settings-fab {
+  :global(.chant-route) :global(.settings-fab) {
     top: 1.5rem;
     right: 1.5rem;
   }
